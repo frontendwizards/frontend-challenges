@@ -9,7 +9,7 @@ type GridCard = {
 };
 
 const GAME_DURATION = 40;
-const animals = ["🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼"];
+const animals = Object.freeze(["🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼"]);
 
 const Card = ({
   value,
@@ -23,8 +23,14 @@ const Card = ({
   disabled: boolean;
 }) => {
   return (
-    <div className={cn("card h-24", isFlipped && "flipped")} onClick={onClick}>
-      <div className="card-inner text-4xl">
+    <div
+      className={cn("card h-24", isFlipped && "flipped")}
+      onClick={onClick}
+      role="button"
+      aria-pressed={isFlipped}
+      aria-disabled={disabled}
+    >
+      <div className="card-inner text-4xl flex items-center justify-center">
         <div
           className={cn(
             "card-front rounded-3xl p-2 flex items-center justify-center bg-gray-700 shadow-lg",
@@ -33,7 +39,9 @@ const Card = ({
         >
           ⚡
         </div>
-        <div className="card-back text-[5rem]">{value}</div>
+        <div className="card-back text-[4rem] flex items-center justify-center">
+          {value}
+        </div>
       </div>
     </div>
   );
@@ -54,8 +62,10 @@ export default function App() {
   const [flippedCards, setFlippedCards] = useState<GridCard[]>([]);
   const [isGameOver, setIsGameOver] = useState(false);
   const [timer, setTimer] = useState(GAME_DURATION);
-  const timerInterval = useRef<NodeJS.Timeout | null>(null);
-  const cardComparisonTimeout = useRef<NodeJS.Timeout | null>(null);
+  const timerInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+  const cardComparisonTimeout = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
 
   const handleCardClick = (index: number) => {
     if (flippedCards.length === 2 || isGameOver) {
@@ -76,8 +86,8 @@ export default function App() {
     setFlippedCards([]);
     setIsGameOver(false);
     setTimer(GAME_DURATION);
-    clearInterval(timerInterval.current);
-    clearTimeout(cardComparisonTimeout.current);
+    clearInterval(timerInterval.current!);
+    clearTimeout(cardComparisonTimeout.current!);
   };
 
   const isAllCardsFlipped = useCallback(
@@ -94,13 +104,13 @@ export default function App() {
       setTimer((prevTimer) => {
         if (prevTimer === 1) {
           setIsGameOver(true);
-          clearInterval(timerInterval.current);
+          clearInterval(timerInterval.current!);
         }
         return prevTimer - 1;
       });
     }, 1000);
 
-    return () => clearInterval(timerInterval.current);
+    return () => clearInterval(timerInterval.current!);
   }, [isGameOver]);
 
   useEffect(() => {
@@ -119,35 +129,29 @@ export default function App() {
             return card;
           });
         });
-      }
-      // if all cards are flipped, set the game over state
-      else if (isAllCardsFlipped()) {
+      } else if (isAllCardsFlipped()) {
         setIsGameOver(true);
       }
 
       setFlippedCards([]);
     }, 1000);
 
-    return () => clearTimeout(cardComparisonTimeout.current);
-  }, [flippedCards]);
-
-  // make more distance between the game status + the time left, maybe one should be at left and the other at right??
-  // clean code? the naming of everything is good? is it accessible? combinasie btw tailwind and css was good?
+    return () => clearTimeout(cardComparisonTimeout.current!);
+  }, [flippedCards, isAllCardsFlipped, isGameOver]);
 
   return (
     <main className="h-full flex flex-col items-center justify-center">
       <h1 className="text-3xl md:text-5xl mb-4 md:mb-10">MEMORY GAME</h1>
-      <div className="flex text-2xl justify-between max-w-xl">
+      <div className="flex text-2xl justify-between max-w-xl w-full">
         <div className={cn("h-8 mb-4 md:mb-5", !isGameOver && "invisible")}>
-          {isAllCardsFlipped() ? "Congratulations! You won!" : "You lost! "}
+          {isAllCardsFlipped() ? "Congratulations, You won!" : "You lost!"}
         </div>
-        <div className="mb-4 md:mb-14">Time left : {timer}</div>
+        <div className="mb-4 md:mb-14">Time left: {timer}</div>
       </div>
       <div
         className="grid gap-1 md:gap-5 grid-cols-4 w-full max-w-xl"
         role="group"
-        aria-label="Pokemon game grid"
-        aria-describedby="pokemon-instructions"
+        aria-label="Memory game grid"
       >
         {grid.map(({ value, isFlipped }, index) => (
           <Card

@@ -2,7 +2,7 @@ const debounce = <T extends unknown[], R>(
   fn: (...args: T) => Promise<R>,
   delay: number = 600
 ) => {
-  let timerId: NodeJS.Timeout | null = null;
+  let timerId: ReturnType<typeof setTimeout> | null = null;
 
   const debouncedFunction = (...args: T) => {
     if (timerId) clearTimeout(timerId);
