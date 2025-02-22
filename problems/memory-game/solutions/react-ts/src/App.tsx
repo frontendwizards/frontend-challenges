@@ -22,15 +22,8 @@ const Card = ({
   isFlipped: boolean;
   disabled: boolean;
 }) => {
-  const handleClick = () => {
-    onClick();
-  };
-
   return (
-    <div
-      className={`card h-32 ${isFlipped ? "flipped" : ""}`}
-      onClick={handleClick}
-    >
+    <div className={cn("card h-32", isFlipped && "flipped")} onClick={onClick}>
       <div className="card-inner">
         <div
           className={cn(
@@ -62,7 +55,7 @@ export default function App() {
   const [isGameOver, setIsGameOver] = useState(false);
   const [timer, setTimer] = useState(GAME_DURATION);
 
-  const flipCard = (index: number) => {
+  const handleCardClick = (index: number) => {
     if (flippedCards.length === 2 || isGameOver) {
       return;
     }
@@ -127,11 +120,15 @@ export default function App() {
     return () => clearTimeout(timer);
   }, [flippedCards]);
 
+  // better UI, more distance...
+  // make sure it works
+  // the naming of everything is good? is it accessible? combinasie btw tailwind and css was good?
+
   return (
     <main className="h-full flex flex-col items-center justify-center">
       <h1 className="text-3xl md:text-5xl mb-4 md:mb-10">MEMORY GAME</h1>
-      <div className="flex text-2xl gap-2 justify-around max-w-3xl">
-        <div className={cn("h-8 mb-4 md:mb-5", !isGameOver && "invisible")}>
+      <div className="flex text-2xl justify-between max-w-4xl">
+        <div className={cn("h-8 mb-4 md:mb-5", isGameOver && "invisible")}>
           {isAllCardsFlipped() ? "Congratulations! You won!" : "You lost! "}
         </div>
         <div className="mb-4 md:mb-14">Time left : {timer}</div>
@@ -147,8 +144,8 @@ export default function App() {
             key={`cell-${index}`}
             value={value}
             isFlipped={isFlipped}
-            onClick={() => flipCard(index)}
-            disabled={isGameOver}
+            onClick={() => handleCardClick(index)}
+            disabled={isGameOver || flippedCards.length === 2}
           />
         ))}
       </div>

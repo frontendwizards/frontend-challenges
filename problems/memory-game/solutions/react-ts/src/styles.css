@@ -23,6 +23,11 @@ main {
 
 .card {
   perspective: 1000px;
+  transition: transform 0.3s ease-in-out;
+}
+
+.card:hover .card-front {
+  transform: scale(1.05);
 }
 
 .card-inner {
@@ -55,4 +60,9 @@ main {
   background-color: rgb(105, 102, 102);
   transform: rotateY(180deg);
   font-size: 5rem;
+  transition: background-color 0.3s ease;
+}
+
+.card-back:hover {
+  background-color: rgb(85, 82, 82);
 }
