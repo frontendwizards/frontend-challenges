@@ -32,22 +32,21 @@ Each challenge has:
 <details>
 <summary>🎨 User Interface Challenges</summary>
 
-| Title                                                                            | Difficulty | Completed | Accessible | Solution                                                 |
-| -------------------------------------------------------------------------------- | ---------- | --------- | ---------- | -------------------------------------------------------- |
-| [Hello World](https://frontwizards.com/challenge/user-interface/hello-world)     | Easy       | ✅        | ✅         | [Solution](/problems/hello-world/solutions/react-ts)     |
-| [CountDown](https://frontwizards.com/challenge/user-interface/countdown)         | Easy       | ✅        | ✅         | [Solution](/problems/countdown/solutions/react-ts)       |
-| Simple Form I (without accessibility)                                            | Easy       | -         | -          | -                                                        |
-| [Star Rating](https://frontwizards.com/challenge/user-interface/star-rating)     | Easy       | ✅        | ✅         | [Solution](/problems/star-rating/solutions/react-ts)     |
-| Simple Form II (with accessibility)                                              | Easy       | -         | -          | -                                                        |
-| [Traffic light](https://frontwizards.com/challenge/user-interface/traffic-light) | Easy       | ✅        | ✅         | [Solution](/problems/traffic-light/solutions/react-ts)   |
-| [File Tree](https://frontwizards.com/challenge/user-interface/file-tree)         | Medium     | ✅        | ✅         | [Solution](/problems/file-tree/solutions/react-ts)       |
-| [Twitter like](https://frontwizards.com/challenge/user-interface/twitter-like)   | Medium     | ✅        | ✅         | [Solution](/problems/twitter-like/solutions/react-ts)    |
-| Twitter like II                                                                  | Medium     | -         | -          | [Solution](/problems/twitter-like-II/solutions/react-ts) |
-| [Whack a Mole](https://frontwizards.com/challenge/user-interface/whack-a-mole)   | Medium     | ✅        | ✅         | [Solution](/problems/whack-a-mole/solutions/react-ts)    |
-| [Wordle Game](https://frontwizards.com/challenge/user-interface/wordle-game)     | Hard       | ✅        | ✅         | [Solution](/problems/wordle-game/solutions/react-ts)     |
-| Memory Game I                                                                    | Hard       | -         | -          | -                                                        |
-| Memory Game II                                                                   | Hard       | -         | -          | -                                                        |
-| Simple Endless Runner                                                            | Hard       | -         | -          | -                                                        |
+| Title                                                                                            | Difficulty | Completed | Accessible | Solution                                                 |
+| ------------------------------------------------------------------------------------------------ | ---------- | --------- | ---------- | -------------------------------------------------------- |
+| [Hello World](https://frontwizards.com/challenge/user-interface/hello-world)                     | Easy       | ✅        | ✅         | [Solution](/problems/hello-world/solutions/react-ts)     |
+| [CountDown](https://frontwizards.com/challenge/user-interface/countdown)                         | Easy       | ✅        | ✅         | [Solution](/problems/countdown/solutions/react-ts)       |
+| Simple Form I (without accessibility)                                                            | Easy       | -         | -          | -                                                        |
+| [Star Rating](https://frontwizards.com/challenge/user-interface/star-rating)                     | Easy       | ✅        | ✅         | [Solution](/problems/star-rating/solutions/react-ts)     |
+| Simple Form II (with accessibility)                                                              | Easy       | -         | -          | -                                                        |
+| [Traffic light](https://frontwizards.com/challenge/user-interface/traffic-light)                 | Easy       | ✅        | ✅         | [Solution](/problems/traffic-light/solutions/react-ts)   |
+| [File Tree](https://frontwizards.com/challenge/user-interface/file-tree)                         | Medium     | ✅        | ✅         | [Solution](/problems/file-tree/solutions/react-ts)       |
+| [Twitter like](https://frontwizards.com/challenge/user-interface/twitter-like)                   | Medium     | ✅        | ✅         | [Solution](/problems/twitter-like/solutions/react-ts)    |
+| Twitter like II                                                                                  | Medium     | -         | -          | [Solution](/problems/twitter-like-II/solutions/react-ts) |
+| [Whack a Mole](https://frontwizards.com/challenge/user-interface/whack-a-mole)                   | Medium     | ✅        | ✅         | [Solution](/problems/whack-a-mole/solutions/react-ts)    |
+| [Wordle Game](https://frontwizards.com/challenge/user-interface/wordle-game)                     | Hard       | ✅        | ✅         | [Solution](/problems/wordle-game/solutions/react-ts)     |
+| [Memory Game](https://frontwizards.com/challenge/user-interface/memory-game)                     | Hard       | ✅        | ✅         | -                                                        |
+| [Simple Endless Runner](https://frontwizards.com/challenge/user-interface/simple-endless-runner) | Hard       | -         | -          | -                                                        |
 
 </details>
 

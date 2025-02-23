@@ -8,7 +8,7 @@ type GridCard = {
   index: number;
 };
 
-const GAME_DURATION = 40;
+const GAME_DURATION = 50;
 const animals = Object.freeze(["🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼"]);
 
 const Card = ({
@@ -33,13 +33,13 @@ const Card = ({
       <div className="card-inner text-4xl flex items-center justify-center">
         <div
           className={cn(
-            "card-front rounded-3xl p-2 flex items-center justify-center bg-gray-700 shadow-lg",
-            !disabled && "cursor-pointer"
+            "card-front rounded-3xl p-2 flex items-center justify-center bg-gray-700 shadow-lg transition-all duration-300",
+            !disabled && "cursor-pointer hover:scale-105"
           )}
         >
           ⚡
         </div>
-        <div className="card-back text-[4rem] flex items-center justify-center">
+        <div className="card-back text-[4rem] flex items-center justify-center rounded-5xl">
           {value}
         </div>
       </div>
@@ -62,6 +62,7 @@ export default function App() {
   const [flippedCards, setFlippedCards] = useState<GridCard[]>([]);
   const [isGameOver, setIsGameOver] = useState(false);
   const [timer, setTimer] = useState(GAME_DURATION);
+  const [isRestarting, setIsRestarting] = useState(false);
   const timerInterval = useRef<ReturnType<typeof setInterval> | null>(null);
   const cardComparisonTimeout = useRef<ReturnType<typeof setTimeout> | null>(
     null
@@ -82,12 +83,27 @@ export default function App() {
   };
 
   const restartGame = () => {
-    setGrid(initializeGrid());
-    setFlippedCards([]);
-    setIsGameOver(false);
-    setTimer(GAME_DURATION);
-    clearInterval(timerInterval.current!);
-    clearTimeout(cardComparisonTimeout.current!);
+    if (isRestarting) return;
+    setIsRestarting(true);
+
+    // First hide all cards
+    setGrid((prevGrid) =>
+      prevGrid.map((card) => ({
+        ...card,
+        isFlipped: false,
+      }))
+    );
+
+    // Reset the game state after the flip animation is complete
+    setTimeout(() => {
+      setGrid(initializeGrid());
+      setFlippedCards([]);
+      setIsGameOver(false);
+      setTimer(GAME_DURATION);
+      setIsRestarting(false);
+      clearInterval(timerInterval.current!);
+      clearTimeout(cardComparisonTimeout.current!);
+    }, 300);
   };
 
   const isAllCardsFlipped = useCallback(
@@ -141,15 +157,15 @@ export default function App() {
 
   return (
     <main className="h-full flex flex-col items-center justify-center">
-      <h1 className="text-3xl md:text-5xl mb-4 md:mb-10">MEMORY GAME</h1>
-      <div className="flex text-2xl justify-between max-w-xl w-full">
-        <div className={cn("h-8 mb-4 md:mb-5", !isGameOver && "invisible")}>
+      <h1 className="text-3xl md:text-5xl mb-10">MEMORY GAME</h1>
+      <div className="flex text-2xl justify-between max-w-lg w-full mb-12">
+        <div className={cn("h-8", !isGameOver && "invisible")}>
           {isAllCardsFlipped() ? "Congratulations, You won!" : "You lost!"}
         </div>
-        <div className="mb-4 md:mb-14">Time left: {timer}</div>
+        <div>Time left: {timer}</div>
       </div>
       <div
-        className="grid gap-1 md:gap-5 grid-cols-4 w-full max-w-xl"
+        className="grid gap-6 grid-cols-4 w-full max-w-lg"
         role="group"
         aria-label="Memory game grid"
       >
@@ -165,7 +181,7 @@ export default function App() {
       </div>
       <button
         className={cn(
-          "bg-white text-black px-6 py-4 rounded-md my-10 text-2xl",
+          "bg-white text-black px-6 py-4 rounded-xl my-10 text-2xl",
           !isGameOver && "bg-gray-500"
         )}
         disabled={!isGameOver}

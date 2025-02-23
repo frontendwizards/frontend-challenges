@@ -26,10 +26,6 @@ main {
   transition: transform 0.3s ease-in-out;
 }
 
-.card:hover .card-front {
-  transform: scale(1.05);
-}
-
 .card-inner {
   position: relative;
   width: 100%;
@@ -50,10 +46,6 @@ main {
   height: 100%;
   backface-visibility: hidden;
   border-radius: 1rem;
-}
-
-.card-front {
-  color: white;
 }
 
 .card-back {
