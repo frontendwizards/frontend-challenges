@@ -157,7 +157,6 @@ export default function App() {
 
   return (
     <main className="h-full flex flex-col items-center justify-center">
-      <h1 className="text-3xl md:text-5xl mb-10">MEMORY GAME</h1>
       <div className="flex text-2xl justify-between max-w-lg w-full mb-12">
         <div className={cn("h-8", !isGameOver && "invisible")}>
           {isAllCardsFlipped() ? "Congratulations, You won!" : "You lost!"}
