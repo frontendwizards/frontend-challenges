@@ -15,7 +15,7 @@ Create an OTP (One-Time Password) input component that allows users to enter a m
 
 ## Bonus Features
 
-- **Accessibility Enhancements**: Make sure the component is accessible.
-- **Customizable Length**: Allow the component to be configured for different OTP lengths (e.g., 4, 6, or 8 digits).
-- **Visual Feedback**: Provides feedback for incorrect OTP entries, such as changing the border color of the input fields.
-- **Unit tests**: Write unit tests for the component.
+- Make sure the component is accessible.
+- Allow the component to be configured for different OTP lengths (e.g., 4, 6, or 8 digits).
+- Provides feedback for incorrect OTP entries, such as changing the border color of the input fields.
+- Write unit tests for the component.
