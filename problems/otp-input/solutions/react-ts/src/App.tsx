@@ -50,8 +50,8 @@ function InputOTP({
       return;
     }
 
-    if (value.length >= maxLength || !/^\d$/.test(e.key)) {
-      console.log("wtf")
+    if (!/^\d$/.test(e.key) || value.length >= maxLength) {
+      e.preventDefault();
       return;
     }
 
@@ -104,6 +104,7 @@ export default function App() {
   return (
     <main className="h-full flex flex-col items-center justify-center gap-10">
       <h1 className="text-white text-2xl">Enter your OTP</h1>
+      <p className="text-white text-sm">(press enter to submit)</p>
       <InputOTP maxLength={6} onComplete={onComplete} />
       <p className="text-white text-2xl h-8">{result}</p>
     </main>
