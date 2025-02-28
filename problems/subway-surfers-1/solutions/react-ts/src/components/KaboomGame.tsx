@@ -124,7 +124,7 @@ const KaboomGame: React.FC = () => {
 
       // Load obstacle sprites
       const obstaclesImage = new Image();
-      obstaclesImage.src = "/obstacles.jpg"; // Make sure this is in your public folder
+      obstaclesImage.src = "/obstacles.png"; // Make sure this is in your public folder
 
       obstaclesImage.onload = () => {
         // Create a sprite atlas for obstacles
@@ -235,15 +235,6 @@ const KaboomGame: React.FC = () => {
             k.color(255, 255, 255),
           ]);
 
-          // Show some sample obstacles
-          for (let i = 0; i < 5; i++) {
-            k.add([
-              k.sprite(`obstacle${i}`),
-              k.pos(100 + i * 150, LANE_HEIGHT - 60),
-              k.anchor("center"),
-              k.scale(0.6),
-            ]);
-          }
         }
 
         // Instructions for going back to the game
@@ -423,7 +414,7 @@ const KaboomGame: React.FC = () => {
               k.area({ scale: 0.8 }), // More accurate hitbox
               k.move(k.LEFT, OBSTACLE_SPEED),
               "obstacle",
-              k.scale(0.2),
+              k.scale(0.8),
               // Remove white background by making it transparent
               k.color(255, 255, 255, 0),
             ]);
