@@ -1,11 +1,41 @@
 import React, { useEffect, useRef, useState } from "react";
 
 // Import kaboom as a type to avoid TypeScript errors
-declare const kaboom: any;
+interface KaboomInterface {
+  canvas: HTMLCanvasElement;
+  add: (components: any[]) => any;
+  loadSpriteAtlas: (img: any, atlas: any) => void;
+  rect: (width: number, height: number, options?: any) => any;
+  pos: (x: number, y: number) => any;
+  outline: (width: number, color: any) => any;
+  color: (r: number, g: number, b: number, a?: number) => any;
+  text: (text: string, options?: any) => any;
+  anchor: (anchor: string) => any;
+  circle: (radius: number) => any;
+  area: (options?: any) => any;
+  scale: (factor: number) => any;
+  sprite: (name: string, options?: any) => any;
+  LEFT: string;
+  move: (direction: string, speed: number) => any;
+  wait: (time: number, action: () => void) => any;
+  rand: (min: number, max: number) => number;
+  randi: (min: number, max: number) => number;
+  shake: (intensity: number) => void;
+  go: (scene: string, data?: any) => void;
+  center: () => [number, number];
+  scene: (name: string, callback: (data?: any) => void) => void;
+  onKeyPress: (key: string, callback: () => void) => void;
+  onUpdate: (callback: () => void) => void;
+  onClick: (tag: string, callback: () => void) => void;
+  dt: number;
+}
+
+declare const kaboom: () => KaboomInterface;
 
 const KaboomGame: React.FC = () => {
   const gameContainerRef = useRef<HTMLDivElement>(null);
   const [showSpritePreview, setShowSpritePreview] = useState(false);
+  const [showBorders, setShowBorders] = useState(false);
 
   useEffect(() => {
     // Make sure the container is available
@@ -23,10 +53,10 @@ const KaboomGame: React.FC = () => {
     script.async = true;
 
     script.onload = () => {
-      // Initialize Kaboom
+      // Initialize Kaboom with larger game window
       const k = kaboom({
-        width: 800,
-        height: 400,
+        width: 1000, // Increased from 800
+        height: 600, // Increased from 400
         background: [0, 0, 0], // Black background
         scale: 1,
         debug: false,
@@ -41,17 +71,17 @@ const KaboomGame: React.FC = () => {
 
       // Game variables
       let score = 0;
-      const LANE_HEIGHT = 400;
-      const LANE_WIDTH = 800;
+      const LANE_HEIGHT = 600; // Updated
+      const LANE_WIDTH = 1000; // Updated
       const LANE_Y = [LANE_HEIGHT / 4, LANE_HEIGHT / 2, (3 * LANE_HEIGHT) / 4]; // Three lanes
-      const PLAYER_X = 120;
+      const PLAYER_X = 150; // Adjusted for larger screen
       const SPEED = 320;
       const OBSTACLE_SPEED = 320;
       const SPAWN_INTERVAL = [0.8, 2.5]; // Random interval between obstacle spawns
 
       // Track loaded assets
       let assetsLoaded = 0;
-      const assetsToLoad = 2;
+      const assetsToLoad = 2; // We'll load temple run character instead
 
       // Function to check if all assets are loaded
       const checkAllAssetsLoaded = () => {
@@ -66,37 +96,42 @@ const KaboomGame: React.FC = () => {
         }
       };
 
-      // Load the sprite sheet for the player
-      const runnerImage = new Image();
-      runnerImage.src = "/run.png"; // Make sure your image is in the public folder
+      // Load the Temple Run character sprites
+      const templeRunSprites = [];
+      let loadedTempleRunSprites = 0;
+      const totalTempleRunSprites = 10;
 
-      runnerImage.onload = () => {
-        // Load the sprite atlas once the image is loaded
-        k.loadSpriteAtlas(runnerImage, {
-          runner: {
-            x: 0,
-            y: 0,
-            width: runnerImage.width,
-            height: runnerImage.height,
-            sliceX: 5, // 5 columns in the sprite sheet
-            sliceY: 2, // 2 rows in the sprite sheet
-            anims: {
-              run: {
-                from: 0,
-                to: 9, // Total of 10 frames (5x2 grid)
-                speed: 5,
-                loop: true,
-              },
-            },
-          },
-        });
-        checkAllAssetsLoaded();
-      };
+      for (let i = 0; i < totalTempleRunSprites; i++) {
+        const img = new Image();
+        img.src = `/assets/characters/templerun/Run__00${i}.png`;
+        templeRunSprites.push(img);
 
-      runnerImage.onerror = () => {
-        console.error("Failed to load player sprite");
-        checkAllAssetsLoaded();
-      };
+        img.onload = () => {
+          loadedTempleRunSprites++;
+          if (loadedTempleRunSprites === totalTempleRunSprites) {
+            // Create a sprite atlas for the Temple Run character
+            for (let j = 0; j < totalTempleRunSprites; j++) {
+              k.loadSpriteAtlas(templeRunSprites[j], {
+                [`run${j}`]: {
+                  x: 0,
+                  y: 0,
+                  width: templeRunSprites[j].width,
+                  height: templeRunSprites[j].height,
+                },
+              });
+            }
+            checkAllAssetsLoaded();
+          }
+        };
+
+        img.onerror = () => {
+          console.error(`Failed to load Temple Run sprite ${i}`);
+          loadedTempleRunSprites++;
+          if (loadedTempleRunSprites === totalTempleRunSprites) {
+            checkAllAssetsLoaded();
+          }
+        };
+      }
 
       // Load obstacle sprites
       const obstaclesImage = new Image();
@@ -248,41 +283,55 @@ const KaboomGame: React.FC = () => {
             k.color(0, 0, 0, 0), // Transparent fill
           ]);
 
-          // Add player character
+          // Add player character with Temple Run sprite
           let currentLane = 1; // Start in middle lane
+          let currentFrame = 0;
+
           const player = k.add([
-            // Try to use the sprite if it's loaded, otherwise use circle
-            k.sprite("runner", { noError: true }) || k.circle(20),
+            k.sprite(`run${currentFrame}`, { noError: true }) || k.circle(20),
             // Add outline and color only if using circle
-            ...(k.sprite("runner", { noError: true })
+            ...(k.sprite(`run${currentFrame}`, { noError: true })
               ? []
               : [k.outline(2, k.rgb(255, 255, 255)), k.color(255, 0, 0)]),
             k.pos(PLAYER_X, LANE_Y[currentLane]),
             k.anchor("center"),
-            k.area(),
+            k.area({ scale: 0.7 }),
             "player",
             {
               speed: SPEED,
               isAlive: true,
               health: 3,
             },
-            k.scale(0.3),
+            k.scale(0.2),
           ]);
 
-          // Start running animation if using sprite
-          if (k.sprite("runner", { noError: true })) {
-            player.play("run");
-          }
+          // Animate Temple Run character manually
+          let animationTimer = 0;
+          k.onUpdate(() => {
+            if (player.isAlive) {
+              animationTimer += k.dt();
+              if (animationTimer > 0.1) {
+                // Change frame every 100ms
+                animationTimer = 0;
+                currentFrame = (currentFrame + 1) % 10;
+                // Update the sprite to the next frame
+                if (player.use && player.use.sprite) {
+                  player.use(k.sprite(`run${currentFrame}`, { noError: true }));
+                }
+              }
+            }
+          });
 
+          // Add UI elements
           // Health display
-          const healthLabel = k.add([
+          const healthContainer = k.add([
             k.rect(100, 30),
             k.pos(LANE_WIDTH - 120, 20),
             k.outline(2, k.rgb(255, 255, 255)),
             k.color(0, 0, 0, 0), // Transparent fill
           ]);
 
-          const healthText = k.add([
+          const healthDisplay = k.add([
             k.text("HEALTH", { size: 16 }),
             k.pos(LANE_WIDTH - 120 + 50, 20 + 15),
             k.anchor("center"),
@@ -294,7 +343,7 @@ const KaboomGame: React.FC = () => {
             k.pos(LANE_WIDTH - 110, 60),
             k.color(0, 255, 0),
             {
-              updateHealth: function (health) {
+              updateHealth: function (health: number) {
                 this.width = (health / 3) * 80;
                 if (health <= 1) this.color = k.rgb(255, 0, 0);
                 else if (health === 2) this.color = k.rgb(255, 255, 0);
@@ -302,31 +351,29 @@ const KaboomGame: React.FC = () => {
             },
           ]);
 
-          // Add preview button
-          k.add([
-            k.rect(120, 30),
-            k.pos(LANE_WIDTH - 120, LANE_HEIGHT - 50),
+          // Toggle for showing/hiding borders
+          const toggleBorderBtn = k.add([
+            k.rect(150, 30),
+            k.pos(LANE_WIDTH - 350, 30),
             k.outline(2, k.rgb(255, 255, 255)),
             k.color(0, 0, 0, 0),
             k.area(),
-            k.anchor("center"),
-            "previewBtn",
-            {
-              clicked: false,
-            },
+            "toggleBorderBtn",
           ]);
 
-          k.add([
-            k.text("Sprite Preview", { size: 14 }),
-            k.pos(LANE_WIDTH - 120, LANE_HEIGHT - 50),
+          const toggleBorderText = k.add([
+            k.text(showBorders ? "Hide Borders" : "Show Borders", { size: 14 }),
+            k.pos(LANE_WIDTH - 350 + 75, 30 + 15),
             k.anchor("center"),
             k.color(255, 255, 255),
           ]);
 
-          // Allow clicking on preview button
-          k.onClick("previewBtn", () => {
-            setShowSpritePreview(true);
-            k.go("spritePreview");
+          // Border toggle functionality
+          k.onClick("toggleBorderBtn", () => {
+            setShowBorders(!showBorders);
+            toggleBorderText.text = showBorders
+              ? "Hide Borders"
+              : "Show Borders";
           });
 
           // Player controls (move up and down between lanes)
@@ -372,24 +419,18 @@ const KaboomGame: React.FC = () => {
             const obstacleIndex = k.randi(0, 10);
             const spriteName = `obstacle${obstacleIndex}`;
 
-            // Determine scale based on obstacle size (you may need to adjust this)
-            const scale = 0.7;
-
-            // Create obstacle with sprite or fallback to rectangle if sprite loading failed
-            const obstacle = k.add([
-              k.sprite(spriteName, { noError: true }) ||
-                k.rect(60, 60, { outline: 2 }),
-              // Only add outline if using fallback rectangle
-              ...(k.sprite(spriteName, { noError: true })
-                ? []
-                : [k.outline(2, k.rgb(255, 255, 255)), k.color(0, 0, 0, 0)]),
+            // Create obstacle with transparent background
+            const obstacleObj = k.add([
+              k.sprite(spriteName, { noError: true }) || k.rect(60, 60),
+              // Add outline based on showBorders state
+              ...(showBorders ? [k.outline(2, k.rgb(255, 0, 0))] : []),
               k.pos(LANE_WIDTH, LANE_Y[obstacleLane]),
               k.anchor("center"),
-              k.area({ scale: 0.8 }), // Slightly smaller hitbox than visual size
+              k.area({ scale: 0.8 }), // More accurate hitbox
               k.move(k.LEFT, OBSTACLE_SPEED),
               "obstacle",
-              k.scale(.2),
-              // replace bg with transparent color
+              k.scale(0.2),
+              k.color(255, 255, 255), // Make it fully visible without background
             ]);
 
             // Schedule next obstacle spawn
@@ -400,7 +441,7 @@ const KaboomGame: React.FC = () => {
           spawnObstacle();
 
           // Collision detection
-          player.onCollide("obstacle", (obstacle) => {
+          player.onCollide("obstacle", (obstacle: any) => {
             // Remove the obstacle when hit
             obstacle.destroy();
 
@@ -416,7 +457,7 @@ const KaboomGame: React.FC = () => {
               player.isAlive = false;
               k.shake(12);
               k.wait(0.4, () => {
-                k.go("gameover", scoreLabel.value);
+                k.go("gameover", score);
               });
             }
           });
@@ -454,15 +495,15 @@ const KaboomGame: React.FC = () => {
       }
       gameContainer.innerHTML = "";
     };
-  }, [showSpritePreview]);
+  }, [showSpritePreview, showBorders]); // Added showBorders to dependency array
 
   return (
     <div>
       <div
         ref={gameContainerRef}
         style={{
-          width: "800px",
-          height: "400px",
+          width: "1000px", // Increased from 800px
+          height: "600px", // Increased from 400px
           margin: "0 auto",
           borderRadius: "8px",
           overflow: "hidden",
@@ -479,9 +520,23 @@ const KaboomGame: React.FC = () => {
             border: "none",
             borderRadius: "4px",
             cursor: "pointer",
+            marginRight: "10px",
           }}
         >
           {showSpritePreview ? "Go to Game" : "View Sprite Animation"}
+        </button>
+        <button
+          onClick={() => setShowBorders(!showBorders)}
+          style={{
+            padding: "8px 16px",
+            background: "#333",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+        >
+          {showBorders ? "Hide Borders" : "Show Borders"}
         </button>
       </div>
     </div>
