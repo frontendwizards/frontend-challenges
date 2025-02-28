@@ -1,0 +1,17 @@
+{
+  "name": "endless-runner",
+  "version": "1.0.0",
+  "description": "A 2D endless runner game",
+  "main": "index.html",
+  "scripts": {
+    "start": "parcel index.html --open",
+    "build": "parcel build index.html"
+  },
+  "dependencies": {
+    "kaboom": "^3000.0.0-beta.2",
+    "parcel-bundler": "^1.12.5"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.17.0"
+  }
+} 
