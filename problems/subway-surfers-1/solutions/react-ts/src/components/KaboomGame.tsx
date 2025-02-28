@@ -5,6 +5,7 @@ interface KaboomInterface {
   canvas: HTMLCanvasElement;
   add: (components: any[]) => any;
   loadSpriteAtlas: (img: any, atlas: any) => void;
+  loadSprite: (name: string, src: any) => void;
   rect: (width: number, height: number, options?: any) => any;
   pos: (x: number, y: number) => any;
   outline: (width: number, color: any) => any;
@@ -36,6 +37,8 @@ const KaboomGame: React.FC = () => {
   const gameContainerRef = useRef<HTMLDivElement>(null);
   const [showSpritePreview, setShowSpritePreview] = useState(false);
   const [showBorders, setShowBorders] = useState(false);
+  const [showHitboxes, setShowHitboxes] = useState(false);
+  const [gameDifficulty, setGameDifficulty] = useState("normal"); // "easy", "normal", "hard"
 
   useEffect(() => {
     // Make sure the container is available
@@ -59,7 +62,7 @@ const KaboomGame: React.FC = () => {
         height: 600, // Increased from 400
         background: [0, 0, 0], // Black background
         scale: 1,
-        debug: false,
+        debug: showHitboxes, // Enable debug mode when hitboxes are shown
         canvas: document.createElement("canvas"),
         global: true,
       });
@@ -75,9 +78,20 @@ const KaboomGame: React.FC = () => {
       const LANE_WIDTH = 1000; // Updated
       const LANE_Y = [LANE_HEIGHT / 4, LANE_HEIGHT / 2, (3 * LANE_HEIGHT) / 4]; // Three lanes
       const PLAYER_X = 150; // Adjusted for larger screen
+
+      // Set game difficulty parameters
       const SPEED = 520;
-      const OBSTACLE_SPEED = 320;
-      const SPAWN_INTERVAL = [0.8, 2.5]; // Random interval between obstacle spawns
+      let OBSTACLE_SPEED = 320;
+      let SPAWN_INTERVAL = [0.8, 2.5]; // [min, max] spawn interval
+
+      // Adjust difficulty based on selection
+      if (gameDifficulty === "easy") {
+        OBSTACLE_SPEED = 250;
+        SPAWN_INTERVAL = [1.2, 3.0];
+      } else if (gameDifficulty === "hard") {
+        OBSTACLE_SPEED = 450;
+        SPAWN_INTERVAL = [0.5, 1.5];
+      }
 
       // Track loaded assets
       let assetsLoaded = 0;
@@ -234,7 +248,6 @@ const KaboomGame: React.FC = () => {
             k.anchor("center"),
             k.color(255, 255, 255),
           ]);
-
         }
 
         // Instructions for going back to the game
@@ -256,14 +269,23 @@ const KaboomGame: React.FC = () => {
       function startGame() {
         k.scene("game", () => {
           // add grey background
+          k.add([k.rect(LANE_WIDTH, LANE_HEIGHT), k.color(100, 100, 100)]);
+
+          // Display difficulty level
           k.add([
-            k.rect(LANE_WIDTH, LANE_HEIGHT),
-            k.color(100, 100, 100),
+            k.text(`Difficulty: ${gameDifficulty.toUpperCase()}`, { size: 16 }),
+            k.pos(LANE_WIDTH - 240, 20),
+            k.color(255, 255, 255),
           ]);
 
           // Add player character
           let currentLane = 1;
           let currentFrame = 0;
+
+          // Progressive difficulty variables
+          let gameTime = 0;
+          let currentObstacleSpeed = OBSTACLE_SPEED;
+          const MAX_SPEED_INCREASE = 300; // Maximum speed increase over time
 
           let player = k.add([
             k.sprite("run0", { noError: true }) || k.circle(20),
@@ -288,6 +310,25 @@ const KaboomGame: React.FC = () => {
             },
             k.scale(0.2),
           ]);
+
+          // If showing hitboxes, add a visible outline to the player's collision area
+          if (showHitboxes) {
+            const playerHitbox = k.add([
+              k.rect(player.width * 0.7, player.height * 0.7),
+              k.pos(PLAYER_X, LANE_Y[currentLane]),
+              k.anchor("center"),
+              k.outline(2, k.rgb(0, 255, 0)),
+              k.color(0, 255, 0, 0.3),
+              "playerHitbox",
+            ]);
+
+            // Keep hitbox synced with player
+            k.onUpdate(() => {
+              if (player.isAlive) {
+                playerHitbox.pos = player.pos;
+              }
+            });
+          }
 
           // Animate Temple Run character manually without breaking collision
           let animationTimer = 0;
@@ -384,14 +425,34 @@ const KaboomGame: React.FC = () => {
             { value: 0 },
           ]);
 
-          // Update score
+          // Update score and progressively increase difficulty
           k.onUpdate(() => {
             if (player.isAlive) {
+              // Update game time and score
+              gameTime += k.dt();
               score += k.dt();
               scoreLabel.value = Math.floor(score);
               scoreLabel.text = `Score: ${scoreLabel.value}`;
+
+              // Increase obstacle speed gradually over time
+              // This makes the game progressively harder the longer you play
+              const speedIncrease = Math.min(
+                MAX_SPEED_INCREASE,
+                Math.floor(gameTime / 10) * 20 // Increase by 20 every 10 seconds
+              );
+              currentObstacleSpeed = OBSTACLE_SPEED + speedIncrease;
+
+              // Display current game speed
+              speedDisplay.text = `Speed: ${Math.floor(currentObstacleSpeed)}`;
             }
           });
+
+          // Display current speed
+          const speedDisplay = k.add([
+            k.text(`Speed: ${OBSTACLE_SPEED}`, { size: 16 }),
+            k.pos(LANE_WIDTH - 240, 60),
+            k.color(255, 255, 255),
+          ]);
 
           // Obstacle spawning
           function spawnObstacle() {
@@ -404,6 +465,9 @@ const KaboomGame: React.FC = () => {
             const obstacleIndex = k.randi(0, 10);
             const spriteName = `obstacle${obstacleIndex}`;
 
+            // Random size variation to make gameplay more dynamic
+            const sizeVariation = k.rand(0.7, 1.1);
+
             // Create obstacle with transparent background
             const obstacleObj = k.add([
               k.sprite(spriteName, { noError: true }) || k.rect(60, 60),
@@ -412,15 +476,49 @@ const KaboomGame: React.FC = () => {
               k.pos(LANE_WIDTH, LANE_Y[obstacleLane]),
               k.anchor("center"),
               k.area({ scale: 0.8 }), // More accurate hitbox
-              k.move(k.LEFT, OBSTACLE_SPEED),
+              k.move(k.LEFT, currentObstacleSpeed), // Use the current speed that increases over time
               "obstacle",
-              k.scale(0.8),
+              k.scale(0.8 * sizeVariation), // Add some size variation
               // Remove white background by making it transparent
               k.color(255, 255, 255, 0),
             ]);
 
+            // If showing hitboxes, draw a visible outline around the hitbox
+            if (showHitboxes) {
+              const hitboxWidth = obstacleObj.width * 0.8;
+              const hitboxHeight = obstacleObj.height * 0.8;
+
+              const hitbox = k.add([
+                k.rect(hitboxWidth, hitboxHeight),
+                k.pos(obstacleObj.pos),
+                k.anchor("center"),
+                k.outline(2, k.rgb(255, 0, 0)),
+                k.color(255, 0, 0, 0.3),
+                k.move(k.LEFT, currentObstacleSpeed),
+              ]);
+
+              // Keep the hitbox visualization synced with the obstacle
+              hitbox.onUpdate(() => {
+                if (obstacleObj.exists()) {
+                  hitbox.pos = obstacleObj.pos;
+                } else {
+                  hitbox.destroy();
+                }
+              });
+            }
+
+            // Calculate next spawn time - gradually decrease as score increases
+            const minSpawnTime = Math.max(
+              SPAWN_INTERVAL[0] - gameTime / 60,
+              0.3
+            );
+            const maxSpawnTime = Math.max(
+              SPAWN_INTERVAL[1] - gameTime / 30,
+              minSpawnTime + 0.5
+            );
+
             // Schedule next obstacle spawn
-            k.wait(k.rand(SPAWN_INTERVAL[0], SPAWN_INTERVAL[1]), spawnObstacle);
+            k.wait(k.rand(minSpawnTime, maxSpawnTime), spawnObstacle);
           }
 
           // Start spawning obstacles
@@ -481,49 +579,125 @@ const KaboomGame: React.FC = () => {
       }
       gameContainer.innerHTML = "";
     };
-  }, [showSpritePreview, showBorders]); // Added showBorders to dependency array
+  }, [showSpritePreview, showBorders, showHitboxes, gameDifficulty]); // Added new dependencies
 
   return (
     <div>
       <div
         ref={gameContainerRef}
         style={{
-          width: "1000px", // Increased from 800px
-          height: "600px", // Increased from 400px
+          width: "1000px",
+          height: "600px",
           margin: "0 auto",
           borderRadius: "8px",
           overflow: "hidden",
           boxShadow: "0 0 20px rgba(0, 0, 0, 0.5)",
         }}
       />
-      <div style={{ marginTop: "15px", textAlign: "center" }}>
-        <button
-          onClick={() => setShowSpritePreview(!showSpritePreview)}
+      <div
+        style={{
+          marginTop: "15px",
+          textAlign: "center",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "10px",
+        }}
+      >
+        {/* Game controls */}
+        <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+          <button
+            onClick={() => setShowSpritePreview(!showSpritePreview)}
+            style={{
+              padding: "8px 16px",
+              background: "#333",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            {showSpritePreview ? "Go to Game" : "View Sprite Animation"}
+          </button>
+        </div>
+
+        {/* Game settings */}
+        <div
           style={{
-            padding: "8px 16px",
-            background: "#333",
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: "20px",
+            padding: "15px",
+            border: "1px solid #444",
+            borderRadius: "8px",
+            background: "#222",
             color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            marginRight: "10px",
+            width: "80%",
+            maxWidth: "800px",
+            justifyContent: "center",
           }}
         >
-          {showSpritePreview ? "Go to Game" : "View Sprite Animation"}
-        </button>
-        <button
-          onClick={() => setShowBorders(!showBorders)}
+          <h3 style={{ margin: 0 }}>Game Settings</h3>
+
+          {/* Difficulty selector */}
+          <div>
+            <label style={{ marginRight: "10px" }}>Difficulty:</label>
+            <select
+              value={gameDifficulty}
+              onChange={(e) => setGameDifficulty(e.target.value)}
+              style={{
+                padding: "5px 10px",
+                background: "#333",
+                color: "white",
+                border: "1px solid #666",
+                borderRadius: "4px",
+              }}
+            >
+              <option value="easy">Easy</option>
+              <option value="normal">Normal</option>
+              <option value="hard">Hard</option>
+            </select>
+          </div>
+
+          {/* Show borders checkbox */}
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <input
+              type="checkbox"
+              id="showBorders"
+              checked={showBorders}
+              onChange={() => setShowBorders(!showBorders)}
+              style={{ marginRight: "8px" }}
+            />
+            <label htmlFor="showBorders">Show Object Borders</label>
+          </div>
+
+          {/* Show hitboxes checkbox */}
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <input
+              type="checkbox"
+              id="showHitboxes"
+              checked={showHitboxes}
+              onChange={() => setShowHitboxes(!showHitboxes)}
+              style={{ marginRight: "8px" }}
+            />
+            <label htmlFor="showHitboxes">Show Collision Hitboxes</label>
+          </div>
+        </div>
+
+        {/* Game instructions */}
+        <div
           style={{
-            padding: "8px 16px",
-            background: "#333",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
+            marginTop: "15px",
+            color: "#888",
+            fontSize: "14px",
+            maxWidth: "800px",
           }}
         >
-          {showBorders ? "Hide Borders" : "Show Borders"}
-        </button>
+          Use <strong>Up</strong> and <strong>Down</strong> arrow keys to switch
+          lanes and avoid obstacles. Your speed increases over time making the
+          game harder!
+        </div>
       </div>
     </div>
   );
