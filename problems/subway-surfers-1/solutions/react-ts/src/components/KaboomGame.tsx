@@ -75,7 +75,7 @@ const KaboomGame: React.FC = () => {
       const LANE_WIDTH = 1000; // Updated
       const LANE_Y = [LANE_HEIGHT / 4, LANE_HEIGHT / 2, (3 * LANE_HEIGHT) / 4]; // Three lanes
       const PLAYER_X = 150; // Adjusted for larger screen
-      const SPEED = 320;
+      const SPEED = 520;
       const OBSTACLE_SPEED = 320;
       const SPAWN_INTERVAL = [0.8, 2.5]; // Random interval between obstacle spawns
 
@@ -97,38 +97,27 @@ const KaboomGame: React.FC = () => {
       };
 
       // Load the Temple Run character sprites
-      const templeRunSprites = [];
-      let loadedTempleRunSprites = 0;
-      const totalTempleRunSprites = 10;
+      let spriteLoadSuccess = false;
 
-      for (let i = 0; i < totalTempleRunSprites; i++) {
+      // Try to load all individual frames
+      for (let i = 0; i < 10; i++) {
         const img = new Image();
         img.src = `/assets/characters/templerun/Run__00${i}.png`;
-        templeRunSprites.push(img);
-
         img.onload = () => {
-          loadedTempleRunSprites++;
-          if (loadedTempleRunSprites === totalTempleRunSprites) {
-            // Create a sprite atlas for the Temple Run character
-            for (let j = 0; j < totalTempleRunSprites; j++) {
-              k.loadSpriteAtlas(templeRunSprites[j], {
-                [`run${j}`]: {
-                  x: 0,
-                  y: 0,
-                  width: templeRunSprites[j].width,
-                  height: templeRunSprites[j].height,
-                },
-              });
-            }
+          // Just register each sprite individually without trying to make a sprite sheet
+          k.loadSprite(`run${i}`, img);
+
+          // Mark first sprite loaded to indicate we have characters available
+          if (i === 0) {
+            spriteLoadSuccess = true;
             checkAllAssetsLoaded();
           }
         };
 
         img.onerror = () => {
           console.error(`Failed to load Temple Run sprite ${i}`);
-          loadedTempleRunSprites++;
-          if (loadedTempleRunSprites === totalTempleRunSprites) {
-            checkAllAssetsLoaded();
+          if (i === 0) {
+            checkAllAssetsLoaded(); // Continue even if loading fails
           }
         };
       }
@@ -275,22 +264,20 @@ const KaboomGame: React.FC = () => {
       // Game scene
       function startGame() {
         k.scene("game", () => {
-          // Game area - draw outline border
+          // add grey background
           k.add([
             k.rect(LANE_WIDTH, LANE_HEIGHT),
-            k.pos(0, 0),
-            k.outline(2, k.rgb(255, 255, 255)),
-            k.color(0, 0, 0, 0), // Transparent fill
+            k.color(100, 100, 100),
           ]);
 
-          // Add player character with Temple Run sprite
-          let currentLane = 1; // Start in middle lane
+          // Add player character
+          let currentLane = 1;
           let currentFrame = 0;
 
-          const player = k.add([
-            k.sprite(`run${currentFrame}`, { noError: true }) || k.circle(20),
+          let player = k.add([
+            k.sprite("run0", { noError: true }) || k.circle(20),
             // Add outline and color only if using circle
-            ...(k.sprite(`run${currentFrame}`, { noError: true })
+            ...(spriteLoadSuccess
               ? []
               : [k.outline(2, k.rgb(255, 255, 255)), k.color(255, 0, 0)]),
             k.pos(PLAYER_X, LANE_Y[currentLane]),
@@ -301,11 +288,17 @@ const KaboomGame: React.FC = () => {
               speed: SPEED,
               isAlive: true,
               health: 3,
+              // Add custom animation method
+              changeFrame(newFrame) {
+                currentFrame = newFrame;
+                // Create a new sprite object but don't change component structure
+                this.frame = newFrame;
+              },
             },
             k.scale(0.2),
           ]);
 
-          // Animate Temple Run character manually
+          // Animate Temple Run character manually without breaking collision
           let animationTimer = 0;
           k.onUpdate(() => {
             if (player.isAlive) {
@@ -313,11 +306,37 @@ const KaboomGame: React.FC = () => {
               if (animationTimer > 0.1) {
                 // Change frame every 100ms
                 animationTimer = 0;
-                currentFrame = (currentFrame + 1) % 10;
-                // Update the sprite to the next frame
-                if (player.use && player.use.sprite) {
-                  player.use(k.sprite(`run${currentFrame}`, { noError: true }));
-                }
+                const newFrame = (currentFrame + 1) % 10;
+
+                // Simply destroy and recreate the player with new sprite
+                // Save current position and state
+                const oldLane = currentLane;
+                const oldHealth = player.health;
+
+                // Create a new sprite at same position with new frame
+                player.destroy();
+
+                // Recreate player with new frame
+                const newPlayer = k.add([
+                  k.sprite(`run${newFrame}`, { noError: true }) || k.circle(20),
+                  ...(spriteLoadSuccess
+                    ? []
+                    : [k.outline(2, k.rgb(255, 255, 255)), k.color(255, 0, 0)]),
+                  k.pos(PLAYER_X, LANE_Y[oldLane]),
+                  k.anchor("center"),
+                  k.area({ scale: 0.7 }),
+                  "player",
+                  {
+                    speed: SPEED,
+                    isAlive: true,
+                    health: oldHealth,
+                  },
+                  k.scale(0.2),
+                ]);
+
+                // Update player reference
+                player = newPlayer;
+                currentFrame = newFrame;
               }
             }
           });
@@ -350,31 +369,6 @@ const KaboomGame: React.FC = () => {
               },
             },
           ]);
-
-          // Toggle for showing/hiding borders
-          const toggleBorderBtn = k.add([
-            k.rect(150, 30),
-            k.pos(LANE_WIDTH - 350, 30),
-            k.outline(2, k.rgb(255, 255, 255)),
-            k.color(0, 0, 0, 0),
-            k.area(),
-            "toggleBorderBtn",
-          ]);
-
-          const toggleBorderText = k.add([
-            k.text(showBorders ? "Hide Borders" : "Show Borders", { size: 14 }),
-            k.pos(LANE_WIDTH - 350 + 75, 30 + 15),
-            k.anchor("center"),
-            k.color(255, 255, 255),
-          ]);
-
-          // Border toggle functionality
-          k.onClick("toggleBorderBtn", () => {
-            setShowBorders(!showBorders);
-            toggleBorderText.text = showBorders
-              ? "Hide Borders"
-              : "Show Borders";
-          });
 
           // Player controls (move up and down between lanes)
           k.onKeyPress("up", () => {
@@ -430,7 +424,8 @@ const KaboomGame: React.FC = () => {
               k.move(k.LEFT, OBSTACLE_SPEED),
               "obstacle",
               k.scale(0.2),
-              k.color(255, 255, 255), // Make it fully visible without background
+              // Remove white background by making it transparent
+              k.color(255, 255, 255, 0),
             ]);
 
             // Schedule next obstacle spawn
