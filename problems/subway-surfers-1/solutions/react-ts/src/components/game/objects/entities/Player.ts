@@ -1,6 +1,7 @@
 import { KaboomInterface, GameObj } from "../../types/KaboomTypes";
 import GameObject from "../base/GameObject";
 import GameConfig from "../../config/GameConfig";
+import Coin from "./Coin";
 
 export interface PlayerOptions {
   initialLane: number;
@@ -164,6 +165,27 @@ export default class Player extends GameObject {
             : 0;
           k.go("gameover", Math.floor(finalScore));
         });
+      }
+    });
+
+    // Coin collection collision detection
+    this.gameObj.onCollide("coin", (coinObj: GameObj) => {
+      try {
+        // Skip already collected coins
+        if (coinObj.isCollected === true) {
+          console.log("Coin already collected");
+          return;
+        }
+
+        coinObj.isCollected = true;
+
+        console.log("Coin collecting");
+        // Use the static factory method to create a Coin from a GameObj
+        const coin = Coin.fromGameObj(this.k, coinObj);
+        coin.collect();
+        console.log("Coin collected");
+      } catch (e) {
+        console.warn("Error collecting coin", e);
       }
     });
   }

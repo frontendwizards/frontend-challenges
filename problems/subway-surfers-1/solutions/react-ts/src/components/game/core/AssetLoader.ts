@@ -1,5 +1,6 @@
 import { KaboomInterface } from "../types/KaboomTypes";
 import GameConfig from "../config/GameConfig";
+import AudioPlayer from "./AudioPlayer";
 
 interface AssetLoaderCallbacks {
   onProgress?: (progress: number) => void;
@@ -7,7 +8,7 @@ interface AssetLoaderCallbacks {
   onError?: (error: Error) => void;
 }
 
-interface LoadResult {
+export interface LoadResult {
   success: boolean;
   name: string;
 }
@@ -25,8 +26,8 @@ export default class AssetLoader {
   public async loadAssets(callbacks?: AssetLoaderCallbacks): Promise<void> {
     try {
       console.log("Starting to load assets...");
-      // Calculate total assets to load (character sprites + 1 obstacle spritesheet)
-      this.totalAssetsToLoad = GameConfig.CHARACTER_SPRITE_COUNT + 1;
+      // Calculate total assets to load (character sprites + 1 obstacle spritesheet + coin sprite + coin sound)
+      this.totalAssetsToLoad = GameConfig.CHARACTER_SPRITE_COUNT + 3;
       console.log(`Total assets to load: ${this.totalAssetsToLoad}`);
 
       // Reset counter
@@ -73,6 +74,12 @@ export default class AssetLoader {
 
     // Add obstacle sprite sheet loading promise
     loadPromises.push(this.loadObstaclesSpriteSheetAsync());
+
+    // Add coin sprite sheet loading promise
+    loadPromises.push(this.loadCoinSpriteSheetAsync());
+
+    // Add coin sound loading promise
+    loadPromises.push(AudioPlayer.loadSoundsAsync());
 
     try {
       // Use Promise.all to load all assets in parallel and update progress individually
@@ -162,6 +169,34 @@ export default class AssetLoader {
         onError: (err) => {
           console.warn("Failed to load obstacles sprite sheet:", err);
           resolve({ success: false, name: "obstacles" });
+        },
+      });
+    });
+  }
+
+  private loadCoinSpriteSheetAsync(): Promise<LoadResult> {
+    return new Promise<LoadResult>((resolve) => {
+      console.log("Loading coin sprite sheet...");
+
+      this.k.loadSprite("coin", GameConfig.COIN_SPRITE_PATH, {
+        sliceX: GameConfig.COIN_SPRITE_FRAMES,
+        sliceY: 1,
+        anims: {
+          spin: {
+            from: 0,
+            to: GameConfig.COIN_SPRITE_FRAMES - 1,
+            speed: 5,
+            loop: true,
+          },
+        },
+        noError: true,
+        onLoad: () => {
+          console.log("Successfully loaded coin sprite sheet");
+          resolve({ success: true, name: "coin" });
+        },
+        onError: (err) => {
+          console.warn("Failed to load coin sprite sheet:", err);
+          resolve({ success: false, name: "coin" });
         },
       });
     });

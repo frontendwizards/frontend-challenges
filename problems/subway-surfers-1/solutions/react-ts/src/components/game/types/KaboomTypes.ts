@@ -103,7 +103,7 @@ export interface AreaOptions {
   width?: number;
   height?: number;
   offset?: Vector2;
-  shape?: "rect" | "circle" | "polygon";
+  shape?: "rect" | "polygon";
   cursor?: string;
 }
 

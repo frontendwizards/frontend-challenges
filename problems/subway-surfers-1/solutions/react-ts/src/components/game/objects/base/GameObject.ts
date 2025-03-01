@@ -45,6 +45,10 @@ export default abstract class GameObject {
     this.tags.push(tag);
   }
 
+  protected getTags(): string[] {
+    return this.tags;
+  }
+
   /**
    * Add a property to the game object
    */

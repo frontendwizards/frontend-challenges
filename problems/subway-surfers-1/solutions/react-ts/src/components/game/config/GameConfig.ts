@@ -11,7 +11,7 @@ export default class GameConfig {
   static readonly CANVAS_BACKGROUND_COLOR = "#000000";
 
   // Environment settings
-  static readonly SKY_PERCENTAGE = 0.3; // Sky takes 30% of screen height
+  static readonly SKY_PERCENTAGE = 0.37; // Sky takes 30% of screen height
   static readonly GROUND_COLOR = "#2F3136"; // Dark ground color for night
   static readonly SKY_COLOR = "#0A1128"; // Dark blue night sky
   static readonly HORIZON_COLOR = "#27294B"; // Dark blue-purple horizon
@@ -31,6 +31,14 @@ export default class GameConfig {
   static readonly OBSTACLE_SPRITE_COUNT = 10; // Number of obstacle types
   static readonly OBSTACLE_SCALE = 0.5; // Scale for obstacle sprites
 
+  // Coin settings
+  static readonly COIN_SPRITE_PATH = "/assets/coins/MonedaD.png"; // Path to coin sprite
+  static readonly COIN_SPRITE_FRAMES = 5; // Number of animation frames
+  static readonly COIN_SCALE = 4; // Scale for coin sprite
+  static readonly COIN_SCORE_VALUE = 10; // Score value for collecting a coin
+  static readonly COIN_SPAWN_INTERVAL = [1.0, 3.0]; // Min and max time between coins
+  static readonly COIN_MIN_DISTANCE_FROM_OBSTACLE = 150; // Minimum distance from obstacles
+  static readonly COIN_SOUND_PATH = "/sounds/coin-collect.mp3"; // Path to coin sound
   // Game mechanics
   static readonly LANE_COUNT = 3; // Number of lanes
   static readonly LANE_SPACING = 150; // Distance between lanes
@@ -74,7 +82,6 @@ export default class GameConfig {
 
     // Evenly divide the ground area into 3 equal parts for the lanes
     const laneHeight = groundHeight / 3;
-    console.log({ skyHeight, groundHeight, laneHeight });
 
     // Position lanes at the centers of each third of the ground area
     return [

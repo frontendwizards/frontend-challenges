@@ -130,4 +130,8 @@ export default class Obstacle extends GameObject {
     }
     super.destroy();
   }
+
+  public getLane(): number {
+    return this.lane;
+  }
 }

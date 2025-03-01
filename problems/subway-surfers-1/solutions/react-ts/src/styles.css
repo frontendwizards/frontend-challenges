@@ -4,19 +4,31 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --bg-color: #1f2937;
+}
+
 html,
 body,
 #root {
-  height: 100%;
   margin: 0;
+  background-color: var(--bg-color);
+  height: 100vh;
 }
 
 body {
   font-family: "Poppins";
-  background-color: #1f2937;
+  background-color: var(--bg-color);
   color: white;
+  height: 100vh;
 }
 
 main {
   padding: 5rem;
+  background-color: var(--bg-color);
+}
+
+/* Game container styles */
+.game-container {
+  background-color: var(--bg-color);
 }

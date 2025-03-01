@@ -7,6 +7,7 @@ import { BaseScene } from "./BaseScene";
 import GameConfig from "../../config/GameConfig";
 import Player from "../../objects/entities/Player";
 import Obstacle from "../../objects/entities/Obstacle";
+import Coin from "../../objects/entities/Coin";
 import Environment from "../../objects/environment/Environment";
 import HealthBar from "../../objects/ui/HealthBar";
 import ScoreDisplay from "../../objects/ui/ScoreDisplay";
@@ -30,11 +31,13 @@ export default class GameplayScene extends BaseScene {
   private debugLanes: boolean;
   private currentObstacleSpeed = 0;
   private obstacles: Obstacle[] = [];
+  private coins: Coin[] = [];
   private player: Player | null = null;
   private environment: Environment | null = null;
   private healthBar: HealthBar | null = null;
   private scoreDisplay: ScoreDisplay | null = null;
   private obstacleSpawnTimer: ActionReturnType | null = null;
+  private coinSpawnTimer: ActionReturnType | null = null;
 
   // Store lane debug objects
   private laneDebugObjects: GameObj[] = [];
@@ -63,6 +66,7 @@ export default class GameplayScene extends BaseScene {
     this.currentLane = GameConfig.PLAYER_INITIAL_LANE;
     this.lanes = GameConfig.getLanePositions();
     this.obstacles = [];
+    this.coins = [];
 
     // Get difficulty settings
     const difficultySettings = GameConfig.getDifficultySettings(
@@ -77,6 +81,7 @@ export default class GameplayScene extends BaseScene {
     this.setupControls();
     this.setupGameLoop();
     this.startObstacleSpawning(difficultySettings.spawnInterval);
+    this.startCoinSpawning();
   }
 
   private setupEnvironment(): void {
@@ -147,6 +152,17 @@ export default class GameplayScene extends BaseScene {
   private setupGameLoop(): void {
     const k = this.k;
 
+    // Set up global collision handlers
+    k.onCollide("player", "coin", () => {
+      // Increase score (handled here rather than in Player to keep score in GameplayScene)
+      this.score += GameConfig.COIN_SCORE_VALUE;
+
+      // Update score display immediately
+      if (this.scoreDisplay) {
+        this.scoreDisplay.updateScore(this.score);
+      }
+    });
+
     // Main game update loop
     k.onUpdate(() => {
       if (!this.player || !this.player.isPlayerAlive()) return;
@@ -180,6 +196,16 @@ export default class GameplayScene extends BaseScene {
         // Remove destroyed obstacles from array
         if (!obstacle.exists()) {
           this.obstacles.splice(index, 1);
+        }
+      });
+
+      // Update coins
+      this.coins.forEach((coin, index) => {
+        coin.update();
+
+        // Remove destroyed coins from array
+        if (!coin.exists()) {
+          this.coins.splice(index, 1);
         }
       });
 
@@ -239,6 +265,79 @@ export default class GameplayScene extends BaseScene {
     spawn();
   }
 
+  private startCoinSpawning(): void {
+    const k = this.k;
+
+    const spawnCoin = () => {
+      if (!this.player || !this.player.isPlayerAlive()) return;
+
+      // Choose a random lane for the coin
+      const coinLane = k.randi(0, GameConfig.LANE_COUNT - 1);
+
+      // Check if this lane already has an obstacle near the spawn point
+      const hasNearbyObstacle = this.obstacles.some((obstacle) => {
+        // If obstacle is in same lane and near the right edge of the screen
+        const obstacleObj = obstacle.getGameObj();
+        if (
+          obstacle.getLane &&
+          obstacle.getLane() === coinLane &&
+          obstacleObj
+        ) {
+          // Get screen width
+          let screenWidth = 1000; // Default fallback
+          try {
+            // Use a safer approach to get width
+            if (typeof k.width === "function") {
+              try {
+                screenWidth = (k.width as () => number)();
+              } catch (e) {
+                console.warn("Error calling width as function", e);
+              }
+            } else if (typeof k.width === "number") {
+              screenWidth = k.width;
+            }
+          } catch (e) {
+            console.warn("Error accessing width", e);
+          }
+          const distance = obstacleObj.pos.x - screenWidth;
+          return (
+            Math.abs(distance) < GameConfig.COIN_MIN_DISTANCE_FROM_OBSTACLE
+          );
+        }
+        return false;
+      });
+
+      // Only spawn if no nearby obstacles in same lane
+      if (!hasNearbyObstacle) {
+        // Create coin
+        const coin = new Coin(this.k, {
+          lane: coinLane,
+          lanes: this.lanes,
+          speed: this.currentObstacleSpeed,
+          showHitboxes: this.showHitboxes,
+          showBorders: this.showBorders,
+        });
+        coin.init();
+
+        // Add to coins array
+        this.coins.push(coin);
+      }
+
+      // Calculate next spawn time
+      const minSpawnTime = GameConfig.COIN_SPAWN_INTERVAL[0];
+      const maxSpawnTime = GameConfig.COIN_SPAWN_INTERVAL[1];
+
+      // Schedule next coin spawn
+      this.coinSpawnTimer = k.wait(
+        k.rand(minSpawnTime, maxSpawnTime),
+        spawnCoin
+      );
+    };
+
+    // Start spawning coins
+    spawnCoin();
+  }
+
   public destroy(): void {
     // Clean up all debug objects
     this.laneDebugObjects.forEach((obj) => {
@@ -273,10 +372,20 @@ export default class GameplayScene extends BaseScene {
     this.obstacles.forEach((obstacle) => obstacle.destroy());
     this.obstacles = [];
 
+    // Clean up all coins
+    this.coins.forEach((coin) => coin.destroy());
+    this.coins = [];
+
     // Cancel obstacle spawning
     if (this.obstacleSpawnTimer) {
       this.obstacleSpawnTimer.cancel();
       this.obstacleSpawnTimer = null;
+    }
+
+    // Cancel coin spawning
+    if (this.coinSpawnTimer) {
+      this.coinSpawnTimer.cancel();
+      this.coinSpawnTimer = null;
     }
   }
 
