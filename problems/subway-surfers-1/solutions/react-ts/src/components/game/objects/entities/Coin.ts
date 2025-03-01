@@ -79,7 +79,6 @@ export default class Coin extends GameObject {
       k.area({
         width: 40,
         height: 40,
-        // shape: "circle", // Circular hitbox for coin
       })
     );
 

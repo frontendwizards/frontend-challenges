@@ -12,29 +12,30 @@ export default class GameConfig {
 
   // Environment settings
   static readonly SKY_PERCENTAGE = 0.37; // Sky takes 30% of screen height
-  static readonly GROUND_COLOR = "#2F3136"; // Dark ground color for night
-  static readonly SKY_COLOR = "#0A1128"; // Dark blue night sky
+  static readonly GROUND_COLOR = "#d8b483"; // Sandy desert color
+  static readonly SKY_COLOR = "#0a1128"; // Deep night sky color
   static readonly HORIZON_COLOR = "#27294B"; // Dark blue-purple horizon
   static readonly SUN_COLOR = "#E8E9EB"; // Off-white/silver color for moon
-  static readonly CLOUD_COLOR = [210, 210, 220, 0.4]; // Semi-transparent light color for night clouds
+  static readonly CLOUD_COLOR = [210, 210, 220, 0.3]; // Semi-transparent light color for night clouds
+  static readonly BOTTOM_MARGIN_PERCENTAGE = 0.15; // Bottom margin (15% of the canvas height)
 
   // Player settings
   static readonly PLAYER_POSITION_X = 200; // Player's horizontal position
   static readonly PLAYER_INITIAL_LANE = 1; // Start in the middle lane (0-2)
   static readonly PLAYER_SPEED = 400; // Base movement speed
   static readonly PLAYER_INITIAL_HEALTH = 3; // Starting health
-  static readonly SPRITE_SCALE = 0.3; // Scale for player sprite
+  static readonly SPRITE_SCALE = 0.25; // Scale for player sprite (reduced from 0.3)
 
   // Asset settings
   static readonly SPRITE_PATH = "/assets/characters/templerun"; // Path to sprite assets
   static readonly CHARACTER_SPRITE_COUNT = 10; // Number of character animation frames
   static readonly OBSTACLE_SPRITE_COUNT = 10; // Number of obstacle types
-  static readonly OBSTACLE_SCALE = 0.5; // Scale for obstacle sprites
+  static readonly OBSTACLE_SCALE = 0.3; // Scale for obstacle sprites (reduced from 0.5)
 
   // Coin settings
   static readonly COIN_SPRITE_PATH = "/assets/coins/MonedaD.png"; // Path to coin sprite
   static readonly COIN_SPRITE_FRAMES = 5; // Number of animation frames
-  static readonly COIN_SCALE = 4; // Scale for coin sprite
+  static readonly COIN_SCALE = 3; // Scale for coin sprite (adjusted for new lane sizes)
   static readonly COIN_SCORE_VALUE = 10; // Score value for collecting a coin
   static readonly COIN_SPAWN_INTERVAL = [1.0, 3.0]; // Min and max time between coins
   static readonly COIN_MIN_DISTANCE_FROM_OBSTACLE = 150; // Minimum distance from obstacles
@@ -77,13 +78,16 @@ export default class GameConfig {
     // Get the starting Y position where the ground begins (after sky)
     const skyHeight = this.CANVAS_HEIGHT * this.SKY_PERCENTAGE;
 
-    // Calculate the total height of the ground area (70% of screen)
-    const groundHeight = this.CANVAS_HEIGHT - skyHeight;
+    // Calculate the total height of the ground area minus the bottom margin
+    const usableGroundHeight =
+      this.CANVAS_HEIGHT -
+      skyHeight -
+      this.CANVAS_HEIGHT * this.BOTTOM_MARGIN_PERCENTAGE;
 
-    // Evenly divide the ground area into 3 equal parts for the lanes
-    const laneHeight = groundHeight / 3;
+    // Evenly divide the usable ground area into 3 equal parts for the lanes
+    const laneHeight = usableGroundHeight / this.LANE_COUNT;
 
-    // Position lanes at the centers of each third of the ground area
+    // Position lanes at the centers of each third of the usable ground area
     return [
       skyHeight + laneHeight / 2, // First lane (center of first third)
       skyHeight + laneHeight + laneHeight / 2, // Middle lane (center of second third)
