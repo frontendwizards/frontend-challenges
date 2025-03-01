@@ -40,4 +40,3 @@ export default class SceneManager {
 
 export { default as GameplayScene } from "./scenes/GameplayScene";
 export { default as GameOverScene } from "./scenes/GameOverScene";
-export { default as SpritePreviewScene } from "./scenes/SpritePreviewScene";

@@ -62,10 +62,12 @@ export default class Player extends GameObject {
       console.warn("Failed to load player sprite", error);
     }
 
+    // Calculate y position with SKY_PERCENTAGE adjustment
+    const skyHeight = GameConfig.CANVAS_HEIGHT * GameConfig.SKY_PERCENTAGE;
+    const adjustedLaneY = this.lanes[this.currentLane] + skyHeight;
+
     // Add common components
-    this.addComponent(
-      k.pos(GameConfig.PLAYER_POSITION_X, this.lanes[this.currentLane])
-    );
+    this.addComponent(k.pos(GameConfig.PLAYER_POSITION_X, adjustedLaneY));
     this.addComponent(k.anchor("center"));
     this.addComponent(k.area({ scale: 0.7 }));
     this.addComponent(k.scale(GameConfig.SPRITE_SCALE));
@@ -156,10 +158,11 @@ export default class Player extends GameObject {
 
     this.currentLane--;
     if (this.gameObj) {
-      this.gameObj.moveTo(
-        GameConfig.PLAYER_POSITION_X,
-        this.lanes[this.currentLane]
-      );
+      // Apply SKY_PERCENTAGE to lane position
+      const skyHeight = GameConfig.CANVAS_HEIGHT * GameConfig.SKY_PERCENTAGE;
+      const adjustedLaneY = this.lanes[this.currentLane] + skyHeight;
+
+      this.gameObj.moveTo(GameConfig.PLAYER_POSITION_X, adjustedLaneY);
     }
   }
 
@@ -168,10 +171,11 @@ export default class Player extends GameObject {
 
     this.currentLane++;
     if (this.gameObj) {
-      this.gameObj.moveTo(
-        GameConfig.PLAYER_POSITION_X,
-        this.lanes[this.currentLane]
-      );
+      // Apply SKY_PERCENTAGE to lane position
+      const skyHeight = GameConfig.CANVAS_HEIGHT * GameConfig.SKY_PERCENTAGE;
+      const adjustedLaneY = this.lanes[this.currentLane] + skyHeight;
+
+      this.gameObj.moveTo(GameConfig.PLAYER_POSITION_X, adjustedLaneY);
     }
   }
 

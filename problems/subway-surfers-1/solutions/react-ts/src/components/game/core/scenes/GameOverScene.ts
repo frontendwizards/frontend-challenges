@@ -1,5 +1,6 @@
 import { KaboomInterface, GameObj } from "../../types/KaboomTypes";
 import { BaseScene } from "./BaseScene";
+import GameConfig from "../../config/GameConfig";
 
 export default class GameOverScene extends BaseScene {
   private messageText: GameObj | null = null;
@@ -21,9 +22,12 @@ export default class GameOverScene extends BaseScene {
       k.text(`Game Over!\nScore: ${finalScore}\nPress space to restart`, {
         size: 36,
         align: "center",
+        width: GameConfig.CANVAS_WIDTH * 0.8,
       }),
-      k.pos(center[0], center[1]),
+      k.pos(center.x, center.y),
       k.anchor("center"),
+      k.color(255, 255, 255),
+      k.z(100),
     ]);
 
     // Restart game on spacebar press

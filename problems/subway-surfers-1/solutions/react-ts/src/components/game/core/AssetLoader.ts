@@ -7,6 +7,11 @@ interface AssetLoaderCallbacks {
   onError?: (error: Error) => void;
 }
 
+interface LoadResult {
+  success: boolean;
+  name: string;
+}
+
 export default class AssetLoader {
   private k: KaboomInterface;
   private assetsLoaded = 0;
@@ -38,20 +43,18 @@ export default class AssetLoader {
         }
       }, 5000); // 5 seconds timeout
 
-      // Load character sprites
-      this.loadCharacterSprites(callbacks);
-
-      // Load obstacle sprite sheet
-      this.loadObstacleSpriteSheet(callbacks);
-
-      // Always ensure we can proceed even if assets fail to load
-      this.spritesLoaded = true;
-
-      // Check if everything is loaded instantly (cached or failed)
-      if (this.assetsLoaded >= this.totalAssetsToLoad) {
-        clearTimeout(loadingTimeout);
-        callbacks?.onComplete?.();
-      }
+      // Load all assets in parallel
+      this.loadAllAssetsInParallel(callbacks)
+        .then(() => {
+          clearTimeout(loadingTimeout);
+          callbacks?.onComplete?.();
+        })
+        .catch((error) => {
+          console.error("Error loading assets:", error);
+          callbacks?.onError?.(
+            error instanceof Error ? error : new Error(String(error))
+          );
+        });
     } catch (error) {
       console.error("Error loading assets:", error);
       callbacks?.onError?.(
@@ -60,17 +63,57 @@ export default class AssetLoader {
     }
   }
 
-  private loadCharacterSprites(callbacks?: AssetLoaderCallbacks): void {
-    const characterSpritesLoaded = { success: true };
-    console.log("Loading character sprites...");
+  private async loadAllAssetsInParallel(
+    callbacks?: AssetLoaderCallbacks
+  ): Promise<void> {
+    const loadPromises: Promise<LoadResult>[] = [];
 
-    // Load character run animation frames
+    // Add character sprite loading promises
     for (let i = 0; i < GameConfig.CHARACTER_SPRITE_COUNT; i++) {
       const spriteName = `run${i}`;
       // Format with leading zeros for proper file naming (Run__000.png, etc)
       const formattedIndex = i.toString().padStart(3, "0");
       const spritePath = `${GameConfig.SPRITE_PATH}/Run__${formattedIndex}.png`;
 
+      loadPromises.push(this.loadSpriteAsync(spriteName, spritePath));
+    }
+
+    // Add obstacle sprite sheet loading promise
+    loadPromises.push(this.loadObstaclesSpriteSheetAsync());
+
+    // Process loading results in batches to update progress steadily
+    const batchSize = 10; // Process 3 assets at a time
+    const batches = [];
+
+    for (let i = 0; i < loadPromises.length; i += batchSize) {
+      batches.push(loadPromises.slice(i, i + batchSize));
+    }
+
+    let loadedAssets = 0;
+    const allSpritesLoaded: boolean[] = [];
+
+    // Process each batch sequentially, but assets within a batch load in parallel
+    for (const batch of batches) {
+      const results = await Promise.all(batch);
+
+      loadedAssets += results.length;
+      allSpritesLoaded.push(...results.map((r) => r.success));
+
+      // Update progress
+      const progress = (loadedAssets / this.totalAssetsToLoad) * 100;
+      callbacks?.onProgress?.(progress);
+    }
+
+    // Set sprites loaded flag
+    this.spritesLoaded = allSpritesLoaded.some((success) => success);
+    this.assetsLoaded = loadedAssets;
+  }
+
+  private loadSpriteAsync(
+    spriteName: string,
+    spritePath: string
+  ): Promise<LoadResult> {
+    return new Promise<LoadResult>((resolve) => {
       console.log(`Loading sprite: ${spriteName} from path: ${spritePath}`);
 
       this.k.loadSprite(spriteName, spritePath, {
@@ -79,62 +122,37 @@ export default class AssetLoader {
         noError: true,
         onLoad: () => {
           console.log(`Successfully loaded sprite: ${spriteName}`);
-          this.trackAssetLoaded(callbacks);
+          resolve({ success: true, name: spriteName });
         },
         onError: (err) => {
           console.warn(
             `Failed to load sprite ${spriteName} from ${spritePath}:`,
             err
           );
-          characterSpritesLoaded.success = false;
-          this.trackAssetLoaded(callbacks);
+          resolve({ success: false, name: spriteName });
         },
       });
-    }
-
-    this.spritesLoaded = characterSpritesLoaded.success;
-  }
-
-  private loadObstacleSpriteSheet(callbacks?: AssetLoaderCallbacks): void {
-    console.log("Loading obstacle sprite sheet...");
-    // Load the obstacles sprite sheet and slice it into 10 obstacles
-    this.k.loadSprite("obstacles", "/obstacles.png", {
-      sliceX: 5,
-      sliceY: 2,
-      noError: true,
-      onLoad: () => {
-        console.log("Successfully loaded obstacles sprite sheet");
-        this.trackAssetLoaded(callbacks);
-      },
-      onError: (err) => {
-        console.warn("Failed to load obstacles sprite sheet:", err);
-        this.trackAssetLoaded(callbacks);
-      },
     });
   }
 
-  private trackAssetLoaded(callbacks?: AssetLoaderCallbacks): void {
-    this.assetsLoaded++;
-    console.log(
-      `Assets loaded: ${this.assetsLoaded}/${this.totalAssetsToLoad}`
-    );
+  private loadObstaclesSpriteSheetAsync(): Promise<LoadResult> {
+    return new Promise<LoadResult>((resolve) => {
+      console.log("Loading obstacle sprite sheet...");
 
-    // Calculate progress percentage
-    const progress = (this.assetsLoaded / this.totalAssetsToLoad) * 100;
-    console.log(`Loading progress: ${progress.toFixed(2)}%`);
-
-    // Report progress
-    if (callbacks?.onProgress) {
-      callbacks.onProgress(progress);
-    }
-
-    // Check if all assets are loaded
-    if (this.assetsLoaded >= this.totalAssetsToLoad) {
-      console.log("All assets loaded successfully!");
-      if (callbacks?.onComplete) {
-        callbacks.onComplete();
-      }
-    }
+      this.k.loadSprite("obstacles", "/obstacles.png", {
+        sliceX: 5,
+        sliceY: 2,
+        noError: true,
+        onLoad: () => {
+          console.log("Successfully loaded obstacles sprite sheet");
+          resolve({ success: true, name: "obstacles" });
+        },
+        onError: (err) => {
+          console.warn("Failed to load obstacles sprite sheet:", err);
+          resolve({ success: false, name: "obstacles" });
+        },
+      });
+    });
   }
 
   public isSpritesLoaded(): boolean {

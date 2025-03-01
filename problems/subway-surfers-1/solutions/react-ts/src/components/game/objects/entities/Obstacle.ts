@@ -83,8 +83,12 @@ export default class Obstacle extends GameObject {
       this.addComponent(k.outline(2, k.rgb(255, 0, 0)));
     }
 
+    // Calculate position with SKY_PERCENTAGE adjustment
+    const skyHeight = GameConfig.CANVAS_HEIGHT * GameConfig.SKY_PERCENTAGE;
+    const adjustedLaneY = this.lanes[this.lane] + skyHeight;
+
     // Add common components
-    this.addComponent(k.pos(GameConfig.CANVAS_WIDTH, this.lanes[this.lane]));
+    this.addComponent(k.pos(GameConfig.CANVAS_WIDTH, adjustedLaneY));
     this.addComponent(k.anchor("center"));
     this.addComponent(k.area({ scale: 0.8 }));
     this.addComponent(k.move(k.LEFT, this.speed));

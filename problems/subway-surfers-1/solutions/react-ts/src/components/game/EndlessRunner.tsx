@@ -5,7 +5,6 @@ import AssetLoader from "./core/AssetLoader";
 import SceneManager, {
   GameOverScene,
   GameplayScene,
-  SpritePreviewScene,
 } from "./core/SceneManager";
 import GameConfig from "./config/GameConfig";
 
@@ -86,9 +85,6 @@ const EndlessRunner: React.FC<EndlessRunnerProps> = ({
         const gameOverScene = new GameOverScene(kaboomInstance);
         gameOverScene.register(sceneManager);
 
-        const spritePreviewScene = new SpritePreviewScene(kaboomInstance);
-        spritePreviewScene.register(sceneManager);
-
         // Start with the gameplay scene
         sceneManager.startScene("game");
       } catch (err) {
@@ -106,7 +102,16 @@ const EndlessRunner: React.FC<EndlessRunnerProps> = ({
   return (
     <div className="relative w-full h-full flex justify-center items-center">
       {isLoading && (
-        <div className="absolute inset-0 flex flex-col justify-center items-center bg-gray-900 bg-opacity-80 z-10 text-white">
+        <div
+          className="absolute flex flex-col justify-center items-center bg-gray-900 bg-opacity-80 z-10 text-white"
+          style={{
+            width: `${width}px`,
+            height: `${height}px`,
+            left: "50%",
+            top: "50%",
+            transform: "translate(-50%, -50%)",
+          }}
+        >
           <h2 className="text-2xl mb-4">Loading Game...</h2>
           <div className="w-64 h-4 bg-gray-700 rounded-full overflow-hidden">
             <div
@@ -119,7 +124,16 @@ const EndlessRunner: React.FC<EndlessRunnerProps> = ({
       )}
 
       {error && (
-        <div className="absolute inset-0 flex flex-col justify-center items-center bg-red-900 bg-opacity-80 z-10 text-white">
+        <div
+          className="absolute flex flex-col justify-center items-center bg-red-900 bg-opacity-80 z-10 text-white"
+          style={{
+            width: `${width}px`,
+            height: `${height}px`,
+            left: "50%",
+            top: "50%",
+            transform: "translate(-50%, -50%)",
+          }}
+        >
           <h2 className="text-2xl mb-4">Error</h2>
           <p>{error}</p>
           <button
