@@ -1,4 +1,4 @@
-import { KaboomInterface } from "../../types/KaboomTypes";
+import { KaboomInterface, GameObj } from "../../types/KaboomTypes";
 import GameObject from "../base/GameObject";
 
 export interface ScoreDisplayOptions {
@@ -14,7 +14,7 @@ export default class ScoreDisplay extends GameObject {
   private width: number;
   private height: number;
   private score: number = 0;
-  private container: any = null;
+  private container: GameObj | null = null;
 
   constructor(kaboomInstance: KaboomInterface, options: ScoreDisplayOptions) {
     super(kaboomInstance);
@@ -29,7 +29,7 @@ export default class ScoreDisplay extends GameObject {
     this.createScoreLabel();
   }
 
-  public update(dt: number): void {
+  public update(_dt: number): void {
     // Score display doesn't need per-frame updates
   }
 

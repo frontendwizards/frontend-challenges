@@ -3,7 +3,6 @@ import GameObject from "../base/GameObject";
 import GameConfig from "../../config/GameConfig";
 
 export interface PlayerOptions {
-  useSprite: boolean;
   initialLane: number;
   lanes: number[];
   showHitboxes: boolean;
@@ -12,7 +11,6 @@ export interface PlayerOptions {
 export default class Player extends GameObject {
   private currentLane: number;
   private lanes: number[];
-  private useSprite: boolean;
   private currentFrame: number = 0;
   private animationTimer: number = 0;
   private isAlive: boolean = true;
@@ -24,7 +22,6 @@ export default class Player extends GameObject {
     super(kaboomInstance);
     this.currentLane = options.initialLane;
     this.lanes = options.lanes;
-    this.useSprite = options.useSprite;
     this.showHitboxes = options.showHitboxes;
   }
 
@@ -38,7 +35,7 @@ export default class Player extends GameObject {
   }
 
   public update(dt: number): void {
-    if (!this.isAlive || !this.useSprite) return;
+    if (!this.isAlive) return;
 
     // Update animation
     this.animationTimer += dt;
@@ -57,31 +54,19 @@ export default class Player extends GameObject {
     const k = this.k;
 
     // Clear old components
-    // this.clearComponents();
+    this.clearComponents();
 
-    // Try to load sprite if useSprite is true
     try {
-      if (this.useSprite) {
-        const formattedIndex = String(this.currentFrame).padStart(3, "0");
-        console.log(formattedIndex, `|${GameConfig.SPRITE_PATH}/Run__${formattedIndex}.png|`);
-        this.addComponent(
-          k.sprite(`${GameConfig.SPRITE_PATH}/Run__${formattedIndex}.png`)
-        );
-      } else {
-        throw new Error("Using circle fallback");
-      }
+      const formattedIndex = String(this.currentFrame).padStart(3, "0");
+      console.log(
+        formattedIndex,
+        `|${GameConfig.SPRITE_PATH}/Run__${formattedIndex}.png|`
+      );
+      this.addComponent(
+        k.sprite(`${GameConfig.SPRITE_PATH}/Run__${formattedIndex}.png`)
+      );
     } catch (error) {
-      if (this.useSprite) {
-        console.warn(
-          "Failed to load player sprite, using circle fallback",
-          error
-        );
-        this.useSprite = false;
-      }
-      // Add circle as fallback
-      this.addComponent(k.circle(30));
-      this.addComponent(k.outline(4, k.rgb(255, 150, 0)));
-      this.addComponent(k.color(255, 150, 0, 0.7));
+      console.warn("Failed to load player sprite", error);
     }
 
     // Add common components

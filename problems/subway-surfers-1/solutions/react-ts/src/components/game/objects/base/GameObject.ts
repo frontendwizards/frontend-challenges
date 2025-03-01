@@ -8,7 +8,7 @@ export default abstract class GameObject {
   protected gameObj: GameObj | null = null;
   protected components: CompType[] = [];
   protected tags: string[] = [];
-  protected props: Record<string, any> = {};
+  protected props: Record<string, unknown> = {};
 
   constructor(kaboomInstance: KaboomInterface) {
     this.k = kaboomInstance;
@@ -17,7 +17,7 @@ export default abstract class GameObject {
   /**
    * Initialize the game object with components, tags, and properties
    */
-  public abstract init(...args: any[]): void;
+  public abstract init(...args: unknown[]): void;
 
   /**
    * Update method called every frame
@@ -48,8 +48,17 @@ export default abstract class GameObject {
   /**
    * Add a property to the game object
    */
-  protected addProp(key: string, value: any): void {
+  protected addProp(key: string, value: unknown): void {
     this.props[key] = value;
+  }
+
+  /**
+   * Clear all components, tags, and properties
+   */
+  protected clearComponents(): void {
+    this.components = [];
+    this.tags = [];
+    this.props = {};
   }
 
   /**

@@ -1,14 +1,14 @@
-import { KaboomInterface } from "../../types/KaboomTypes";
+import { KaboomInterface, GameObj } from "../../types/KaboomTypes";
 import GameObject from "../base/GameObject";
 import GameConfig from "../../config/GameConfig";
 import Cloud from "./Cloud";
 
 export default class Environment extends GameObject {
   private clouds: Cloud[] = [];
-  private sky: any = null;
-  private ground: any = null;
-  private horizon: any = null;
-  private sun: any = null;
+  private sky: GameObj | null = null;
+  private ground: GameObj | null = null;
+  private horizon: GameObj | null = null;
+  private sun: GameObj | null = null;
 
   constructor(kaboomInstance: KaboomInterface) {
     super(kaboomInstance);

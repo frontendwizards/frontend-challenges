@@ -77,7 +77,7 @@ export class SpritePreviewScene extends BaseScene {
         k.anchor("center"),
         k.scale(0.3), // Scale down to proper size
       ]);
-    } catch (error) {
+    } catch (_error) {
       // If sprite loading fails, add a message
       k.add([
         k.text("Sprite could not be loaded", { size: 20 }),

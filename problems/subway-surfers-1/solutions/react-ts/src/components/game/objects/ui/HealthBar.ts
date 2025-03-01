@@ -1,6 +1,5 @@
-import { KaboomInterface } from "../../types/KaboomTypes";
+import { KaboomInterface, GameObj } from "../../types/KaboomTypes";
 import GameObject from "../base/GameObject";
-import GameConfig from "../../config/GameConfig";
 
 export interface HealthBarOptions {
   x: number;
@@ -17,8 +16,8 @@ export default class HealthBar extends GameObject {
   private barHeight: number;
   private maxHealth: number;
   private currentHealth: number;
-  private container: any = null;
-  private label: any = null;
+  private container: GameObj | null = null;
+  private label: GameObj | null = null;
 
   constructor(kaboomInstance: KaboomInterface, options: HealthBarOptions) {
     super(kaboomInstance);
@@ -36,7 +35,7 @@ export default class HealthBar extends GameObject {
     this.createHealthBar();
   }
 
-  public update(dt: number): void {
+  public update(_dt: number): void {
     // Health bar doesn't need per-frame updates
   }
 
@@ -101,11 +100,14 @@ export default class HealthBar extends GameObject {
 
     // Update color based on health level
     if (health <= this.maxHealth / 3) {
-      this.gameObj.color = this.k.rgb(255, 0, 0); // Red for low health
+      // Red for low health
+      this.gameObj.add(this.k.color(255, 0, 0));
     } else if (health <= (this.maxHealth * 2) / 3) {
-      this.gameObj.color = this.k.rgb(255, 255, 0); // Yellow for medium health
+      // Yellow for medium health
+      this.gameObj.add(this.k.color(255, 255, 0));
     } else {
-      this.gameObj.color = this.k.rgb(0, 255, 0); // Green for high health
+      // Green for high health
+      this.gameObj.add(this.k.color(0, 255, 0));
     }
   }
 

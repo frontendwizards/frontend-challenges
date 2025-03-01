@@ -11,6 +11,9 @@ interface GameEngineOptions {
   scale?: number;
 }
 
+// Define a type for the kaboom instance with the properties we need to add
+type KaboomCtx = ReturnType<typeof kaboom>;
+
 export default class GameEngine {
   private k: KaboomInterface | null = null;
   private options: GameEngineOptions;
@@ -32,7 +35,7 @@ export default class GameEngine {
       } = this.options;
 
       // Initialize Kaboom with the canvas element
-      this.k = kaboom({
+      const k = kaboom({
         canvas,
         width,
         height,
@@ -43,6 +46,18 @@ export default class GameEngine {
         crisp: true, // Crisp pixel rendering
         touchToMouse: true, // Convert touch to mouse events for mobile
       });
+
+      // Add required properties to make it compatible with KaboomInterface
+      const extendedK = k as KaboomCtx & {
+        scenes: Record<string, unknown>;
+        assets: Record<string, unknown>;
+      };
+
+      extendedK.scenes = {};
+      extendedK.assets = {};
+
+      // Cast to KaboomInterface
+      this.k = extendedK as unknown as KaboomInterface;
 
       console.log("Game engine initialized successfully");
     } catch (error) {

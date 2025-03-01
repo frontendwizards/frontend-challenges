@@ -1,4 +1,4 @@
-import { KaboomInterface } from "../../types/KaboomTypes";
+import { KaboomInterface, ActionReturnType } from "../../types/KaboomTypes";
 import { BaseScene } from "./BaseScene";
 import GameConfig from "../../config/GameConfig";
 import Player from "../../objects/entities/Player";
@@ -28,7 +28,7 @@ export default class GameplayScene extends BaseScene {
   private environment: Environment | null = null;
   private healthBar: HealthBar | null = null;
   private scoreDisplay: ScoreDisplay | null = null;
-  private obstacleSpawnTimer: any = null;
+  private obstacleSpawnTimer: ActionReturnType | null = null;
 
   constructor(
     kaboomInstance: KaboomInterface,

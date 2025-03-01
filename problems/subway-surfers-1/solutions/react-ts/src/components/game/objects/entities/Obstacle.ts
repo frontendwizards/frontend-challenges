@@ -37,7 +37,7 @@ export default class Obstacle extends GameObject {
     }
   }
 
-  public update(dt: number): void {
+  public update(_dt: number): void {
     // Obstacles are automatically moved by Kaboom's move component
     // Just update the hitbox if it exists
     if (this.hitbox && this.gameObj) {
@@ -58,9 +58,6 @@ export default class Obstacle extends GameObject {
     this.tags = [];
     this.props = {};
 
-    // Random size variation
-    const sizeVariation = k.rand(0.7, 1.1);
-
     try {
       // Try to use the obstacles sprite sheet
       this.addComponent(
@@ -69,7 +66,7 @@ export default class Obstacle extends GameObject {
           frame: this.spriteIndex,
         })
       );
-    } catch (e) {
+    } catch (_error) {
       console.warn("Failed to add obstacle sprite, using fallback rectangle");
       // Fallback to rectangle with random color if sprite loading fails
       this.addComponent(k.rect(60, 60));
@@ -91,13 +88,13 @@ export default class Obstacle extends GameObject {
     this.addComponent(k.anchor("center"));
     this.addComponent(k.area({ scale: 0.8 }));
     this.addComponent(k.move(k.LEFT, this.speed));
-    this.addComponent(k.scale(GameConfig.OBSTACLE_SCALE * sizeVariation));
+    this.addComponent(k.scale(GameConfig.OBSTACLE_SCALE));
 
     // Add tag
     this.addTag("obstacle");
 
     // Add custom draw function to handle white pixels
-    this.addProp("draw", function () {
+    this.addProp("draw", function (this: GameObj) {
       // This is effectively saying "use the sprite but make white transparent"
       this.use(k.color(255, 255, 255, 0));
     });

@@ -1,8 +1,8 @@
-import { KaboomInterface } from "../../types/KaboomTypes";
+import { KaboomInterface, GameObj } from "../../types/KaboomTypes";
 import { BaseScene } from "./BaseScene";
 
 export default class GameOverScene extends BaseScene {
-  private messageText: any = null;
+  private messageText: GameObj | null = null;
 
   constructor(kaboomInstance: KaboomInterface) {
     super(kaboomInstance);
