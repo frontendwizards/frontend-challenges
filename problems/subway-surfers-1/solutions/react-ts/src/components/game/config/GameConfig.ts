@@ -29,7 +29,7 @@ export default class GameConfig {
   static readonly SPRITE_PATH = "/assets/characters/templerun"; // Path to sprite assets
   static readonly CHARACTER_SPRITE_COUNT = 10; // Number of character animation frames
   static readonly OBSTACLE_SPRITE_COUNT = 10; // Number of obstacle types
-  static readonly OBSTACLE_SCALE = .8; // Scale for obstacle sprites
+  static readonly OBSTACLE_SCALE = .5; // Scale for obstacle sprites
 
   // Game mechanics
   static readonly LANE_COUNT = 3; // Number of lanes
