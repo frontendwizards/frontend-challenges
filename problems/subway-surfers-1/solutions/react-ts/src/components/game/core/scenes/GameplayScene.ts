@@ -24,7 +24,6 @@ export default class GameplayScene extends BaseScene {
   private gameTime = 0;
   private currentLane = GameConfig.PLAYER_INITIAL_LANE;
   private lanes = GameConfig.getLanePositions();
-  private spriteLoadSuccess: boolean;
   private showHitboxes: boolean;
   private showBorders: boolean;
   private difficulty: string;
@@ -48,7 +47,6 @@ export default class GameplayScene extends BaseScene {
     options: GameplaySceneOptions
   ) {
     super(kaboomInstance);
-    this.spriteLoadSuccess = spriteLoaded;
     this.showHitboxes = options.showHitboxes;
     this.showBorders = options.showBorders;
     this.difficulty = options.difficulty;

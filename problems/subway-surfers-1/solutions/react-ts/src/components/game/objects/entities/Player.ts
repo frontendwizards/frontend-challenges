@@ -13,7 +13,6 @@ export interface PlayerOptions {
 
 export default class Player extends GameObject {
   private currentLane: number;
-  private lanes: number[];
   private currentFrame: number = 0;
   private animationTimer: number = 0;
   private isAlive: boolean = true;
@@ -21,16 +20,13 @@ export default class Player extends GameObject {
   private hitbox: GameObj | null = null;
   private showHitboxes: boolean;
   private onHealthChange?: (health: number) => void;
-  private onGameOver?: (callback: () => number) => void;
   private getCurrentScoreCallback?: () => number;
 
   constructor(kaboomInstance: KaboomInterface, options: PlayerOptions) {
     super(kaboomInstance);
     this.currentLane = options.initialLane;
-    this.lanes = options.lanes;
     this.showHitboxes = options.showHitboxes;
     this.onHealthChange = options.onHealthChange;
-    this.onGameOver = options.onGameOver;
   }
 
   public init(): void {

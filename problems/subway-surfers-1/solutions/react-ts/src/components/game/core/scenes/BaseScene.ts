@@ -1,6 +1,5 @@
 import { KaboomInterface } from "../../types/KaboomTypes";
 import type SceneManager from "../SceneManager";
-import type { GameSceneConfig } from "../SceneManager";
 
 // Base class for scenes with common functionality
 export abstract class BaseScene {
@@ -17,7 +16,7 @@ export abstract class BaseScene {
   public register(sceneManager: SceneManager): void {
     sceneManager.registerScene({
       name: this.getName(),
-      create: (k, data) => this.create(data),
+      create: (_k, data) => this.create(data),
     });
   }
 

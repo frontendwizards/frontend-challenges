@@ -17,7 +17,6 @@ export default class AssetLoader {
   private k: KaboomInterface;
   private assetsLoaded = 0;
   private totalAssetsToLoad = 0;
-  private spritesLoaded = false;
 
   constructor(kaboomInstance: KaboomInterface) {
     this.k = kaboomInstance;
@@ -32,7 +31,6 @@ export default class AssetLoader {
 
       // Reset counter
       this.assetsLoaded = 0;
-      this.spritesLoaded = false;
 
       // Set a timeout to ensure we don't get stuck in loading
       const loadingTimeout = setTimeout(() => {
@@ -113,8 +111,6 @@ export default class AssetLoader {
         `Successfully loaded ${successfulLoads} out of ${totalCount} assets`
       );
 
-      // Set sprites loaded flag based on at least 1 successful sprite load
-      this.spritesLoaded = results.some((result) => result.success);
       this.assetsLoaded = loadedCount;
 
       // Even if we couldn't load all assets, consider the loading complete

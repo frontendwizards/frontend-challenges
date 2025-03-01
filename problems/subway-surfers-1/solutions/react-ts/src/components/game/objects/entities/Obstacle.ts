@@ -12,7 +12,6 @@ export interface ObstacleOptions {
 
 export default class Obstacle extends GameObject {
   private lane: number;
-  private lanes: number[];
   private speed: number;
   private showHitboxes: boolean;
   private showBorders: boolean;
@@ -22,7 +21,6 @@ export default class Obstacle extends GameObject {
   constructor(kaboomInstance: KaboomInterface, options: ObstacleOptions) {
     super(kaboomInstance);
     this.lane = options.lane;
-    this.lanes = options.lanes;
     this.speed = options.speed;
     this.showHitboxes = options.showHitboxes;
     this.showBorders = options.showBorders;
@@ -37,7 +35,7 @@ export default class Obstacle extends GameObject {
     }
   }
 
-  public update(_dt: number): void {
+  public update(): void {
     // Obstacles are automatically moved by Kaboom's move component
     // Just update the hitbox if it exists
     if (this.hitbox && this.gameObj) {

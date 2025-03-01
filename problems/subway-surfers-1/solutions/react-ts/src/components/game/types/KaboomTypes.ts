@@ -148,6 +148,7 @@ export interface GameObj {
   remove: (comp: CompType) => void;
   onDestroy: (callback: () => void) => void;
   z: number;
+  isCollected?: boolean;
 }
 
 export interface CompType {
@@ -171,7 +172,7 @@ export interface ActionReturnType {
 }
 
 // Declare the kaboom function as a global
-export declare global {
+declare global {
   const kaboom: (config?: KaboomConfig) => KaboomInterface;
 }
 

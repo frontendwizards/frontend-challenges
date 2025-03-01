@@ -96,9 +96,7 @@ export default class Environment extends GameObject {
   private createRoad(): void {
     const k = this.k;
     const WIDTH = GameConfig.CANVAS_WIDTH;
-    const HEIGHT = GameConfig.CANVAS_HEIGHT;
     const lanes = GameConfig.getLanePositions();
-    const BOTTOM_MARGIN = HEIGHT * GameConfig.BOTTOM_MARGIN_PERCENTAGE;
 
     // Calculate road placement with respect to the bottom margin
     const roadTop = lanes[0] - 30; // Start a bit above the first lane
