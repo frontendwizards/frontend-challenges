@@ -1,128 +1,124 @@
 import { KaboomInterface } from "../types/KaboomTypes";
+import GameConfig from "../config/GameConfig";
+
+interface AssetLoaderCallbacks {
+  onProgress?: (progress: number) => void;
+  onComplete?: () => void;
+  onError?: (error: Error) => void;
+}
 
 export default class AssetLoader {
   private k: KaboomInterface;
+  private assetsLoaded = 0;
+  private totalAssetsToLoad = 0;
+  private spritesLoaded = false;
 
   constructor(kaboomInstance: KaboomInterface) {
     this.k = kaboomInstance;
   }
 
-  public loadCharacterSprites(): Promise<boolean> {
-    return new Promise((resolve) => {
-      let loadedCount = 0;
-      const totalFrames = 10;
+  public loadAssets(callbacks?: AssetLoaderCallbacks): void {
+    try {
+      // Calculate total assets to load
+      this.totalAssetsToLoad =
+        GameConfig.CHARACTER_SPRITE_COUNT + GameConfig.OBSTACLE_SPRITE_COUNT;
 
-      // Try to load all individual frames
-      for (let i = 0; i < totalFrames; i++) {
-        const img = new Image();
-        img.src = `/assets/characters/templerun/Run__00${i}.png`;
+      // Reset counter
+      this.assetsLoaded = 0;
+      this.spritesLoaded = false;
 
-        img.onload = () => {
-          // Register each sprite individually
-          this.k.loadSprite(`run${i}`, img);
+      // Load character sprites
+      this.loadCharacterSprites(callbacks);
 
-          loadedCount++;
-          if (loadedCount === 1) {
-            // At least one sprite loaded successfully
-            resolve(true);
-          } else if (loadedCount === totalFrames) {
-            // All sprites loaded
-            resolve(true);
-          }
-        };
-
-        img.onerror = () => {
-          console.error(`Failed to load Temple Run sprite ${i}`);
-          loadedCount++;
-
-          if (loadedCount === 1) {
-            // First sprite failed to load
-            resolve(false);
-          } else if (loadedCount === totalFrames) {
-            // All attempts finished
-            resolve(loadedCount > 0);
-          }
-        };
+      // Load obstacle sprites
+      this.loadObstacleSprites(callbacks);
+    } catch (error) {
+      console.error("Error loading assets:", error);
+      if (callbacks?.onError) {
+        callbacks.onError(
+          error instanceof Error ? error : new Error(String(error))
+        );
       }
-    });
+    }
   }
 
-  public loadObstacleSprites(): Promise<boolean> {
-    return new Promise((resolve) => {
-      const obstaclesImage = new Image();
-      obstaclesImage.src = "/obstacles.png";
+  private loadCharacterSprites(callbacks?: AssetLoaderCallbacks): void {
+    const characterSpritesLoaded = { success: true };
 
-      obstaclesImage.onload = () => {
-        // Create a sprite atlas for obstacles
-        this.k.loadSpriteAtlas(obstaclesImage, {
-          obstacle0: {
-            x: 0,
-            y: 0,
-            width: obstaclesImage.width / 5,
-            height: obstaclesImage.height / 2,
-          },
-          obstacle1: {
-            x: obstaclesImage.width / 5,
-            y: 0,
-            width: obstaclesImage.width / 5,
-            height: obstaclesImage.height / 2,
-          },
-          obstacle2: {
-            x: (2 * obstaclesImage.width) / 5,
-            y: 0,
-            width: obstaclesImage.width / 5,
-            height: obstaclesImage.height / 2,
-          },
-          obstacle3: {
-            x: (3 * obstaclesImage.width) / 5,
-            y: 0,
-            width: obstaclesImage.width / 5,
-            height: obstaclesImage.height / 2,
-          },
-          obstacle4: {
-            x: (4 * obstaclesImage.width) / 5,
-            y: 0,
-            width: obstaclesImage.width / 5,
-            height: obstaclesImage.height / 2,
-          },
-          obstacle5: {
-            x: 0,
-            y: obstaclesImage.height / 2,
-            width: obstaclesImage.width / 5,
-            height: obstaclesImage.height / 2,
-          },
-          obstacle6: {
-            x: obstaclesImage.width / 5,
-            y: obstaclesImage.height / 2,
-            width: obstaclesImage.width / 5,
-            height: obstaclesImage.height / 2,
-          },
-          obstacle7: {
-            x: (2 * obstaclesImage.width) / 5,
-            y: obstaclesImage.height / 2,
-            width: obstaclesImage.width / 5,
-            height: obstaclesImage.height / 2,
-          },
-          obstacle8: {
-            x: (3 * obstaclesImage.width) / 5,
-            y: obstaclesImage.height / 2,
-            width: obstaclesImage.width / 5,
-            height: obstaclesImage.height / 2,
-          },
-          obstacle9: {
-            x: (4 * obstaclesImage.width) / 5,
-            y: obstaclesImage.height / 2,
-            width: obstaclesImage.width / 5,
-            height: obstaclesImage.height / 2,
-          },
-        });
-        resolve(true);
-      };
+    // Load character run animation frames
+    for (let i = 0; i < GameConfig.CHARACTER_SPRITE_COUNT; i++) {
+      const spriteName = `run${i}`;
 
-      obstaclesImage.onerror = () => {
-        console.error("Failed to load obstacles sprite");
-        resolve(false);
-      };
-    });
+      this.k.loadSprite(spriteName, `${GameConfig.SPRITE_PATH}/Run__00${i}.png`, {
+        sliceX: 1,
+        sliceY: 1,
+        anims: {
+          run: {
+            from: 0,
+            to: 0,
+            speed: 10,
+            loop: true,
+          },
+        },
+        noError: true,
+        onLoad: () => {
+          this.trackAssetLoaded(callbacks);
+        },
+        onError: (err) => {
+          console.warn(`Failed to load sprite ${spriteName}:`, err);
+          characterSpritesLoaded.success = false;
+          this.trackAssetLoaded(callbacks);
+        },
+      });
+    }
+
+    this.spritesLoaded = characterSpritesLoaded.success;
+  }
+
+  private loadObstacleSprites(callbacks?: AssetLoaderCallbacks): void {
+    // Load obstacle sprites
+    for (let i = 0; i < GameConfig.OBSTACLE_SPRITE_COUNT; i++) {
+      const spriteName = `obstacle${i}`;
+
+      this.k.loadSprite(
+        spriteName,
+        `${GameConfig.SPRITE_PATH}/obstacle${i}.png`,
+        {
+          sliceX: 1,
+          sliceY: 1,
+          noError: true,
+          onLoad: () => {
+            this.trackAssetLoaded(callbacks);
+          },
+          onError: (err) => {
+            console.warn(`Failed to load sprite ${spriteName}:`, err);
+            this.trackAssetLoaded(callbacks);
+          },
+        }
+      );
+    }
+  }
+
+  private trackAssetLoaded(callbacks?: AssetLoaderCallbacks): void {
+    this.assetsLoaded++;
+
+    // Calculate progress percentage
+    const progress = (this.assetsLoaded / this.totalAssetsToLoad) * 100;
+
+    // Report progress
+    if (callbacks?.onProgress) {
+      callbacks.onProgress(progress);
+    }
+
+    // Check if all assets are loaded
+    if (this.assetsLoaded >= this.totalAssetsToLoad) {
+      if (callbacks?.onComplete) {
+        callbacks.onComplete();
+      }
+    }
+  }
+
+  public isSpritesLoaded(): boolean {
+    return this.spritesLoaded;
   }
 }

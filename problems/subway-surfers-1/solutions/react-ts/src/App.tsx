@@ -26,7 +26,14 @@ export default function App() {
         </label>
       </div>
 
-      <EndlessRunner useSprite={useSprite} />
+      <EndlessRunner
+        width={1000}
+        height={600}
+        showHitboxes={false}
+        showBorders={false}
+        difficulty="medium"
+        useSprite={useSprite}
+      />
     </main>
   );
 }

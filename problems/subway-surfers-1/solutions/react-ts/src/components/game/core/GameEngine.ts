@@ -1,78 +1,80 @@
-import { KaboomInterface, KaboomConfig } from "../types/KaboomTypes";
+import kaboom from "kaboom";
+import { KaboomInterface } from "../types/KaboomTypes";
+import GameConfig from "../config/GameConfig";
+
+interface GameEngineOptions {
+  canvas: HTMLCanvasElement;
+  width?: number;
+  height?: number;
+  debug?: boolean;
+  background?: string;
+  scale?: number;
+}
 
 export default class GameEngine {
-  private gameContainer: HTMLDivElement | null = null;
-  protected k: KaboomInterface | null = null;
-  private script: HTMLScriptElement | null = null;
-  protected assetsLoaded = 0;
-  protected totalAssetsToLoad = 0;
+  private k: KaboomInterface | null = null;
+  private options: GameEngineOptions;
 
-  constructor(container: HTMLDivElement | null) {
-    this.gameContainer = container;
+  constructor(options: GameEngineOptions) {
+    this.options = options;
+    this.initialize();
   }
 
-  public initialize(
-    config: KaboomConfig,
-    onInit?: () => void
-  ): Promise<KaboomInterface> {
-    return new Promise((resolve, reject) => {
-      if (!this.gameContainer) {
-        reject(new Error("Game container not found"));
-        return;
-      }
+  private initialize(): void {
+    try {
+      const {
+        canvas,
+        width = GameConfig.CANVAS_WIDTH,
+        height = GameConfig.CANVAS_HEIGHT,
+        debug = false,
+        background = GameConfig.CANVAS_BACKGROUND_COLOR,
+        scale = 1,
+      } = this.options;
 
-      // Clean up the container
-      this.gameContainer.innerHTML = "";
+      // Initialize Kaboom with the canvas element
+      this.k = kaboom({
+        canvas,
+        width,
+        height,
+        background,
+        scale,
+        debug,
+        global: false, // Don't pollute global namespace
+        crisp: true, // Crisp pixel rendering
+        touchToMouse: true, // Convert touch to mouse events for mobile
+      });
 
-      // Load Kaboom script dynamically
-      this.script = document.createElement("script");
-      this.script.src =
-        "https://unpkg.com/kaboom@3000.0.0-beta.2/dist/kaboom.js";
-      this.script.async = true;
-
-      this.script.onload = () => {
-        // Initialize Kaboom
-        const k = kaboom({
-          ...config,
-          canvas: document.createElement("canvas"),
-        });
-
-        // Append canvas to our container
-        if (k.canvas) {
-          this.gameContainer.appendChild(k.canvas);
-        }
-
-        this.k = k;
-
-        if (onInit) {
-          onInit();
-        }
-
-        resolve(k);
-      };
-
-      this.script.onerror = (e) => {
-        reject(new Error("Failed to load Kaboom script"));
-      };
-
-      document.body.appendChild(this.script);
-    });
-  }
-
-  protected checkAllAssetsLoaded(callback: () => void): void {
-    this.assetsLoaded++;
-    if (this.assetsLoaded >= this.totalAssetsToLoad) {
-      callback();
+      console.log("Game engine initialized successfully");
+    } catch (error) {
+      console.error("Failed to initialize game engine:", error);
+      throw error;
     }
+  }
+
+  public getKaboomInstance(): KaboomInterface {
+    if (!this.k) {
+      throw new Error("Kaboom instance not initialized");
+    }
+    return this.k;
   }
 
   public destroy(): void {
-    if (this.script && this.script.parentNode) {
-      this.script.parentNode.removeChild(this.script);
-    }
+    if (this.k) {
+      // Clean up any event listeners or timers
+      this.k.onUpdate(() => {}); // Clear update handlers
+      this.k.onDraw(() => {}); // Clear draw handlers
 
-    if (this.gameContainer) {
-      this.gameContainer.innerHTML = "";
+      // Remove all game objects
+      this.k.destroyAll();
+
+      // Clear all scenes
+      this.k.scenes = {};
+
+      // Clear all loaded assets
+      this.k.assets = {};
+
+      console.log("Game engine resources cleaned up");
+      this.k = null;
     }
   }
 }

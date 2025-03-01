@@ -4,61 +4,72 @@ export interface DifficultySettings {
 }
 
 export default class GameConfig {
-  // Game canvas settings
-  public static readonly CANVAS_WIDTH = 1000;
-  public static readonly CANVAS_HEIGHT = 600;
-  public static readonly BACKGROUND_COLOR = "#d9b98e";
+  // Canvas settings
+  static readonly CANVAS_WIDTH = 1000;
+  static readonly CANVAS_HEIGHT = 600;
+  static readonly CANVAS_BACKGROUND_COLOR = "#000000";
 
   // Environment settings
-  public static readonly SKY_PERCENTAGE = 0.35; // 35% of the screen
+  static readonly SKY_PERCENTAGE = 0.6; // 60% of the screen is sky
+  static readonly GROUND_COLOR = "#D9B98E"; // Desert sand color
+  static readonly SKY_COLOR = "#87CEEB"; // Sky blue color
+  static readonly HORIZON_COLOR = "#C8AA78"; // Slightly darker than sand
+  static readonly SUN_COLOR = "#FFDC64"; // Bright yellow
+  static readonly CLOUD_COLOR = "rgba(255, 255, 255, 0.8)"; // Semi-transparent white
 
   // Player settings
-  public static readonly PLAYER_SPEED = 520;
-  public static readonly PLAYER_INITIAL_HEALTH = 3;
-  public static readonly PLAYER_INITIAL_LANE = 1;
-  public static readonly PLAYER_POSITION_X = 150;
+  static readonly PLAYER_POSITION_X = 200; // Player's horizontal position
+  static readonly PLAYER_INITIAL_LANE = 1; // Start in the middle lane (0-2)
+  static readonly PLAYER_SPEED = 400; // Base movement speed
+  static readonly PLAYER_INITIAL_HEALTH = 3; // Starting health
+  static readonly SPRITE_SCALE = 0.3; // Scale for player sprite
 
   // Asset settings
-  public static readonly SPRITE_SCALE = 0.2;
-  public static readonly OBSTACLE_SCALE = 0.8;
+  static readonly SPRITE_PATH = "/assets/characters/templerun"; // Path to sprite assets
+  static readonly CHARACTER_SPRITE_COUNT = 10; // Number of character animation frames
+  static readonly OBSTACLE_SPRITE_COUNT = 10; // Number of obstacle types
+  static readonly OBSTACLE_SCALE = 0.5; // Scale for obstacle sprites
 
-  // Game difficulty presets
-  public static readonly DIFFICULTY_SETTINGS: Record<
-    string,
-    DifficultySettings
-  > = {
+  // Game mechanics
+  static readonly LANE_COUNT = 3; // Number of lanes
+  static readonly LANE_SPACING = 150; // Distance between lanes
+  static readonly MAX_SPEED_INCREASE = 300; // Maximum speed increase over time
+
+  // Difficulty presets
+  static readonly DIFFICULTY_SETTINGS = {
     easy: {
-      obstacleSpeed: 250,
-      spawnInterval: [1.2, 3.0],
+      obstacleSpeed: 300,
+      spawnInterval: [1.8, 3.0], // Min and max time between obstacles
+      speedIncreaseFactor: 0.5, // How quickly speed increases
     },
-    normal: {
-      obstacleSpeed: 320,
-      spawnInterval: [0.8, 2.5],
+    medium: {
+      obstacleSpeed: 400,
+      spawnInterval: [1.2, 2.5],
+      speedIncreaseFactor: 1.0,
     },
     hard: {
-      obstacleSpeed: 450,
-      spawnInterval: [0.5, 1.5],
+      obstacleSpeed: 500,
+      spawnInterval: [0.8, 2.0],
+      speedIncreaseFactor: 1.5,
     },
   };
 
-  // Game progression settings
-  public static readonly MAX_SPEED_INCREASE = 300; // Maximum speed increase over time
-
-  // Calculate game dimensions based on settings
-  public static getLanePositions(): number[] {
-    const groundStartY = this.CANVAS_HEIGHT * this.SKY_PERCENTAGE;
-    const groundHeight = this.CANVAS_HEIGHT * (1 - this.SKY_PERCENTAGE);
-
-    return [
-      groundStartY + groundHeight * 0.25, // Top lane on the ground
-      groundStartY + groundHeight * 0.5, // Middle lane on the ground
-      groundStartY + groundHeight * 0.75, // Bottom lane on the ground
-    ];
+  // Helper methods
+  static getLanePositions(): number[] {
+    const centerY = this.CANVAS_HEIGHT / 2;
+    return [centerY - this.LANE_SPACING, centerY, centerY + this.LANE_SPACING];
   }
 
-  public static getDifficultySettings(difficulty: string): DifficultySettings {
-    return (
-      this.DIFFICULTY_SETTINGS[difficulty] || this.DIFFICULTY_SETTINGS.normal
-    );
+  static getDifficultySettings(difficulty: string): {
+    obstacleSpeed: number;
+    spawnInterval: [number, number];
+    speedIncreaseFactor: number;
+  } {
+    const validDifficulty =
+      difficulty in this.DIFFICULTY_SETTINGS ? difficulty : "medium";
+
+    return this.DIFFICULTY_SETTINGS[
+      validDifficulty as keyof typeof this.DIFFICULTY_SETTINGS
+    ];
   }
 }
