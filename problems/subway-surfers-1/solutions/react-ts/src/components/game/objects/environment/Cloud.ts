@@ -78,7 +78,12 @@ export default class Cloud extends GameObject {
     // Add main cloud circle
     this.addComponent(k.circle(this.size / 2));
     this.addComponent(k.pos(this.x, this.y));
-    this.addComponent(k.color(255, 255, 255, 0.8));
+    this.addComponent(k.color(
+      GameConfig.CLOUD_COLOR[0],
+      GameConfig.CLOUD_COLOR[1],
+      GameConfig.CLOUD_COLOR[2],
+      GameConfig.CLOUD_COLOR[3]
+    ));
 
     // Add z-index property
     this.addProp("z", -190);
@@ -111,7 +116,12 @@ export default class Cloud extends GameObject {
       const cloudPart = k.add([
         k.circle(this.size / 2.5),
         k.pos(this.gameObj.pos.x + offsetX, this.gameObj.pos.y + offsetY),
-        k.color(255, 255, 255, 0.7),
+        k.color(
+          GameConfig.CLOUD_COLOR[0],
+          GameConfig.CLOUD_COLOR[1],
+          GameConfig.CLOUD_COLOR[2],
+          GameConfig.CLOUD_COLOR[3]
+        ),
         {
           z: -190,
           parentCloud: this.gameObj,

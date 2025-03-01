@@ -33,13 +33,23 @@ export default class Environment extends GameObject {
     const HEIGHT = GameConfig.CANVAS_HEIGHT;
     const SKY_PERCENTAGE = GameConfig.SKY_PERCENTAGE;
 
-    // Blue sky (configurable height)
+    // Night sky
     this.sky = k.add([
       k.rect(WIDTH, HEIGHT * SKY_PERCENTAGE),
       k.pos(0, 0),
-      k.color(135, 206, 235), // Sky blue color
+      k.color(k.rgb(GameConfig.SKY_COLOR)),
       { z: -200 }, // Place behind everything
     ]);
+
+    // Add some stars to the night sky
+    for (let i = 0; i < 50; i++) {
+      k.add([
+        k.circle(k.rand(1, 2)),
+        k.pos(k.rand(0, WIDTH), k.rand(0, HEIGHT * SKY_PERCENTAGE * 0.9)),
+        k.color(255, 255, 255, k.rand(0.5, 1)),
+        { z: -199 }, // Just in front of sky
+      ]);
+    }
   }
 
   private createGround(): void {
@@ -48,11 +58,11 @@ export default class Environment extends GameObject {
     const HEIGHT = GameConfig.CANVAS_HEIGHT;
     const SKY_PERCENTAGE = GameConfig.SKY_PERCENTAGE;
 
-    // Desert sand (remaining screen height)
+    // Dark ground for night scene
     this.ground = k.add([
       k.rect(WIDTH, HEIGHT * (1 - SKY_PERCENTAGE) + 10), // Slight overlap to avoid gaps
       k.pos(0, HEIGHT * SKY_PERCENTAGE - 5), // Start below the sky with slight overlap
-      k.color(217, 185, 142), // Desert sand color
+      k.color(k.rgb(GameConfig.GROUND_COLOR)),
       { z: -180 }, // In front of sky but behind other elements
     ]);
   }
@@ -63,11 +73,11 @@ export default class Environment extends GameObject {
     const HEIGHT = GameConfig.CANVAS_HEIGHT;
     const SKY_PERCENTAGE = GameConfig.SKY_PERCENTAGE;
 
-    // Horizon line where sky meets desert
+    // Horizon line where sky meets ground
     this.horizon = k.add([
       k.rect(WIDTH, 4),
       k.pos(0, HEIGHT * SKY_PERCENTAGE - 2),
-      k.color(200, 170, 120), // Slightly darker than sand
+      k.color(k.rgb(GameConfig.HORIZON_COLOR)),
       { z: -185 },
     ]);
   }
@@ -78,12 +88,20 @@ export default class Environment extends GameObject {
     const HEIGHT = GameConfig.CANVAS_HEIGHT;
     const SKY_PERCENTAGE = GameConfig.SKY_PERCENTAGE;
 
-    // Add a sun in the corner
+    // Add a moon in the corner (renamed method but kept the same for compatibility)
     this.sun = k.add([
       k.circle(60),
-      k.pos(WIDTH - 100, HEIGHT * SKY_PERCENTAGE * 0.4), // Position relative to sky height
-      k.color(255, 220, 100),
+      k.pos(WIDTH - 100, HEIGHT * SKY_PERCENTAGE * 0.3), // Position relative to sky height
+      k.color(k.rgb(GameConfig.SUN_COLOR)),
       { z: -150 },
+    ]);
+
+    // Add crescent moon effect by overlapping a slightly offset dark circle
+    k.add([
+      k.circle(55),
+      k.pos(WIDTH - 80, HEIGHT * SKY_PERCENTAGE * 0.3 - 5), // Slightly offset to create crescent
+      k.color(k.rgb(GameConfig.SKY_COLOR)), // Same as sky color
+      { z: -149 }, // Slightly in front of moon
     ]);
   }
 

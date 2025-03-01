@@ -34,9 +34,7 @@ export default class AssetLoader {
         if (this.assetsLoaded < this.totalAssetsToLoad) {
           // Force all assets to be marked as loaded
           this.assetsLoaded = this.totalAssetsToLoad;
-          if (callbacks?.onComplete) {
-            callbacks.onComplete();
-          }
+          callbacks?.onComplete?.();
         }
       }, 5000); // 5 seconds timeout
 
@@ -52,17 +50,13 @@ export default class AssetLoader {
       // Check if everything is loaded instantly (cached or failed)
       if (this.assetsLoaded >= this.totalAssetsToLoad) {
         clearTimeout(loadingTimeout);
-        if (callbacks?.onComplete) {
-          callbacks.onComplete();
-        }
+        callbacks?.onComplete?.();
       }
     } catch (error) {
       console.error("Error loading assets:", error);
-      if (callbacks?.onError) {
-        callbacks.onError(
-          error instanceof Error ? error : new Error(String(error))
-        );
-      }
+      callbacks?.onError?.(
+        error instanceof Error ? error : new Error(String(error))
+      );
     }
   }
 
@@ -82,14 +76,6 @@ export default class AssetLoader {
       this.k.loadSprite(spriteName, spritePath, {
         sliceX: 1,
         sliceY: 1,
-        anims: {
-          run: {
-            from: 0,
-            to: 0,
-            speed: 10,
-            loop: true,
-          },
-        },
         noError: true,
         onLoad: () => {
           console.log(`Successfully loaded sprite: ${spriteName}`);
@@ -113,21 +99,12 @@ export default class AssetLoader {
     console.log("Loading obstacle sprite sheet...");
     // Load the obstacles sprite sheet and slice it into 10 obstacles
     this.k.loadSprite("obstacles", "/obstacles.png", {
-      sliceX: GameConfig.OBSTACLE_SPRITE_COUNT, // Slice horizontally into 10 sprites
-      sliceY: 1,
-      anims: {
-        // Define animations if needed
-      },
+      sliceX: 5,
+      sliceY: 2,
       noError: true,
       onLoad: () => {
         console.log("Successfully loaded obstacles sprite sheet");
         this.trackAssetLoaded(callbacks);
-
-        // Register individual obstacle sprites from the sprite sheet
-        for (let i = 0; i < GameConfig.OBSTACLE_SPRITE_COUNT; i++) {
-          // The obstacles are already loaded as frames in the sprite sheet
-          // We don't need additional tracking for these
-        }
       },
       onError: (err) => {
         console.warn("Failed to load obstacles sprite sheet:", err);

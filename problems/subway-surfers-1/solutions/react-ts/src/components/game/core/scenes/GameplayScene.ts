@@ -78,7 +78,6 @@ export default class GameplayScene extends BaseScene {
   private setupPlayer(): void {
     // Create player
     this.player = new Player(this.k, {
-      useSprite: this.spriteLoadSuccess,
       initialLane: this.currentLane,
       lanes: this.lanes,
       showHitboxes: this.showHitboxes,
@@ -103,7 +102,7 @@ export default class GameplayScene extends BaseScene {
     this.scoreDisplay = new ScoreDisplay(this.k, {
       x: 24,
       y: 24,
-      width: 150,
+      width: 165,
       height: 40,
     });
     this.scoreDisplay.init();

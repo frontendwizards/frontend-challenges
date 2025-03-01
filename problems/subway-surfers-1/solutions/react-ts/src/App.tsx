@@ -3,8 +3,6 @@ import "./styles.css";
 import EndlessRunner from "./components/game/EndlessRunner";
 
 export default function App() {
-  const [useSprite, setUseSprite] = useState(true);
-
   return (
     <main className="p-5 text-center">
       <h1 className="text-3xl font-bold mb-2 text-red-500">
@@ -14,25 +12,12 @@ export default function App() {
         Use UP and DOWN arrow keys to move. Avoid the obstacles!
       </p>
 
-      <div className="mb-5">
-        <label className="flex items-center justify-center gap-2 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={useSprite}
-            onChange={(e) => setUseSprite(e.target.checked)}
-            className="w-4 h-4"
-          />
-          <span>Use character sprite (uncheck for simple circle)</span>
-        </label>
-      </div>
-
       <EndlessRunner
         width={1000}
         height={600}
         showHitboxes={false}
         showBorders={false}
         difficulty="medium"
-        useSprite={useSprite}
       />
     </main>
   );

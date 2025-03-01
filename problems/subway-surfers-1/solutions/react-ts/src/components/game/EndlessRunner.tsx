@@ -15,7 +15,6 @@ interface EndlessRunnerProps {
   showHitboxes?: boolean;
   showBorders?: boolean;
   difficulty?: "easy" | "medium" | "hard";
-  useSprite?: boolean;
 }
 
 const EndlessRunner: React.FC<EndlessRunnerProps> = ({
@@ -24,7 +23,6 @@ const EndlessRunner: React.FC<EndlessRunnerProps> = ({
   showHitboxes = false,
   showBorders = false,
   difficulty = "medium",
-  useSprite = true,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -78,7 +76,7 @@ const EndlessRunner: React.FC<EndlessRunnerProps> = ({
         // Register all game scenes
         const gameplayScene = new GameplayScene(
           kaboomInstance,
-          spritesLoaded && useSprite, // Only use sprites if both loaded and enabled
+          spritesLoaded, // Only use sprites if both loaded and enabled
           {
             showHitboxes,
             showBorders,
@@ -105,7 +103,7 @@ const EndlessRunner: React.FC<EndlessRunnerProps> = ({
     return () => {
       gameEngine.destroy();
     };
-  }, [width, height, showHitboxes, showBorders, difficulty, useSprite]);
+  }, [width, height, showHitboxes, showBorders, difficulty]);
 
   return (
     <div className="relative w-full h-full flex justify-center items-center">

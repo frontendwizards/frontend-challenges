@@ -11,12 +11,12 @@ export default class GameConfig {
   static readonly CANVAS_BACKGROUND_COLOR = "#000000";
 
   // Environment settings
-  static readonly SKY_PERCENTAGE = 0.6; // 60% of the screen is sky
-  static readonly GROUND_COLOR = "#D9B98E"; // Desert sand color
-  static readonly SKY_COLOR = "#87CEEB"; // Sky blue color
-  static readonly HORIZON_COLOR = "#C8AA78"; // Slightly darker than sand
-  static readonly SUN_COLOR = "#FFDC64"; // Bright yellow
-  static readonly CLOUD_COLOR = "rgba(255, 255, 255, 0.8)"; // Semi-transparent white
+  static readonly SKY_PERCENTAGE = 0.36;
+  static readonly GROUND_COLOR = "#2F3136"; // Dark ground color for night
+  static readonly SKY_COLOR = "#0A1128"; // Dark blue night sky
+  static readonly HORIZON_COLOR = "#27294B"; // Dark blue-purple horizon
+  static readonly SUN_COLOR = "#E8E9EB"; // Off-white/silver color for moon
+  static readonly CLOUD_COLOR = [210, 210, 220, 0.4]; // Semi-transparent light color for night clouds
 
   // Player settings
   static readonly PLAYER_POSITION_X = 200; // Player's horizontal position
@@ -29,7 +29,7 @@ export default class GameConfig {
   static readonly SPRITE_PATH = "/assets/characters/templerun"; // Path to sprite assets
   static readonly CHARACTER_SPRITE_COUNT = 10; // Number of character animation frames
   static readonly OBSTACLE_SPRITE_COUNT = 10; // Number of obstacle types
-  static readonly OBSTACLE_SCALE = 0.5; // Scale for obstacle sprites
+  static readonly OBSTACLE_SCALE = .8; // Scale for obstacle sprites
 
   // Game mechanics
   static readonly LANE_COUNT = 3; // Number of lanes
