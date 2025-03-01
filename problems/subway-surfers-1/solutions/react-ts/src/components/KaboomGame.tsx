@@ -38,7 +38,7 @@ const KaboomGame: React.FC = () => {
   const [showSpritePreview, setShowSpritePreview] = useState(false);
   const [showBorders, setShowBorders] = useState(false);
   const [showHitboxes, setShowHitboxes] = useState(false);
-  const [gameDifficulty, setGameDifficulty] = useState("normal"); // "easy", "normal", "hard"
+  const [gameDifficulty, setGameDifficulty] = useState("hard"); // "easy", "normal", "hard"
 
   useEffect(() => {
     // Make sure the container is available
@@ -60,7 +60,7 @@ const KaboomGame: React.FC = () => {
       const k = kaboom({
         width: 1000, // Increased from 800
         height: 600, // Increased from 400
-        background: [0, 0, 0], // Black background
+        background: "#d9b98e", // Black background
         scale: 1,
         debug: showHitboxes, // Enable debug mode when hitboxes are shown
         canvas: document.createElement("canvas"),
@@ -76,8 +76,21 @@ const KaboomGame: React.FC = () => {
       let score = 0;
       const LANE_HEIGHT = 600; // Updated
       const LANE_WIDTH = 1000; // Updated
-      const LANE_Y = [LANE_HEIGHT / 4, LANE_HEIGHT / 2, (3 * LANE_HEIGHT) / 4]; // Three lanes
-      const PLAYER_X = 150; // Adjusted for larger screen
+
+      // Make sky percentage easily configurable
+      const SKY_PERCENTAGE = 0.35; // 35% of the screen
+
+      // Update lane positions to be on the ground
+      // Calculate lane positions based on the desert portion
+      const groundStartY = LANE_HEIGHT * SKY_PERCENTAGE;
+      const groundHeight = LANE_HEIGHT * (1 - SKY_PERCENTAGE);
+
+      // Recalculate lane positions to be evenly distributed on the ground
+      const LANE_Y_ADJUSTED = [
+        groundStartY + groundHeight * 0.25, // Top lane on the ground
+        groundStartY + groundHeight * 0.5, // Middle lane on the ground
+        groundStartY + groundHeight * 0.75, // Bottom lane on the ground
+      ];
 
       // Set game difficulty parameters
       const SPEED = 520;
@@ -268,15 +281,113 @@ const KaboomGame: React.FC = () => {
       // Game scene
       function startGame() {
         k.scene("game", () => {
-          // add grey background
-          k.add([k.rect(LANE_WIDTH, LANE_HEIGHT), k.color(100, 100, 100)]);
-
-          // Display difficulty level
+          // Blue sky (configurable height)
           k.add([
-            k.text(`Difficulty: ${gameDifficulty.toUpperCase()}`, { size: 16 }),
-            k.pos(LANE_WIDTH - 240, 20),
-            k.color(255, 255, 255),
+            k.rect(LANE_WIDTH, LANE_HEIGHT * SKY_PERCENTAGE),
+            k.pos(0, 0),
+            k.color(135, 206, 235), // Sky blue color
+            { z: -200 }, // Place behind everything
           ]);
+
+          // Desert sand (remaining screen height)
+          k.add([
+            k.rect(LANE_WIDTH, LANE_HEIGHT * (1 - SKY_PERCENTAGE) + 10), // Slight overlap to avoid gaps
+            k.pos(0, LANE_HEIGHT * SKY_PERCENTAGE - 5), // Start below the sky with slight overlap
+            k.color(217, 185, 142), // Same sand color
+            { z: -180 }, // In front of sky but behind other elements
+          ]);
+
+          // Horizon line where sky meets desert
+          k.add([
+            k.rect(LANE_WIDTH, 4),
+            k.pos(0, LANE_HEIGHT * SKY_PERCENTAGE - 2),
+            k.color(200, 170, 120), // Slightly darker than sand
+            { z: -185 },
+          ]);
+
+          // Add a sun in the corner
+          k.add([
+            k.circle(60),
+            k.pos(LANE_WIDTH - 100, LANE_HEIGHT * SKY_PERCENTAGE * 0.4), // Position relative to sky height
+            k.color(255, 220, 100),
+            { z: -150 },
+          ]);
+
+          // Create an array to store cloud objects for animation
+          const clouds = [];
+
+          // Add moving clouds in the sky
+          for (let i = 0; i < 8; i++) {
+            const cloudSize = k.rand(40, 80);
+            const xPos = k.rand(0, LANE_WIDTH);
+            const yPos = k.rand(10, LANE_HEIGHT * SKY_PERCENTAGE * 0.8); // Keep clouds in the sky
+            const cloudSpeed = k.rand(10, 30); // Random speed for each cloud
+
+            // Create a cloud object with multiple circles
+            const mainCloud = k.add([
+              k.circle(cloudSize / 2),
+              k.pos(xPos, yPos),
+              k.color(255, 255, 255, 0.8),
+              { z: -190 },
+              // Add custom properties for animation
+              {
+                speed: cloudSpeed,
+                cloudParts: [], // Store additional cloud circles
+              },
+            ]);
+
+            // Add additional circles to make the cloud fluffy
+            for (let j = 0; j < 3; j++) {
+              const offsetX = k.rand(-cloudSize / 2, cloudSize / 2);
+              const offsetY = k.rand(-cloudSize / 4, cloudSize / 4);
+
+              const cloudPart = k.add([
+                k.circle(cloudSize / 2.5),
+                k.pos(xPos + offsetX, yPos + offsetY),
+                k.color(255, 255, 255, 0.7),
+                { z: -190 },
+                {
+                  parentCloud: mainCloud,
+                  offsetX: offsetX,
+                  offsetY: offsetY,
+                },
+              ]);
+
+              // Add this part to the main cloud's parts array
+              mainCloud.cloudParts.push(cloudPart);
+            }
+
+            // Add the cloud to our tracking array
+            clouds.push(mainCloud);
+          }
+
+          // Cloud movement animation in game update loop
+          k.onUpdate(() => {
+            // Move all clouds
+            clouds.forEach((cloud) => {
+              // Move the main cloud part
+              cloud.pos.x -= cloud.speed * k.dt();
+
+              // Move all child parts along with the main cloud
+              cloud.cloudParts.forEach((part) => {
+                part.pos.x = cloud.pos.x + part.offsetX;
+              });
+
+              // If cloud moves off-screen, reposition to the right side
+              if (cloud.pos.x < -100) {
+                // Reset to right side with new height
+                cloud.pos.x = LANE_WIDTH + 100;
+                cloud.pos.y = k.rand(10, LANE_HEIGHT * SKY_PERCENTAGE * 0.8);
+
+                // Update child parts positions
+                cloud.cloudParts.forEach((part) => {
+                  part.pos.y = cloud.pos.y + part.offsetY;
+                });
+              }
+            });
+
+            // Rest of game update logic...
+          });
 
           // Add player character
           let currentLane = 1;
@@ -293,7 +404,7 @@ const KaboomGame: React.FC = () => {
             ...(spriteLoadSuccess
               ? []
               : [k.outline(2, k.rgb(255, 255, 255)), k.color(255, 0, 0)]),
-            k.pos(PLAYER_X, LANE_Y[currentLane]),
+            k.pos(150, LANE_Y_ADJUSTED[currentLane]),
             k.anchor("center"),
             k.area({ scale: 0.7 }),
             "player",
@@ -315,7 +426,7 @@ const KaboomGame: React.FC = () => {
           if (showHitboxes) {
             const playerHitbox = k.add([
               k.rect(player.width * 0.7, player.height * 0.7),
-              k.pos(PLAYER_X, LANE_Y[currentLane]),
+              k.pos(150, LANE_Y_ADJUSTED[currentLane]),
               k.anchor("center"),
               k.outline(2, k.rgb(0, 255, 0)),
               k.color(0, 255, 0, 0.3),
@@ -354,7 +465,7 @@ const KaboomGame: React.FC = () => {
                   ...(spriteLoadSuccess
                     ? []
                     : [k.outline(2, k.rgb(255, 255, 255)), k.color(255, 0, 0)]),
-                  k.pos(PLAYER_X, LANE_Y[oldLane]),
+                  k.pos(150, LANE_Y_ADJUSTED[oldLane]),
                   k.anchor("center"),
                   k.area({ scale: 0.7 }),
                   "player",
@@ -376,10 +487,11 @@ const KaboomGame: React.FC = () => {
           // Add UI elements
           // Health display
           const healthContainer = k.add([
-            k.rect(100, 30),
+            k.rect(100, 60), // Make taller to include both text and bar
             k.pos(LANE_WIDTH - 120, 20),
             k.outline(2, k.rgb(255, 255, 255)),
-            k.color(0, 0, 0, 0), // Transparent fill
+            k.color(0, 0, 0, 0.7), // Semi-transparent black
+            { z: 100 }, // Keep above other elements
           ]);
 
           const healthDisplay = k.add([
@@ -387,6 +499,7 @@ const KaboomGame: React.FC = () => {
             k.pos(LANE_WIDTH - 120 + 50, 20 + 15),
             k.anchor("center"),
             k.color(255, 255, 255),
+            { z: 101 }, // Above container
           ]);
 
           const healthBar = k.add([
@@ -394,6 +507,7 @@ const KaboomGame: React.FC = () => {
             k.pos(LANE_WIDTH - 110, 60),
             k.color(0, 255, 0),
             {
+              z: 101, // Above container
               updateHealth: function (health: number) {
                 this.width = (health / 3) * 80;
                 if (health <= 1) this.color = k.rgb(255, 0, 0);
@@ -406,23 +520,34 @@ const KaboomGame: React.FC = () => {
           k.onKeyPress("up", () => {
             if (player.isAlive && currentLane > 0) {
               currentLane--;
-              player.moveTo(PLAYER_X, LANE_Y[currentLane]);
+              player.moveTo(150, LANE_Y_ADJUSTED[currentLane]);
             }
           });
 
           k.onKeyPress("down", () => {
             if (player.isAlive && currentLane < 2) {
               currentLane++;
-              player.moveTo(PLAYER_X, LANE_Y[currentLane]);
+              player.moveTo(150, LANE_Y_ADJUSTED[currentLane]);
             }
           });
 
           // Score display
+          const scoreBackground = k.add([
+            k.rect(150, 40), // Background size for score
+            k.pos(24, 24),
+            k.color(0, 0, 0, 0.7), // Semi-transparent black background
+            k.fixed(),
+            k.outline(2, k.rgb(255, 255, 255)),
+            { z: 100 }, // Ensure it's above other elements
+          ]);
+
           const scoreLabel = k.add([
             k.text("Score: 0", { size: 24 }),
-            k.pos(24, 24),
+            k.pos(24 + 10, 24 + 20), // Slight padding inside the background
+            k.anchor("left"),
+            k.color(255, 255, 255), // Keep white text but now against dark background
             k.fixed(),
-            { value: 0 },
+            { value: 0, z: 101 }, // Ensure text is above background
           ]);
 
           // Update score and progressively increase difficulty
@@ -441,18 +566,8 @@ const KaboomGame: React.FC = () => {
                 Math.floor(gameTime / 10) * 20 // Increase by 20 every 10 seconds
               );
               currentObstacleSpeed = OBSTACLE_SPEED + speedIncrease;
-
-              // Display current game speed
-              speedDisplay.text = `Speed: ${Math.floor(currentObstacleSpeed)}`;
             }
           });
-
-          // Display current speed
-          const speedDisplay = k.add([
-            k.text(`Speed: ${OBSTACLE_SPEED}`, { size: 16 }),
-            k.pos(LANE_WIDTH - 240, 60),
-            k.color(255, 255, 255),
-          ]);
 
           // Obstacle spawning
           function spawnObstacle() {
@@ -473,14 +588,22 @@ const KaboomGame: React.FC = () => {
               k.sprite(spriteName, { noError: true }) || k.rect(60, 60),
               // Add outline based on showBorders state
               ...(showBorders ? [k.outline(2, k.rgb(255, 0, 0))] : []),
-              k.pos(LANE_WIDTH, LANE_Y[obstacleLane]),
+              k.pos(LANE_WIDTH, LANE_Y_ADJUSTED[obstacleLane]),
               k.anchor("center"),
               k.area({ scale: 0.8 }), // More accurate hitbox
               k.move(k.LEFT, currentObstacleSpeed), // Use the current speed that increases over time
               "obstacle",
               k.scale(0.8 * sizeVariation), // Add some size variation
-              // Remove white background by making it transparent
-              k.color(255, 255, 255, 0),
+              // Apply two color transformations to handle white backgrounds
+              k.color(255, 255, 255, 0.9), // First make it slightly transparent
+              // Add custom properties to make white transparent
+              {
+                // Override default render function to handle white pixels
+                draw() {
+                  // This is effectively saying "use the sprite but make white transparent"
+                  this.use(k.color(255, 255, 255, 0));
+                },
+              },
             ]);
 
             // If showing hitboxes, draw a visible outline around the hitbox
@@ -652,6 +775,7 @@ const KaboomGame: React.FC = () => {
                 color: "white",
                 border: "1px solid #666",
                 borderRadius: "4px",
+                scale: ".7",
               }}
             >
               <option value="easy">Easy</option>
