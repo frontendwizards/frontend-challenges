@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import kaboom from "kaboom";
 import { KaboomInterface } from "./types/KaboomTypes";
 import GameEngine from "./core/GameEngine";
 import AssetLoader from "./core/AssetLoader";

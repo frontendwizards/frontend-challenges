@@ -60,12 +60,26 @@ export default class Obstacle extends GameObject {
 
     // Random size variation
     const sizeVariation = k.rand(0.7, 1.1);
-    const spriteName = `obstacle${this.spriteIndex}`;
 
-    // Add sprite or rectangle component
-    this.addComponent(
-      k.sprite(spriteName, { noError: true }) || k.rect(60, 60)
-    );
+    try {
+      // Try to use the obstacles sprite sheet
+      this.addComponent(
+        k.sprite("obstacles", {
+          noError: true,
+          frame: this.spriteIndex,
+        })
+      );
+    } catch (e) {
+      console.warn("Failed to add obstacle sprite, using fallback rectangle");
+      // Fallback to rectangle with random color if sprite loading fails
+      this.addComponent(k.rect(60, 60));
+
+      // Add random color for variety
+      const r = k.randi(100, 255);
+      const g = k.randi(100, 255);
+      const b = k.randi(100, 255);
+      this.addComponent(k.color(r, g, b));
+    }
 
     // Add outline if showBorders is true
     if (this.showBorders) {

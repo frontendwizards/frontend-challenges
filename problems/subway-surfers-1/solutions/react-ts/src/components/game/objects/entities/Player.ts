@@ -56,18 +56,32 @@ export default class Player extends GameObject {
   private createPlayer(): void {
     const k = this.k;
 
-    // Clear previous components
-    this.components = [];
-    this.tags = [];
-    this.props = {};
+    // Clear old components
+    // this.clearComponents();
 
-    // Add sprite or circle component
-    if (this.useSprite) {
-      this.addComponent(k.sprite(`run${this.currentFrame}`, { noError: true }));
-    } else {
-      this.addComponent(k.circle(20));
-      this.addComponent(k.outline(2, k.rgb(255, 255, 255)));
-      this.addComponent(k.color(255, 0, 0));
+    // Try to load sprite if useSprite is true
+    try {
+      if (this.useSprite) {
+        const formattedIndex = String(this.currentFrame).padStart(3, "0");
+        console.log(formattedIndex, `|${GameConfig.SPRITE_PATH}/Run__${formattedIndex}.png|`);
+        this.addComponent(
+          k.sprite(`${GameConfig.SPRITE_PATH}/Run__${formattedIndex}.png`)
+        );
+      } else {
+        throw new Error("Using circle fallback");
+      }
+    } catch (error) {
+      if (this.useSprite) {
+        console.warn(
+          "Failed to load player sprite, using circle fallback",
+          error
+        );
+        this.useSprite = false;
+      }
+      // Add circle as fallback
+      this.addComponent(k.circle(30));
+      this.addComponent(k.outline(4, k.rgb(255, 150, 0)));
+      this.addComponent(k.color(255, 150, 0, 0.7));
     }
 
     // Add common components
@@ -87,7 +101,7 @@ export default class Player extends GameObject {
     this.addProp("health", this.health);
 
     // Create the game object
-    this.createGameObj();
+    // this.createGameObj();
   }
 
   private createHitbox(): void {
@@ -112,12 +126,14 @@ export default class Player extends GameObject {
 
     // Save current state
     const oldHealth = this.health;
+    const oldLane = this.currentLane;
 
     // Destroy old player
     this.destroy();
 
     // Recreate with new frame
     this.health = oldHealth;
+    this.currentLane = oldLane;
     this.createPlayer();
     this.setupCollision();
   }
