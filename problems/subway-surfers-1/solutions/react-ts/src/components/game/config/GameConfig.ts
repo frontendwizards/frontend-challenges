@@ -12,7 +12,7 @@ export default class GameConfig {
 
   // Environment settings
   static readonly SKY_PERCENTAGE = 0.37; // Sky takes 30% of screen height
-  static readonly GROUND_COLOR = "#d8b483"; // Sandy desert color
+  static readonly GROUND_COLOR = "#47424f"; // Darker desert color with blue/purple tint for night
   static readonly SKY_COLOR = "#0a1128"; // Deep night sky color
   static readonly HORIZON_COLOR = "#27294B"; // Dark blue-purple horizon
   static readonly SUN_COLOR = "#E8E9EB"; // Off-white/silver color for moon
@@ -59,7 +59,7 @@ export default class GameConfig {
     },
     hard: {
       obstacleSpeed: 500,
-      spawnInterval: [0.5, 1] as [number, number],
+      spawnInterval: [0.5, .8] as [number, number],
       speedIncreaseFactor: 1.5,
     },
   };

@@ -20,10 +20,8 @@ export default class Environment extends GameObject {
   public init(): void {
     this.createSky();
     this.createGround();
-    // this.createHorizon();
     this.createSun();
     this.createRoad();
-    // this.createRocks();
     this.createClouds();
   }
 
@@ -63,11 +61,11 @@ export default class Environment extends GameObject {
     const HEIGHT = GameConfig.CANVAS_HEIGHT;
     const SKY_PERCENTAGE = GameConfig.SKY_PERCENTAGE;
 
-    // Desert sand ground
+    // Night desert ground - darker cooler tones
     this.ground = k.add([
       k.rect(WIDTH, HEIGHT * (1 - SKY_PERCENTAGE) + 10), // Slight overlap to avoid gaps
       k.pos(0, HEIGHT * SKY_PERCENTAGE - 5), // Start below the sky with slight overlap
-      k.color(237, 201, 175), // Sandy desert color
+      k.color(71, 66, 79), // Dark desert color with blue/purple tint for night
       { z: -180 }, // In front of sky but behind other elements
     ]);
   }
@@ -107,138 +105,28 @@ export default class Environment extends GameObject {
     const roadBottom = lanes[lanes.length - 1] + 80; // End a bit below the last lane
     const roadHeight = roadBottom - roadTop;
 
-    // Add the main road (black asphalt)
+    // Add the main road (dark asphalt)
     this.road = k.add([
       k.rect(WIDTH, roadHeight),
       k.pos(0, roadTop),
-      k.color(40, 40, 40), // Dark asphalt color
+      k.color(30, 30, 35), // Darker asphalt color for night
       { z: -170 }, // In front of ground but behind game elements
     ]);
-
-    // Add yellow center dividing lines
-    const lineWidth = 8;
-    const lineLength = 40;
-    const gapLength = 30;
-    const totalSegmentLength = lineLength + gapLength;
-    const numberOfSegments = Math.ceil(WIDTH / totalSegmentLength) + 1;
-
-    // Create center dividing line (double yellow lines)
-    for (let i = 0; i < numberOfSegments; i++) {
-      // Yellow line
-      // this.roadLines.push(
-      //   k.add([
-      //     k.rect(lineLength, lineWidth),
-      //     k.pos(
-      //       i * totalSegmentLength,
-      //       roadTop + roadHeight / 2 - lineWidth / 2
-      //     ),
-      //     k.color(255, 215, 0), // Yellow
-      //     { z: -169 }, // Slightly in front of road
-      //   ])
-      // );
-    }
 
     // Add road edges (slightly lighter than road)
     k.add([
       k.rect(WIDTH, 5),
       k.pos(0, roadTop),
-      k.color(80, 80, 80), // Light gray
+      k.color(60, 60, 65), // Light gray for edge
       { z: -169 },
     ]);
 
     k.add([
       k.rect(WIDTH, 5),
       k.pos(0, roadBottom - 5),
-      k.color(80, 80, 80), // Light gray
+      k.color(60, 60, 65), // Light gray for edge
       { z: -169 },
     ]);
-  }
-
-  private createRocks(): void {
-    const k = this.k;
-    const WIDTH = GameConfig.CANVAS_WIDTH;
-    const HEIGHT = GameConfig.CANVAS_HEIGHT;
-    const SKY_PERCENTAGE = GameConfig.SKY_PERCENTAGE;
-    const BOTTOM_MARGIN_PERCENTAGE = GameConfig.BOTTOM_MARGIN_PERCENTAGE;
-
-    // Calculate the bottom margin area
-    const bottomMarginStart = HEIGHT * (1 - BOTTOM_MARGIN_PERCENTAGE);
-
-    // Add rocks in the bottom margin area
-    for (let i = 0; i < 15; i++) {
-      const rockSize = k.rand(10, 25);
-      const xPos = k.rand(0, WIDTH);
-      const yPos = k.rand(bottomMarginStart + 20, HEIGHT - rockSize);
-
-      // Add rock shadow first (behind the rock)
-      k.add([
-        k.circle(rockSize * 1.1),
-        k.pos(xPos + 4, yPos + 4),
-        k.color(0, 0, 0, 0.3), // Semi-transparent shadow
-        { z: -171 }, // Behind the rock
-      ]);
-
-      // Add the rock
-      this.rocks.push(
-        k.add([
-          k.circle(rockSize),
-          k.pos(xPos, yPos),
-          k.color(60, 60, 60), // Dark gray color for rocks
-          { z: -170 }, // In front of road but behind game elements
-        ])
-      );
-    }
-
-    // Add smaller rocks/pebbles in the bottom margin area
-    for (let i = 0; i < 30; i++) {
-      const rockSize = k.rand(3, 8);
-      const xPos = k.rand(0, WIDTH);
-      const yPos = k.rand(bottomMarginStart + 10, HEIGHT - rockSize);
-
-      // Add the pebble
-      this.rocks.push(
-        k.add([
-          k.circle(rockSize),
-          k.pos(xPos, yPos),
-          k.color(80, 80, 80), // Lighter gray color for pebbles
-          { z: -170 }, // In front of road but behind game elements
-        ])
-      );
-    }
-
-    // Add some rocks alongside the road too
-    const lanes = GameConfig.getLanePositions();
-    const roadTop = lanes[0] - 30;
-    const roadBottom = lanes[lanes.length - 1] + 30;
-
-    // Rocks on the side of the road
-    for (let i = 0; i < 12; i++) {
-      const rockSize = k.rand(8, 15);
-      const xPos = k.rand(0, WIDTH);
-      // Place rocks just outside the road on both top and bottom
-      const yPos =
-        k.randi(0, 1) === 0
-          ? k.rand(roadTop - rockSize * 2, roadTop - rockSize / 2)
-          : k.rand(roadBottom + rockSize / 2, roadBottom + rockSize * 2);
-
-      // Add rock shadow
-      k.add([
-        k.circle(rockSize * 1.1),
-        k.pos(xPos + 3, yPos + 3),
-        k.color(0, 0, 0, 0.3), // Semi-transparent shadow
-        { z: -171 }, // Behind the rock
-      ]);
-
-      // Add the rock
-      this.rocks.push(
-        k.add([
-          k.circle(rockSize),
-          k.pos(xPos, yPos),
-          k.color(60, 60, 60), // Dark gray color for rocks
-          { z: -170 }, // In front of road but behind game elements
-        ])
-      );
-    }
   }
 
   private createClouds(): void {

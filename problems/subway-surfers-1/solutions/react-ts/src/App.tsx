@@ -15,7 +15,6 @@ export default function App() {
         showHitboxes={false}
         showBorders={false}
         difficulty="medium"
-        backgroundColor="#d8b483" // Desert sand color for the background
       />
     </main>
   );

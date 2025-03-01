@@ -15,7 +15,6 @@ interface EndlessRunnerProps {
   showBorders?: boolean;
   difficulty?: "easy" | "medium" | "hard";
   debugLanes?: boolean;
-  backgroundColor?: string;
 }
 
 const EndlessRunner: React.FC<EndlessRunnerProps> = ({
@@ -25,7 +24,6 @@ const EndlessRunner: React.FC<EndlessRunnerProps> = ({
   showBorders = false,
   difficulty = "medium",
   debugLanes = true,
-  backgroundColor,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -107,14 +105,6 @@ const EndlessRunner: React.FC<EndlessRunnerProps> = ({
       gameEngine.destroy();
     };
   }, [width, height, showHitboxes, showBorders, difficulty, debugLanes]);
-
-  useEffect(() => {
-    if (backgroundColor) {
-      document.documentElement.style.setProperty("--bg-color", backgroundColor);
-    } else {
-      document.documentElement.style.setProperty("--bg-color", "#1f2937");
-    }
-  }, [backgroundColor]);
 
   return (
     <div className="relative w-full h-full flex justify-center items-center game-container">
