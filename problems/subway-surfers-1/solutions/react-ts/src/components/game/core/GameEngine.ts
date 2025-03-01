@@ -88,7 +88,7 @@ export default class GameEngine {
       // Clear all loaded assets
       this.k.assets = {};
 
-      console.log("Game engine resources cleaned up");
+    console.log("Game engine resources cleaned up");
       this.k = null;
     }
   }

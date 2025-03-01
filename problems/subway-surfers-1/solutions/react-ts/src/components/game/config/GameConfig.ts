@@ -11,7 +11,7 @@ export default class GameConfig {
   static readonly CANVAS_BACKGROUND_COLOR = "#000000";
 
   // Environment settings
-  static readonly SKY_PERCENTAGE = 0.36;
+  static readonly SKY_PERCENTAGE = 0.3; // Sky takes 30% of screen height
   static readonly GROUND_COLOR = "#2F3136"; // Dark ground color for night
   static readonly SKY_COLOR = "#0A1128"; // Dark blue night sky
   static readonly HORIZON_COLOR = "#27294B"; // Dark blue-purple horizon
@@ -50,13 +50,10 @@ export default class GameConfig {
     },
     hard: {
       obstacleSpeed: 500,
-      spawnInterval: [0.8, 2.0] as [number, number],
+      spawnInterval: [0.5, 1] as [number, number],
       speedIncreaseFactor: 1.5,
     },
   };
-
-  // Sky configuration
-  static readonly SKY_HEIGHT_PERCENTAGE = 35; // 35% of canvas height for sky
 
   // Cloud configuration
   static readonly CLOUD_SPEED = -120; // Negative value makes clouds move left
@@ -69,18 +66,32 @@ export default class GameConfig {
 
   // Helper methods
   static getLanePositions(): number[] {
-    const centerY = this.CANVAS_HEIGHT / 2;
-    // Reduce lane spacing to ensure all lanes fit within screen
-    const adjustedLaneSpacing = Math.min(
-      this.LANE_SPACING,
-      this.CANVAS_HEIGHT / 4
-    );
+    // Get the starting Y position where the ground begins (after sky)
+    const skyHeight = this.CANVAS_HEIGHT * this.SKY_PERCENTAGE;
 
+    // Calculate the total height of the ground area (70% of screen)
+    const groundHeight = this.CANVAS_HEIGHT - skyHeight;
+
+    // Evenly divide the ground area into 3 equal parts for the lanes
+    const laneHeight = groundHeight / 3;
+    console.log({ skyHeight, groundHeight, laneHeight });
+
+    // Position lanes at the centers of each third of the ground area
     return [
-      centerY - adjustedLaneSpacing,
-      centerY,
-      centerY + adjustedLaneSpacing,
+      skyHeight + laneHeight / 2, // First lane (center of first third)
+      skyHeight + laneHeight + laneHeight / 2, // Middle lane (center of second third)
+      skyHeight + 2 * laneHeight + laneHeight / 2, // Bottom lane (center of last third)
     ];
+  }
+
+  // Get the lane Y position by index (0, 1, or 2)
+  static getLanePosition(laneIndex: number): number {
+    if (laneIndex < 0 || laneIndex >= this.LANE_COUNT) {
+      console.warn(`Invalid lane index: ${laneIndex}, using default lane 1`);
+      laneIndex = 1; // Default to middle lane
+    }
+
+    return this.getLanePositions()[laneIndex];
   }
 
   static getDifficultySettings(difficulty: string): DifficultySettings {

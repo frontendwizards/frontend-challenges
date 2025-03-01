@@ -14,14 +14,16 @@ interface EndlessRunnerProps {
   showHitboxes?: boolean;
   showBorders?: boolean;
   difficulty?: "easy" | "medium" | "hard";
+  debugLanes?: boolean;
 }
 
 const EndlessRunner: React.FC<EndlessRunnerProps> = ({
-  width = 1000,
-  height = 600,
+  width = GameConfig.CANVAS_WIDTH,
+  height = GameConfig.CANVAS_HEIGHT,
   showHitboxes = false,
   showBorders = false,
   difficulty = "medium",
+  debugLanes = true,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -82,6 +84,7 @@ const EndlessRunner: React.FC<EndlessRunnerProps> = ({
             showHitboxes,
             showBorders,
             difficulty,
+            // debugLanes,
           }
         );
         gameplayScene.register(sceneManager);
@@ -101,7 +104,7 @@ const EndlessRunner: React.FC<EndlessRunnerProps> = ({
     return () => {
       gameEngine.destroy();
     };
-  }, [width, height, showHitboxes, showBorders, difficulty]);
+  }, [width, height, showHitboxes, showBorders, difficulty, debugLanes]);
 
   return (
     <div className="relative w-full h-full flex justify-center items-center">

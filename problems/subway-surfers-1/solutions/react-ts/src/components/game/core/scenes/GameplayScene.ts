@@ -1,4 +1,8 @@
-import { KaboomInterface, ActionReturnType } from "../../types/KaboomTypes";
+import {
+  KaboomInterface,
+  ActionReturnType,
+  GameObj,
+} from "../../types/KaboomTypes";
 import { BaseScene } from "./BaseScene";
 import GameConfig from "../../config/GameConfig";
 import Player from "../../objects/entities/Player";
@@ -11,24 +15,29 @@ export interface GameplaySceneOptions {
   showHitboxes: boolean;
   showBorders: boolean;
   difficulty: string;
+  debugLanes?: boolean;
 }
 
 export default class GameplayScene extends BaseScene {
-  private score: number = 0;
-  private gameTime: number = 0;
-  private currentLane: number = 1;
-  private lanes: number[] = [];
+  private score = 0;
+  private gameTime = 0;
+  private currentLane = GameConfig.PLAYER_INITIAL_LANE;
+  private lanes = GameConfig.getLanePositions();
   private spriteLoadSuccess: boolean;
   private showHitboxes: boolean;
   private showBorders: boolean;
   private difficulty: string;
-  private currentObstacleSpeed: number = 0;
+  private debugLanes: boolean;
+  private currentObstacleSpeed = 0;
   private obstacles: Obstacle[] = [];
   private player: Player | null = null;
   private environment: Environment | null = null;
   private healthBar: HealthBar | null = null;
   private scoreDisplay: ScoreDisplay | null = null;
   private obstacleSpawnTimer: ActionReturnType | null = null;
+
+  // Store lane debug objects
+  private laneDebugObjects: GameObj[] = [];
 
   constructor(
     kaboomInstance: KaboomInterface,
@@ -40,6 +49,7 @@ export default class GameplayScene extends BaseScene {
     this.showHitboxes = options.showHitboxes;
     this.showBorders = options.showBorders;
     this.difficulty = options.difficulty;
+    this.debugLanes = options.debugLanes || false;
   }
 
   public getName(): string {
@@ -98,7 +108,7 @@ export default class GameplayScene extends BaseScene {
     const k = this.k;
 
     // Create health bar
-    this.healthBar = new HealthBar(this.k, {
+    this.healthBar = new HealthBar(k, {
       x: WIDTH - 120,
       y: 20,
       width: 80,
@@ -108,7 +118,7 @@ export default class GameplayScene extends BaseScene {
     this.healthBar.init();
 
     // Create score display
-    this.scoreDisplay = new ScoreDisplay(this.k, {
+    this.scoreDisplay = new ScoreDisplay(k, {
       x: 24,
       y: 24,
       width: 165,
@@ -181,6 +191,11 @@ export default class GameplayScene extends BaseScene {
       this.currentObstacleSpeed =
         GameConfig.getDifficultySettings(this.difficulty).obstacleSpeed +
         speedIncrease;
+
+      // Draw debug lanes if enabled
+      if (this.debugLanes) {
+        this.drawDebugLanes();
+      }
     });
   }
 
@@ -190,8 +205,8 @@ export default class GameplayScene extends BaseScene {
     const spawn = () => {
       if (!this.player || !this.player.isPlayerAlive()) return;
 
-      // Randomly choose a lane
-      const obstacleLane = k.randi(0, 3);
+      // Randomly choose a lane (0, 1, or 2)
+      const obstacleLane = k.randi(0, GameConfig.LANE_COUNT - 1);
 
       // Create obstacle
       const obstacle = new Obstacle(this.k, {
@@ -225,6 +240,14 @@ export default class GameplayScene extends BaseScene {
   }
 
   public destroy(): void {
+    // Clean up all debug objects
+    this.laneDebugObjects.forEach((obj) => {
+      if (obj.exists()) {
+        obj.destroy();
+      }
+    });
+    this.laneDebugObjects = [];
+
     // Clean up all game objects
     if (this.player) {
       this.player.destroy();
@@ -259,5 +282,39 @@ export default class GameplayScene extends BaseScene {
 
   public getCurrentScore(): number {
     return Math.floor(this.score);
+  }
+
+  // Add a dedicated function for drawing debug lanes
+  private drawDebugLanes(): void {
+    // First destroy previous debug objects to avoid accumulation
+    this.laneDebugObjects.forEach((obj) => {
+      if (obj.exists()) {
+        obj.destroy();
+      }
+    });
+    this.laneDebugObjects = [];
+
+    // Draw lanes as red rectangles
+    this.lanes.forEach((lane, index) => {
+      // Use rect() instead of drawRect()
+      const laneRect = this.k.add([
+        this.k.rect(GameConfig.CANVAS_WIDTH, 10),
+        this.k.pos(0, lane),
+        this.k.color(255, 0, 0),
+        this.k.z(100), // High z-index to ensure lanes are visible on top
+        this.k.outline(2, this.k.rgb(255, 255, 255)),
+      ]);
+
+      // Add lane number for easier debugging
+      const laneText = this.k.add([
+        this.k.text(`Lane ${index}`, { size: 16 }),
+        this.k.pos(50, lane - 15),
+        this.k.color(255, 255, 0),
+        this.k.z(100),
+      ]);
+
+      // Store these objects for cleanup on next frame
+      this.laneDebugObjects.push(laneRect, laneText);
+    });
   }
 }

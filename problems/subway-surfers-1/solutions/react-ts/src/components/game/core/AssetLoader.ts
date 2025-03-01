@@ -47,7 +47,6 @@ export default class AssetLoader {
       await this.loadAllAssetsInParallel(callbacks);
       clearTimeout(loadingTimeout);
       console.log("Assets loaded successfully");
-      alert("Assets loaded successfully");
       callbacks?.onComplete?.();
     } catch (error) {
       console.error("Error loading assets:", error);
@@ -75,29 +74,51 @@ export default class AssetLoader {
     // Add obstacle sprite sheet loading promise
     loadPromises.push(this.loadObstaclesSpriteSheetAsync());
 
-    // Use Promise.all to load all assets in parallel and update progress individually
-    let loadedCount = 0;
-    const totalCount = loadPromises.length;
+    try {
+      // Use Promise.all to load all assets in parallel and update progress individually
+      let loadedCount = 0;
+      const totalCount = loadPromises.length;
 
-    // Create a modified promise for each asset that reports progress
-    const trackedPromises = loadPromises.map((promise) =>
-      promise.then((result) => {
-        loadedCount++;
-        // Update progress after each asset loads
-        const progress = (loadedCount / totalCount) * 100;
-        if (callbacks?.onProgress) {
-          callbacks.onProgress(progress);
-        }
-        return result;
-      })
-    );
+      // Create a modified promise for each asset that reports progress
+      const trackedPromises = loadPromises.map((promise) =>
+        promise.then((result) => {
+          loadedCount++;
+          // Update progress after each asset loads
+          const progress = (loadedCount / totalCount) * 100;
+          console.log(
+            `Asset loaded (${loadedCount}/${totalCount}): ${progress.toFixed(
+              1
+            )}%`
+          );
+          if (callbacks?.onProgress) {
+            callbacks.onProgress(progress);
+          }
+          return result;
+        })
+      );
 
-    // Wait for all assets to load
-    const results = await Promise.all(trackedPromises);
+      // Wait for all assets to load
+      const results = await Promise.all(trackedPromises);
 
-    // Set sprites loaded flag
-    this.spritesLoaded = results.some((result) => result.success);
-    this.assetsLoaded = loadedCount;
+      // Ensure we count successful loads
+      const successfulLoads = results.filter((result) => result.success).length;
+      console.log(
+        `Successfully loaded ${successfulLoads} out of ${totalCount} assets`
+      );
+
+      // Set sprites loaded flag based on at least 1 successful sprite load
+      this.spritesLoaded = results.some((result) => result.success);
+      this.assetsLoaded = loadedCount;
+
+      // Even if we couldn't load all assets, consider the loading complete
+      if (loadedCount >= totalCount * 0.5) {
+        console.log("Enough assets loaded to proceed");
+      }
+    } catch (error) {
+      console.error("Error during parallel asset loading:", error);
+      // Even on error, mark assets as loaded to prevent hanging
+      this.assetsLoaded = this.totalAssetsToLoad;
+    }
   }
 
   private loadSpriteAsync(

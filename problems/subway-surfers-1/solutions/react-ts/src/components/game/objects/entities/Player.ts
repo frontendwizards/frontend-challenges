@@ -69,12 +69,11 @@ export default class Player extends GameObject {
       console.warn("Failed to load player sprite", error);
     }
 
-    // Calculate y position with SKY_PERCENTAGE adjustment
-    const skyHeight = GameConfig.CANVAS_HEIGHT * GameConfig.SKY_PERCENTAGE;
-    const adjustedLaneY = this.lanes[this.currentLane] + skyHeight;
+    // Get the lane position directly from GameConfig
+    const laneY = GameConfig.getLanePosition(this.currentLane);
 
     // Add common components
-    this.addComponent(k.pos(GameConfig.PLAYER_POSITION_X, adjustedLaneY));
+    this.addComponent(k.pos(GameConfig.PLAYER_POSITION_X, laneY));
     this.addComponent(k.anchor("center"));
     this.addComponent(k.area({ scale: 0.7 }));
     this.addComponent(k.scale(GameConfig.SPRITE_SCALE));
@@ -170,28 +169,30 @@ export default class Player extends GameObject {
   }
 
   public moveUp(): void {
+    // Only move up if not at the top lane (lane 0)
     if (!this.isAlive || this.currentLane <= 0) return;
 
+    // Move to the lane above (lower index)
     this.currentLane--;
-    if (this.gameObj) {
-      // Apply SKY_PERCENTAGE to lane position
-      const skyHeight = GameConfig.CANVAS_HEIGHT * GameConfig.SKY_PERCENTAGE;
-      const adjustedLaneY = this.lanes[this.currentLane] + skyHeight;
 
-      this.gameObj.moveTo(GameConfig.PLAYER_POSITION_X, adjustedLaneY);
+    if (this.gameObj) {
+      // Get the Y position for the new lane directly from GameConfig
+      const laneY = GameConfig.getLanePosition(this.currentLane);
+      this.gameObj.moveTo(GameConfig.PLAYER_POSITION_X, laneY);
     }
   }
 
   public moveDown(): void {
-    if (!this.isAlive || this.currentLane >= 2) return;
+    // Only move down if not at the bottom lane (lane 2)
+    if (!this.isAlive || this.currentLane >= GameConfig.LANE_COUNT - 1) return;
 
+    // Move to the lane below (higher index)
     this.currentLane++;
-    if (this.gameObj) {
-      // Apply SKY_PERCENTAGE to lane position
-      const skyHeight = GameConfig.CANVAS_HEIGHT * GameConfig.SKY_PERCENTAGE;
-      const adjustedLaneY = this.lanes[this.currentLane] + skyHeight;
 
-      this.gameObj.moveTo(GameConfig.PLAYER_POSITION_X, adjustedLaneY);
+    if (this.gameObj) {
+      // Get the Y position for the new lane directly from GameConfig
+      const laneY = GameConfig.getLanePosition(this.currentLane);
+      this.gameObj.moveTo(GameConfig.PLAYER_POSITION_X, laneY);
     }
   }
 
