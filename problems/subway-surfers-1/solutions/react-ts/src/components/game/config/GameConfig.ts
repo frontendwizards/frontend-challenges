@@ -29,7 +29,7 @@ export default class GameConfig {
   static readonly SPRITE_PATH = "/assets/characters/templerun"; // Path to sprite assets
   static readonly CHARACTER_SPRITE_COUNT = 10; // Number of character animation frames
   static readonly OBSTACLE_SPRITE_COUNT = 10; // Number of obstacle types
-  static readonly OBSTACLE_SCALE = .5; // Scale for obstacle sprites
+  static readonly OBSTACLE_SCALE = 0.5; // Scale for obstacle sprites
 
   // Game mechanics
   static readonly LANE_COUNT = 3; // Number of lanes
@@ -37,20 +37,20 @@ export default class GameConfig {
   static readonly MAX_SPEED_INCREASE = 300; // Maximum speed increase over time
 
   // Difficulty presets
-  static readonly DIFFICULTY_SETTINGS = {
+  static readonly DIFFICULTY_SETTINGS: Record<string, DifficultySettings> = {
     easy: {
       obstacleSpeed: 300,
-      spawnInterval: [1.8, 3.0], // Min and max time between obstacles
+      spawnInterval: [1.8, 3.0] as [number, number], // Min and max time between obstacles
       speedIncreaseFactor: 0.5, // How quickly speed increases
     },
     medium: {
       obstacleSpeed: 400,
-      spawnInterval: [1.2, 2.5],
+      spawnInterval: [1.2, 2.5] as [number, number],
       speedIncreaseFactor: 1.0,
     },
     hard: {
       obstacleSpeed: 500,
-      spawnInterval: [0.8, 2.0],
+      spawnInterval: [0.8, 2.0] as [number, number],
       speedIncreaseFactor: 1.5,
     },
   };
@@ -70,7 +70,17 @@ export default class GameConfig {
   // Helper methods
   static getLanePositions(): number[] {
     const centerY = this.CANVAS_HEIGHT / 2;
-    return [centerY - this.LANE_SPACING, centerY, centerY + this.LANE_SPACING];
+    // Reduce lane spacing to ensure all lanes fit within screen
+    const adjustedLaneSpacing = Math.min(
+      this.LANE_SPACING,
+      this.CANVAS_HEIGHT / 4
+    );
+
+    return [
+      centerY - adjustedLaneSpacing,
+      centerY,
+      centerY + adjustedLaneSpacing,
+    ];
   }
 
   static getDifficultySettings(difficulty: string): DifficultySettings {

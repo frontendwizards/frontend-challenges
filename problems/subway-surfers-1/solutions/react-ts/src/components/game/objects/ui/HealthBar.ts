@@ -81,11 +81,6 @@ export default class HealthBar extends GameObject {
     // Add z-index property
     this.addProp("z", 101);
 
-    // Add custom update health method
-    this.addProp("updateHealth", (health: number) => {
-      this.updateHealth(health);
-    });
-
     // Create the game object
     this.createGameObj();
   }
@@ -93,6 +88,9 @@ export default class HealthBar extends GameObject {
   public updateHealth(health: number): void {
     if (!this.gameObj) return;
 
+    const k = this.k;
+
+    this.clearComponents();
     this.currentHealth = health;
 
     // Update health bar width based on current health
@@ -101,14 +99,16 @@ export default class HealthBar extends GameObject {
     // Update color based on health level
     if (health <= this.maxHealth / 3) {
       // Red for low health
-      this.gameObj.add(this.k.color(255, 0, 0));
+      this.addComponent(k.color(255, 0, 0));
     } else if (health <= (this.maxHealth * 2) / 3) {
       // Yellow for medium health
-      this.gameObj.add(this.k.color(255, 255, 0));
+      this.addComponent(k.color(255, 255, 0));
     } else {
       // Green for high health
-      this.gameObj.add(this.k.color(0, 255, 0));
+      this.addComponent(k.color(0, 255, 0));
     }
+
+    this.createGameObj();
   }
 
   public override destroy(): void {

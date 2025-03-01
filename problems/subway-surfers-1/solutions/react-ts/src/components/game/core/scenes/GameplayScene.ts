@@ -81,12 +81,21 @@ export default class GameplayScene extends BaseScene {
       initialLane: this.currentLane,
       lanes: this.lanes,
       showHitboxes: this.showHitboxes,
+      onHealthChange: (health: number) => {
+        if (this.healthBar) {
+          this.healthBar.updateHealth(health);
+        }
+      },
     });
     this.player.init();
+
+    // Set score callback
+    this.player.setCurrentScoreCallback(() => this.score);
   }
 
   private setupUI(): void {
     const WIDTH = GameConfig.CANVAS_WIDTH;
+    const k = this.k;
 
     // Create health bar
     this.healthBar = new HealthBar(this.k, {
@@ -246,5 +255,9 @@ export default class GameplayScene extends BaseScene {
       this.obstacleSpawnTimer.cancel();
       this.obstacleSpawnTimer = null;
     }
+  }
+
+  public getCurrentScore(): number {
+    return Math.floor(this.score);
   }
 }

@@ -51,8 +51,12 @@ const EndlessRunner: React.FC<EndlessRunnerProps> = ({
     // Start loading assets
     setIsLoading(true);
     assetLoader.loadAssets({
-      onProgress: setLoadingProgress,
+      onProgress: (progress) => {
+        console.log(`Loading progress: ${progress}%`);
+        setLoadingProgress(progress);
+      },
       onComplete: () => {
+        console.log("Asset loading complete, initializing game...");
         initializeGame(k, sceneManager, assetLoader.isSpritesLoaded());
         setIsLoading(false);
       },

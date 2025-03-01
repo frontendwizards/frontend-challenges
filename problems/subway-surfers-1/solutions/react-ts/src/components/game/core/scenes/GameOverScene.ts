@@ -15,7 +15,7 @@ export default class GameOverScene extends BaseScene {
 
   public create(finalScore?: unknown): void {
     const k = this.k;
-    const center = k.center();
+    const center = k.center() as unknown as { x: number; y: number };
 
     // Create game over UI with score and restart option
     this.messageText = k.add([

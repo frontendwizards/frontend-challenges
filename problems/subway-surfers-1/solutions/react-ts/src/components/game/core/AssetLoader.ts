@@ -22,7 +22,7 @@ export default class AssetLoader {
     this.k = kaboomInstance;
   }
 
-  public loadAssets(callbacks?: AssetLoaderCallbacks): void {
+  public async loadAssets(callbacks?: AssetLoaderCallbacks): Promise<void> {
     try {
       console.log("Starting to load assets...");
       // Calculate total assets to load (character sprites + 1 obstacle spritesheet)
@@ -44,17 +44,11 @@ export default class AssetLoader {
       }, 5000); // 5 seconds timeout
 
       // Load all assets in parallel
-      this.loadAllAssetsInParallel(callbacks)
-        .then(() => {
-          clearTimeout(loadingTimeout);
-          callbacks?.onComplete?.();
-        })
-        .catch((error) => {
-          console.error("Error loading assets:", error);
-          callbacks?.onError?.(
-            error instanceof Error ? error : new Error(String(error))
-          );
-        });
+      await this.loadAllAssetsInParallel(callbacks);
+      clearTimeout(loadingTimeout);
+      console.log("Assets loaded successfully");
+      alert("Assets loaded successfully");
+      callbacks?.onComplete?.();
     } catch (error) {
       console.error("Error loading assets:", error);
       callbacks?.onError?.(
@@ -81,32 +75,29 @@ export default class AssetLoader {
     // Add obstacle sprite sheet loading promise
     loadPromises.push(this.loadObstaclesSpriteSheetAsync());
 
-    // Process loading results in batches to update progress steadily
-    const batchSize = 10; // Process 3 assets at a time
-    const batches = [];
+    // Use Promise.all to load all assets in parallel and update progress individually
+    let loadedCount = 0;
+    const totalCount = loadPromises.length;
 
-    for (let i = 0; i < loadPromises.length; i += batchSize) {
-      batches.push(loadPromises.slice(i, i + batchSize));
-    }
+    // Create a modified promise for each asset that reports progress
+    const trackedPromises = loadPromises.map((promise) =>
+      promise.then((result) => {
+        loadedCount++;
+        // Update progress after each asset loads
+        const progress = (loadedCount / totalCount) * 100;
+        if (callbacks?.onProgress) {
+          callbacks.onProgress(progress);
+        }
+        return result;
+      })
+    );
 
-    let loadedAssets = 0;
-    const allSpritesLoaded: boolean[] = [];
-
-    // Process each batch sequentially, but assets within a batch load in parallel
-    for (const batch of batches) {
-      const results = await Promise.all(batch);
-
-      loadedAssets += results.length;
-      allSpritesLoaded.push(...results.map((r) => r.success));
-
-      // Update progress
-      const progress = (loadedAssets / this.totalAssetsToLoad) * 100;
-      callbacks?.onProgress?.(progress);
-    }
+    // Wait for all assets to load
+    const results = await Promise.all(trackedPromises);
 
     // Set sprites loaded flag
-    this.spritesLoaded = allSpritesLoaded.some((success) => success);
-    this.assetsLoaded = loadedAssets;
+    this.spritesLoaded = results.some((result) => result.success);
+    this.assetsLoaded = loadedCount;
   }
 
   private loadSpriteAsync(

@@ -6,6 +6,8 @@ export interface PlayerOptions {
   initialLane: number;
   lanes: number[];
   showHitboxes: boolean;
+  onHealthChange?: (health: number) => void;
+  onGameOver?: (callback: () => number) => void;
 }
 
 export default class Player extends GameObject {
@@ -17,12 +19,17 @@ export default class Player extends GameObject {
   private health: number = GameConfig.PLAYER_INITIAL_HEALTH;
   private hitbox: GameObj | null = null;
   private showHitboxes: boolean;
+  private onHealthChange?: (health: number) => void;
+  private onGameOver?: (callback: () => number) => void;
+  private getCurrentScoreCallback?: () => number;
 
   constructor(kaboomInstance: KaboomInterface, options: PlayerOptions) {
     super(kaboomInstance);
     this.currentLane = options.initialLane;
     this.lanes = options.lanes;
     this.showHitboxes = options.showHitboxes;
+    this.onHealthChange = options.onHealthChange;
+    this.onGameOver = options.onGameOver;
   }
 
   public init(): void {
@@ -136,6 +143,11 @@ export default class Player extends GameObject {
         this.gameObj.health = this.health;
       }
 
+      // Notify about health change using callback
+      if (this.onHealthChange) {
+        this.onHealthChange(this.health);
+      }
+
       // Shake screen for feedback
       k.shake(5);
 
@@ -147,7 +159,11 @@ export default class Player extends GameObject {
         }
         k.shake(12);
         k.wait(0.4, () => {
-          k.go("gameover", Math.floor(0)); // Score will be passed from scene
+          // Get current score from callback if available
+          const finalScore = this.getCurrentScoreCallback
+            ? this.getCurrentScoreCallback()
+            : 0;
+          k.go("gameover", Math.floor(finalScore));
         });
       }
     });
@@ -204,5 +220,10 @@ export default class Player extends GameObject {
       this.hitbox = null;
     }
     super.destroy();
+  }
+
+  // Add method to set score callback
+  public setCurrentScoreCallback(callback: () => number): void {
+    this.getCurrentScoreCallback = callback;
   }
 }
