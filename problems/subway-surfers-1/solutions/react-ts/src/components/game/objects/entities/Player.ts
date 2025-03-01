@@ -57,14 +57,7 @@ export default class Player extends GameObject {
     this.clearComponents();
 
     try {
-      const formattedIndex = String(this.currentFrame).padStart(3, "0");
-      console.log(
-        formattedIndex,
-        `|${GameConfig.SPRITE_PATH}/Run__${formattedIndex}.png|`
-      );
-      this.addComponent(
-        k.sprite(`${GameConfig.SPRITE_PATH}/Run__${formattedIndex}.png`)
-      );
+      this.addComponent(k.sprite(`run${this.currentFrame}`));
     } catch (error) {
       console.warn("Failed to load player sprite", error);
     }
@@ -86,7 +79,7 @@ export default class Player extends GameObject {
     this.addProp("health", this.health);
 
     // Create the game object
-    // this.createGameObj();
+    this.createGameObj();
   }
 
   private createHitbox(): void {
