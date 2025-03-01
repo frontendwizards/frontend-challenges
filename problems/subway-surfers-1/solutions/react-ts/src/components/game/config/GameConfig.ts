@@ -1,6 +1,7 @@
 export interface DifficultySettings {
   obstacleSpeed: number;
   spawnInterval: [number, number]; // [min, max] spawn interval in seconds
+  speedIncreaseFactor: number;
 }
 
 export default class GameConfig {
@@ -54,17 +55,25 @@ export default class GameConfig {
     },
   };
 
+  // Sky configuration
+  static readonly SKY_HEIGHT_PERCENTAGE = 35; // 35% of canvas height for sky
+
+  // Cloud configuration
+  static readonly CLOUD_SPEED = -120; // Negative value makes clouds move left
+  static readonly CLOUD_SPAWN_INTERVAL = 3; // Spawn new cloud every 3 seconds
+
+  // Obstacle configuration
+  static readonly OBSTACLE_SPAWN_INTERVAL = 2; // Spawn new obstacle every 2 seconds
+  static readonly MIN_OBSTACLE_SPACING = 200; // Minimum pixels between obstacles
+  static readonly OBSTACLE_TYPES = ["rock", "tree", "barrier"]; // Example obstacle types
+
   // Helper methods
   static getLanePositions(): number[] {
     const centerY = this.CANVAS_HEIGHT / 2;
     return [centerY - this.LANE_SPACING, centerY, centerY + this.LANE_SPACING];
   }
 
-  static getDifficultySettings(difficulty: string): {
-    obstacleSpeed: number;
-    spawnInterval: [number, number];
-    speedIncreaseFactor: number;
-  } {
+  static getDifficultySettings(difficulty: string): DifficultySettings {
     const validDifficulty =
       difficulty in this.DIFFICULTY_SETTINGS ? difficulty : "medium";
 
