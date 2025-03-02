@@ -154,7 +154,7 @@ export default class AssetLoader {
     return new Promise<LoadResult>((resolve) => {
       console.log("Loading obstacle sprite sheet...");
 
-      this.k.loadSprite("obstacles", "/obstacles.png", {
+      this.k.loadSprite("obstacle", "/obstacles.png", {
         sliceX: 5,
         sliceY: 2,
         noError: true,

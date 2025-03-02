@@ -55,7 +55,7 @@ export default class Obstacle extends GameObject {
     try {
       // Try to use the obstacles sprite sheet
       this.addComponent(
-        k.sprite("obstacles", {
+        k.sprite("obstacle", {
           noError: true,
           frame: this.spriteIndex,
         })
@@ -114,6 +114,7 @@ export default class Obstacle extends GameObject {
       k.outline(2, k.rgb(255, 0, 0)),
       k.color(255, 0, 0, 0.3),
       k.move(k.LEFT, this.speed),
+      "obstacleHitbox",
     ]);
   }
 
