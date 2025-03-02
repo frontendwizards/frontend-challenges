@@ -63,6 +63,7 @@ export default class HealthBar extends GameObject {
 
   private createHealthBar(): void {
     const k = this.k;
+    const health = this.currentHealth;
 
     // Clear previous components
     this.components = [];
@@ -70,32 +71,13 @@ export default class HealthBar extends GameObject {
     this.props = {};
 
     // Add health bar components
-    this.addComponent(k.rect(this.barWidth, this.barHeight));
+    this.addComponent(
+      k.rect(this.barWidth * (health / this.maxHealth), this.barHeight)
+    );
     this.addComponent(k.pos(this.x + 10, this.y + 40));
-    this.addComponent(k.color(0, 255, 0));
 
-    // Add z-index property
-    this.addProp("z", 101);
-
-    // Create the game object
-    this.createGameObj();
-  }
-
-  public updateHealth(health: number): void {
-    if (!this.gameObj) return;
-
-    const k = this.k;
-
-    this.clearComponents();
-    this.currentHealth = health;
-
-    // Update health bar width based on current health
-    this.gameObj.width = (health / this.maxHealth) * this.barWidth;
-
-    console.log({ health, maxHealth: this.maxHealth });
     // Update color based on health level
     if (health <= this.maxHealth / 3) {
-      console.log("health Red for low health");
       // Red for low health
       this.addComponent(k.color(255, 0, 0));
     } else if (health <= (this.maxHealth * 2) / 3) {
@@ -106,7 +88,23 @@ export default class HealthBar extends GameObject {
       this.addComponent(k.color(0, 255, 0));
     }
 
+    // Add z-index property
+    this.addProp("z", 101);
+
+    // Create the game object
     this.createGameObj();
+  }
+
+  public updateHealth(health: number): void {
+    if (!this.gameObj) return;
+    this.currentHealth = health;
+
+    // Only destroy the health bar itself, not the container or label
+    this.gameObj.destroy();
+    this.gameObj = null;
+
+    // Then create a new health bar with the updated health
+    this.createHealthBar();
   }
 
   public override destroy(): void {
