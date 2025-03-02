@@ -22,7 +22,8 @@ export default abstract class GameObject {
   /**
    * Update method called every frame
    */
-  public abstract update(dt: number): void;
+  public update(_dt: number): void {
+  }
 
   /**
    * Get the underlying Kaboom game object

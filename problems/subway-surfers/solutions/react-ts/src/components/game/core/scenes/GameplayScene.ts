@@ -41,10 +41,7 @@ export default class GameplayScene extends BaseScene {
   // Store lane debug objects
   private laneDebugObjects: GameObj[] = [];
 
-  constructor(
-    kaboomInstance: KaboomInterface,
-    options: GameplaySceneOptions
-  ) {
+  constructor(kaboomInstance: KaboomInterface, options: GameplaySceneOptions) {
     super(kaboomInstance);
     this.showHitboxes = options.showHitboxes;
     this.showBorders = options.showBorders;
@@ -222,6 +219,145 @@ export default class GameplayScene extends BaseScene {
     });
   }
 
+  /**
+   * Shuffles an array in place
+   */
+  private shuffleArray<T>(array: T[]): T[] {
+    const k = this.k;
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(k.rand(0, 1) * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  /**
+   * Checks if a lane has any obstacles too close to a specific position
+   */
+  private isLaneSafeForSpawning(
+    lane: number,
+    spawnPosX: number,
+    safetyDistance: number
+  ): boolean {
+    return !this.obstacles.some((obstacle) => {
+      // Skip obstacles that aren't in the same lane
+      if (obstacle.getLane() !== lane) return false;
+
+      const obstacleObj = obstacle.getGameObj();
+      if (!obstacleObj) return false;
+
+      // Check if obstacle is too close to spawn position
+      const obstaclePos = obstacleObj.pos.x;
+      return Math.abs(obstaclePos - spawnPosX) < safetyDistance;
+    });
+  }
+
+  /**
+   * Finds the lane with maximum distance from any obstacle
+   */
+  private findLaneWithMaximumSpace(
+    lanes: number[],
+    spawnPosX: number
+  ): { lane: number; distance: number } {
+    let selectedLane = -1;
+    let maxDistance = 0;
+
+    for (const lane of lanes) {
+      // Find the minimum distance to any obstacle in this lane
+      let minDistanceInLane = Number.MAX_VALUE;
+
+      for (const obstacle of this.obstacles) {
+        if (obstacle.getLane() !== lane) continue;
+
+        const obstacleObj = obstacle.getGameObj();
+        if (!obstacleObj) continue;
+
+        const obstaclePos = obstacleObj.pos.x;
+        const distance = Math.abs(obstaclePos - spawnPosX);
+
+        minDistanceInLane = Math.min(minDistanceInLane, distance);
+      }
+
+      // If this lane has more space than previous best, select it
+      if (minDistanceInLane > maxDistance) {
+        maxDistance = minDistanceInLane;
+        selectedLane = lane;
+      }
+    }
+
+    return { lane: selectedLane, distance: maxDistance };
+  }
+
+  /**
+   * Creates a coin at the specified lane
+   */
+  private createCoin(lane: number): Coin {
+    const coin = new Coin(this.k, {
+      lane: lane,
+      lanes: this.lanes,
+      speed: this.currentObstacleSpeed,
+      showHitboxes: this.showHitboxes,
+      showBorders: this.showBorders,
+    });
+    coin.init();
+    this.coins.push(coin);
+    return coin;
+  }
+
+  /**
+   * Creates an obstacle at the specified lane
+   */
+  private createObstacle(lane: number): Obstacle {
+    const obstacle = new Obstacle(this.k, {
+      lane: lane,
+      lanes: this.lanes,
+      speed: this.currentObstacleSpeed,
+      showHitboxes: this.showHitboxes,
+      showBorders: this.showBorders,
+    });
+    obstacle.init();
+    this.obstacles.push(obstacle);
+    return obstacle;
+  }
+
+  /**
+   * Find the safest lane for spawning an entity
+   */
+  private findSafeLane(
+    safetyDistance: number,
+    minAcceptableDistance: number = GameConfig.COIN_MIN_DISTANCE_FROM_OBSTACLE
+  ): number {
+    // Get canvas width for positioning
+    const spawnPosX = GameConfig.CANVAS_WIDTH;
+
+    // Create shuffled list of lane indices
+    const availableLanes = Array.from(
+      { length: GameConfig.LANE_COUNT },
+      (_, i) => i
+    );
+    this.shuffleArray(availableLanes);
+
+    // First try: find a lane with no obstacles nearby
+    for (const lane of availableLanes) {
+      if (this.isLaneSafeForSpawning(lane, spawnPosX, safetyDistance)) {
+        return lane;
+      }
+    }
+
+    // Second try: find the lane with most space
+    const { lane, distance } = this.findLaneWithMaximumSpace(
+      availableLanes,
+      spawnPosX
+    );
+
+    // Only use this lane if it meets minimum distance requirement
+    if (distance >= minAcceptableDistance) {
+      return lane;
+    }
+
+    return -1; // No safe lane found
+  }
+
   private startObstacleSpawning(spawnInterval: [number, number]): void {
     const k = this.k;
 
@@ -231,18 +367,8 @@ export default class GameplayScene extends BaseScene {
       // Randomly choose a lane (0, 1, or 2)
       const obstacleLane = k.randi(0, GameConfig.LANE_COUNT - 1);
 
-      // Create obstacle
-      const obstacle = new Obstacle(this.k, {
-        lane: obstacleLane,
-        lanes: this.lanes,
-        speed: this.currentObstacleSpeed,
-        showHitboxes: this.showHitboxes,
-        showBorders: this.showBorders,
-      });
-      obstacle.init();
-
-      // Add to obstacles array
-      this.obstacles.push(obstacle);
+      // Create obstacle using our helper method
+      this.createObstacle(obstacleLane);
 
       // Calculate next spawn time - gradually decrease as score increases
       const minSpawnTime = Math.max(spawnInterval[0] - this.gameTime / 60, 0.3);
@@ -268,56 +394,21 @@ export default class GameplayScene extends BaseScene {
     const spawnCoin = () => {
       if (!this.player || !this.player.isPlayerAlive()) return;
 
-      // Choose a random lane for the coin
-      const coinLane = k.randi(0, GameConfig.LANE_COUNT - 1);
+      // Use a larger safety margin to keep coins further from obstacles
+      const safetyMarginMultiplier = 2.5;
+      const minSafeDistance =
+        GameConfig.COIN_MIN_DISTANCE_FROM_OBSTACLE * safetyMarginMultiplier;
+      const minAcceptableDistance = GameConfig.COIN_MIN_DISTANCE_FROM_OBSTACLE;
 
-      // Check if this lane already has an obstacle near the spawn point
-      const hasNearbyObstacle = this.obstacles.some((obstacle) => {
-        // If obstacle is in same lane and near the right edge of the screen
-        const obstacleObj = obstacle.getGameObj();
-        if (
-          obstacle.getLane &&
-          obstacle.getLane() === coinLane &&
-          obstacleObj
-        ) {
-          // Get screen width
-          let screenWidth = 1000; // Default fallback
-          try {
-            // Use a safer approach to get width
-            if (typeof k.width === "function") {
-              try {
-                screenWidth = (k.width as () => number)();
-              } catch (e) {
-                console.warn("Error calling width as function", e);
-              }
-            } else if (typeof k.width === "number") {
-              screenWidth = k.width;
-            }
-          } catch (e) {
-            console.warn("Error accessing width", e);
-          }
-          const distance = obstacleObj.pos.x - screenWidth;
-          return (
-            Math.abs(distance) < GameConfig.COIN_MIN_DISTANCE_FROM_OBSTACLE
-          );
-        }
-        return false;
-      });
+      // Find a safe lane for spawning
+      const selectedLane = this.findSafeLane(
+        minSafeDistance,
+        minAcceptableDistance
+      );
 
-      // Only spawn if no nearby obstacles in same lane
-      if (!hasNearbyObstacle) {
-        // Create coin
-        const coin = new Coin(this.k, {
-          lane: coinLane,
-          lanes: this.lanes,
-          speed: this.currentObstacleSpeed,
-          showHitboxes: this.showHitboxes,
-          showBorders: this.showBorders,
-        });
-        coin.init();
-
-        // Add to coins array
-        this.coins.push(coin);
+      // If we found a suitable lane, spawn the coin there
+      if (selectedLane !== -1) {
+        this.createCoin(selectedLane);
       }
 
       // Calculate next spawn time

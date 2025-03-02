@@ -35,10 +35,6 @@ export default class HealthBar extends GameObject {
     this.createHealthBar();
   }
 
-  public update(_dt: number): void {
-    // Health bar doesn't need per-frame updates
-  }
-
   private createContainer(): void {
     const k = this.k;
 
@@ -96,8 +92,10 @@ export default class HealthBar extends GameObject {
     // Update health bar width based on current health
     this.gameObj.width = (health / this.maxHealth) * this.barWidth;
 
+    console.log({ health, maxHealth: this.maxHealth });
     // Update color based on health level
     if (health <= this.maxHealth / 3) {
+      console.log("health Red for low health");
       // Red for low health
       this.addComponent(k.color(255, 0, 0));
     } else if (health <= (this.maxHealth * 2) / 3) {
