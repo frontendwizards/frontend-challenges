@@ -18,6 +18,7 @@ export default class Coin extends GameObject {
   private showHitboxes: boolean = false;
   private showBorders: boolean = false;
   private isCollected = false;
+  private hitbox: GameObj | null = null;
 
   // Animation properties, similar to Player
   private currentFrame: number = 0;
@@ -53,6 +54,11 @@ export default class Coin extends GameObject {
 
   public init(): void {
     this.createCoin();
+
+    // Create hitbox if enabled
+    if (this.showHitboxes && this.gameObj) {
+      this.createHitbox();
+    }
   }
 
   private createCoin(): void {
@@ -89,11 +95,6 @@ export default class Coin extends GameObject {
     // Add tag
     this.addTag("coin");
 
-    // Show hitboxes if enabled
-    if (this.showHitboxes) {
-      this.addProp("inspect", true);
-    }
-
     // Show borders if enabled
     if (this.showBorders) {
       this.addComponent(k.outline(2, k.rgb(255, 255, 0)));
@@ -112,6 +113,21 @@ export default class Coin extends GameObject {
     }
   }
 
+  // Create a visible hitbox for the coin
+  private createHitbox(): void {
+    if (!this.gameObj) return;
+
+    const k = this.k;
+    this.hitbox = k.add([
+      k.rect(40, 40), // Use the same size as the coin's area
+      k.pos(this.gameObj.pos.x, this.gameObj.pos.y),
+      k.anchor("center"),
+      k.outline(2, k.rgb(255, 0, 0)), // Red outline
+      k.color(255, 0, 0, 0), // Semi-transparent red fill
+      "coinHitbox",
+    ]);
+  }
+
   public update(): void {
     if (!this.exists() || this.isCollected) return;
 
@@ -121,6 +137,11 @@ export default class Coin extends GameObject {
 
       // Update animation (only if not collected)
       this.updateAnimation();
+
+      // Update hitbox position if it exists
+      if (this.hitbox && this.hitbox.exists()) {
+        this.hitbox.pos = this.gameObj.pos;
+      }
     }
   }
 
@@ -158,6 +179,12 @@ export default class Coin extends GameObject {
   public collect(): void {
     if (!this.exists() || this.isCollected) return;
 
+    // Destroy the hitbox if it exists
+    if (this.hitbox && this.hitbox.exists()) {
+      this.hitbox.destroy();
+      this.hitbox = null;
+    }
+
     this.destroy();
 
     console.log("Coin collected");
@@ -168,6 +195,16 @@ export default class Coin extends GameObject {
     } catch (e) {
       console.warn("Could not create coin sound", e);
     }
+  }
+
+  public override destroy(): void {
+    // Destroy the hitbox if it exists
+    if (this.hitbox && this.hitbox.exists()) {
+      this.hitbox.destroy();
+      this.hitbox = null;
+    }
+
+    super.destroy();
   }
 
   public getLane(): number {

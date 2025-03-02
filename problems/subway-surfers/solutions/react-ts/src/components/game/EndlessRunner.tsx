@@ -59,7 +59,7 @@ const EndlessRunner: React.FC<EndlessRunnerProps> = ({
       },
       onComplete: () => {
         console.log("Asset loading complete, initializing game...");
-        initializeGame(k, sceneManager, assetLoader.isSpritesLoaded());
+        initializeGame(k, sceneManager);
         setIsLoading(false);
       },
       onError: (err) => {
@@ -72,20 +72,16 @@ const EndlessRunner: React.FC<EndlessRunnerProps> = ({
     // Initialize game scenes and start the game
     const initializeGame = (
       kaboomInstance: KaboomInterface,
-      sceneManager: SceneManager,
-      spritesLoaded: boolean
+      sceneManager: SceneManager
     ) => {
       try {
         // Register all game scenes
-        const gameplayScene = new GameplayScene(
-          kaboomInstance,
-          {
-            showHitboxes,
-            showBorders,
-            difficulty,
-            // debugLanes,
-          }
-        );
+        const gameplayScene = new GameplayScene(kaboomInstance, {
+          showHitboxes,
+          showBorders,
+          difficulty,
+          // debugLanes,
+        });
         gameplayScene.register(sceneManager);
 
         const gameOverScene = new GameOverScene(kaboomInstance);

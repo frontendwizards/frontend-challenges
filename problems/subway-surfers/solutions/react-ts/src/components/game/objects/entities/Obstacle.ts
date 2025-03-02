@@ -29,10 +29,6 @@ export default class Obstacle extends GameObject {
 
   public init(): void {
     this.createObstacle();
-
-    if (this.showHitboxes) {
-      this.createHitbox();
-    }
   }
 
   public update(): void {

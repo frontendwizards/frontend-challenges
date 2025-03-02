@@ -32,10 +32,6 @@ export default class Player extends GameObject {
   public init(): void {
     this.createPlayer();
     this.setupCollision();
-
-    if (this.showHitboxes) {
-      this.createHitbox();
-    }
   }
 
   public update(dt: number): void {
