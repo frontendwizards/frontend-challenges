@@ -2,6 +2,7 @@ import { KaboomInterface, GameObj } from "../../types/KaboomTypes";
 import GameObject from "../base/GameObject";
 import GameConfig from "../../config/GameConfig";
 import Coin from "./Coin";
+import SceneManager from "../../core/SceneManager";
 
 export interface PlayerOptions {
   initialLane: number;
@@ -9,6 +10,7 @@ export interface PlayerOptions {
   showHitboxes: boolean;
   onHealthChange?: (health: number) => void;
   onGameOver?: (callback: () => number) => void;
+  sceneManager?: SceneManager;
 }
 
 export default class Player extends GameObject {
@@ -21,12 +23,14 @@ export default class Player extends GameObject {
   private showHitboxes: boolean;
   private onHealthChange?: (health: number) => void;
   private getCurrentScoreCallback?: () => number;
+  private sceneManager?: SceneManager;
 
   constructor(kaboomInstance: KaboomInterface, options: PlayerOptions) {
     super(kaboomInstance);
     this.currentLane = options.initialLane;
     this.showHitboxes = options.showHitboxes;
     this.onHealthChange = options.onHealthChange;
+    this.sceneManager = options.sceneManager;
   }
 
   public init(): void {
@@ -149,13 +153,32 @@ export default class Player extends GameObject {
         if (this.gameObj) {
           this.gameObj.isAlive = false;
         }
+
+        // Add more dramatic shake
         k.shake(12);
+
+        // Wait a short time before transitioning to game over
         k.wait(0.4, () => {
           // Get current score from callback if available
           const finalScore = this.getCurrentScoreCallback
             ? this.getCurrentScoreCallback()
             : 0;
-          k.go("gameover", Math.floor(finalScore));
+
+          const roundedScore = Math.floor(finalScore);
+          console.log(`Player: Game over with score ${roundedScore}`);
+
+          // Use SceneManager if available, otherwise fall back to k.go
+          if (this.sceneManager) {
+            console.log(
+              "Player: Using SceneManager to transition to game over scene"
+            );
+            this.sceneManager.startScene("gameover", roundedScore);
+          } else {
+            console.log(
+              "Player: No SceneManager available, using Kaboom directly"
+            );
+            k.go("gameover", roundedScore);
+          }
         });
       }
     });

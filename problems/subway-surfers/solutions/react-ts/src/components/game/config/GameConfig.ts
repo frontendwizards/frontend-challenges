@@ -23,7 +23,7 @@ export default class GameConfig {
   static readonly PLAYER_POSITION_X = 200; // Player's horizontal position
   static readonly PLAYER_INITIAL_LANE = 1; // Start in the middle lane (0-2)
   static readonly PLAYER_SPEED = 400; // Base movement speed
-  static readonly PLAYER_INITIAL_HEALTH = 3; // Starting health
+  static readonly PLAYER_INITIAL_HEALTH = 1; // Starting health
   static readonly SPRITE_SCALE = 0.25; // Scale for player sprite (reduced from 0.3)
 
   // Asset settings

@@ -74,22 +74,23 @@ export default class GameEngine {
   }
 
   public destroy(): void {
-    if (this.k) {
-      // Clean up any event listeners or timers
-      this.k.onUpdate(() => {}); // Clear update handlers
-      this.k.onDraw(() => {}); // Clear draw handlers
+    if (!this.k) {
+      return;
+    }
+    // Clean up any event listeners or timers
+    this.k.onUpdate(() => {}); // Clear update handlers
+    this.k.onDraw(() => {}); // Clear draw handlers
 
-      // Remove all game objects
-      this.k.destroyAll();
+    // Remove all game objects
+    this.k.destroyAll();
 
-      // Clear all scenes
-      this.k.scenes = {};
+    // Clear all scenes
+    this.k.scenes = {};
 
-      // Clear all loaded assets
-      this.k.assets = {};
+    // Clear all loaded assets
+    this.k.assets = {};
 
     console.log("Game engine resources cleaned up");
-      this.k = null;
-    }
+    this.k = null;
   }
 }
