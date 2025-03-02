@@ -79,7 +79,6 @@ const EndlessRunner: React.FC<EndlessRunnerProps> = ({
         // Register all game scenes
         const gameplayScene = new GameplayScene(
           kaboomInstance,
-          spritesLoaded, // Only use sprites if both loaded and enabled
           {
             showHitboxes,
             showBorders,

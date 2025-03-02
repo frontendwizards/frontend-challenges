@@ -43,7 +43,6 @@ export default class GameplayScene extends BaseScene {
 
   constructor(
     kaboomInstance: KaboomInterface,
-    spriteLoaded: boolean,
     options: GameplaySceneOptions
   ) {
     super(kaboomInstance);
@@ -189,7 +188,7 @@ export default class GameplayScene extends BaseScene {
 
       // Update obstacles
       this.obstacles.forEach((obstacle, index) => {
-        obstacle.update(deltaTime);
+        obstacle.update();
 
         // Remove destroyed obstacles from array
         if (!obstacle.exists()) {
