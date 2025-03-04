@@ -1,4 +1,4 @@
-# Subway Surfers 1 Description
+# Subway Surfers Description
 
 ## Problem Description
 
