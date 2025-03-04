@@ -1,7 +1,7 @@
 import { GameObj, KaboomInterface } from "../../types/KaboomTypes";
 import GameObject from "../base/GameObject";
 import GameConfig from "../../config/GameConfig";
-import AudioPlayer from "../../core/AudioPlayer";
+import AudioPlayer from "../../services/audio/AudioPlayer";
 
 export interface CoinOptions {
   lane: number;

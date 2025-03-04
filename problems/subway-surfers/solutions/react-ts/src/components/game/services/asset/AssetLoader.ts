@@ -1,6 +1,6 @@
-import { KaboomInterface } from "../types/KaboomTypes";
-import GameConfig from "../config/GameConfig";
-import AudioPlayer from "./AudioPlayer";
+import { KaboomInterface } from "../../types/KaboomTypes";
+import GameConfig from "../../config/GameConfig";
+import AudioPlayer from "../audio/AudioPlayer";
 
 interface AssetLoaderCallbacks {
   onProgress?: (progress: number) => void;
@@ -40,7 +40,7 @@ export default class AssetLoader {
           this.assetsLoaded = this.totalAssetsToLoad;
           callbacks?.onComplete?.();
         }
-      }, 5000); // 5 seconds timeout
+      }, 2000);
 
       // Load all assets in parallel
       await this.loadAllAssetsInParallel(callbacks);

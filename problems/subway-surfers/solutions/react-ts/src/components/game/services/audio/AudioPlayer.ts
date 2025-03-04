@@ -1,5 +1,5 @@
-import GameConfig from "../config/GameConfig";
-import { LoadResult } from "./AssetLoader";
+import GameConfig from "../../config/GameConfig";
+import { LoadResult } from "../asset/AssetLoader";
 
 export default class AudioPlayer {
   private static coinCollectSound: HTMLAudioElement;

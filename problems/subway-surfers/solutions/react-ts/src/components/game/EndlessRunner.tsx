@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { KaboomInterface } from "./types/KaboomTypes";
 import GameEngine from "./core/GameEngine";
-import AssetLoader from "./core/AssetLoader";
+import AssetLoader from "./services/asset/AssetLoader";
 import SceneManager, {
   GameOverScene,
   GameplayScene,
@@ -17,14 +17,14 @@ interface EndlessRunnerProps {
   debugLanes?: boolean;
 }
 
-const EndlessRunner: React.FC<EndlessRunnerProps> = ({
+const EndlessRunner = ({
   width = GameConfig.CANVAS_WIDTH,
   height = GameConfig.CANVAS_HEIGHT,
   showHitboxes = false,
   showBorders = false,
   difficulty = "medium",
   debugLanes = true,
-}) => {
+}: EndlessRunnerProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadingProgress, setLoadingProgress] = useState(0);

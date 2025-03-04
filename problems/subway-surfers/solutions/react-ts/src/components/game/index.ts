@@ -3,7 +3,9 @@ export { default as EndlessRunner } from "./EndlessRunner";
 
 // Core game engine
 export { default as GameEngine } from "./core/GameEngine";
-export { default as AssetLoader } from "./core/AssetLoader";
+// Services
+export { default as AssetLoader } from "./services/asset/AssetLoader";
+export { default as AudioPlayer } from "./services/audio/AudioPlayer";
 export { default as SceneManager } from "./core/SceneManager";
 
 // Game configuration
