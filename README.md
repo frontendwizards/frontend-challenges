@@ -40,6 +40,7 @@ Each challenge has:
 | [Star Rating](https://frontwizards.com/challenge/user-interface/star-rating)     | Easy       | ✅        | ✅         | [Solution](/problems/star-rating/solutions/react-ts)     |
 | Simple Form II (with accessibility)                                              | Easy       | -         | -          | -                                                        |
 | [Traffic light](https://frontwizards.com/challenge/user-interface/traffic-light) | Easy       | ✅        | ✅         | [Solution](/problems/traffic-light/solutions/react-ts)   |
+| [OTP Input](https://frontwizards.com/challenge/user-interface/otp-input)         | Medium     | ✅        | ✅         | [Solution](/problems/otp-input/solutions/react-ts)       |
 | [File Tree](https://frontwizards.com/challenge/user-interface/file-tree)         | Medium     | ✅        | ✅         | [Solution](/problems/file-tree/solutions/react-ts)       |
 | [Twitter like](https://frontwizards.com/challenge/user-interface/twitter-like)   | Medium     | ✅        | ✅         | [Solution](/problems/twitter-like/solutions/react-ts)    |
 | Twitter like II                                                                  | Medium     | -         | -          | [Solution](/problems/twitter-like-II/solutions/react-ts) |
