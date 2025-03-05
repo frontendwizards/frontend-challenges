@@ -65,7 +65,7 @@ export default class GameConfig {
   };
 
   // Cloud configuration
-  static readonly CLOUD_SPEED = -120; // Negative value makes clouds move left
+  static readonly CLOUD_SPEED = -320; // Negative value makes clouds move left
   static readonly CLOUD_SPAWN_INTERVAL = 3; // Spawn new cloud every 3 seconds
 
   // Obstacle configuration

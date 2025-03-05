@@ -90,11 +90,9 @@ export default class GameplayScene extends BaseScene {
       initialLane: this.currentLane,
       lanes: this.lanes,
       showHitboxes: this.showHitboxes,
-      sceneManager: this.sceneManager,
+      sceneManager: this.sceneManager!,
       onHealthChange: (health: number) => {
-        if (this.healthBar) {
-          this.healthBar.updateHealth(health);
-        }
+        this.healthBar?.updateHealth(health);
       },
     });
     this.player.init();

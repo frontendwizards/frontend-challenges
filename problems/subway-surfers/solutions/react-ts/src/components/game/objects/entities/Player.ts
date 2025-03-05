@@ -10,7 +10,7 @@ export interface PlayerOptions {
   showHitboxes: boolean;
   onHealthChange?: (health: number) => void;
   onGameOver?: (callback: () => number) => void;
-  sceneManager?: SceneManager;
+  sceneManager: SceneManager;
 }
 
 export default class Player extends GameObject {
@@ -23,7 +23,7 @@ export default class Player extends GameObject {
   private showHitboxes: boolean;
   private onHealthChange?: (health: number) => void;
   private getCurrentScoreCallback?: () => number;
-  private sceneManager?: SceneManager;
+  private sceneManager: SceneManager;
 
   constructor(kaboomInstance: KaboomInterface, options: PlayerOptions) {
     super(kaboomInstance);
@@ -85,20 +85,6 @@ export default class Player extends GameObject {
 
     // Create the game object
     this.createGameObj();
-  }
-
-  private createHitbox(): void {
-    if (!this.gameObj) return;
-
-    const k = this.k;
-    this.hitbox = k.add([
-      k.rect(this.gameObj.width * 0.7, this.gameObj.height * 0.7),
-      k.pos(this.gameObj.pos.x, this.gameObj.pos.y),
-      k.anchor("center"),
-      k.outline(2, k.rgb(0, 255, 0)),
-      k.color(0, 255, 0, 0.3),
-      "playerHitbox",
-    ]);
   }
 
   private updateAnimation(): void {
@@ -168,17 +154,10 @@ export default class Player extends GameObject {
           console.log(`Player: Game over with score ${roundedScore}`);
 
           // Use SceneManager if available, otherwise fall back to k.go
-          if (this.sceneManager) {
-            console.log(
-              "Player: Using SceneManager to transition to game over scene"
-            );
-            this.sceneManager.startScene("gameover", roundedScore);
-          } else {
-            console.log(
-              "Player: No SceneManager available, using Kaboom directly"
-            );
-            k.go("gameover", roundedScore);
-          }
+          console.log(
+            "Player: Using SceneManager to transition to game over scene"
+          );
+          this.sceneManager.startScene("gameover", roundedScore);
         });
       }
     });
