@@ -129,12 +129,12 @@ Each challenge has:
 <details>
 <summary>React hooks</summary>
 
-| Title                                                                               | Difficulty | Completed | Solution |
-| ----------------------------------------------------------------------------------- | ---------- | --------- | -------- |
-| [UseTimeout](https://frontwizards.com/challenge/react-hooks/use-timeout)            | Easy       | -         | -        |
-| [UseClickOutside](https://frontwizards.com/challenge/react-hooks/use-click-outside) | Medium     | -         | -        |
-| [UseEffect](https://frontwizards.com/challenge/react-hooks/use-effect)              | Hard       | -         | -        |
-| [UseState](https://frontwizards.com/challenge/react-hooks/use-state)                | Hard       | -         | -        |
+| Title           | Difficulty | Completed | Solution |
+| --------------- | ---------- | --------- | -------- |
+| UseTimeout      | Easy       | -         | -        |
+| UseClickOutside | Medium     | -         | -        |
+| UseEffect       | Hard       | -         | -        |
+| UseState        | Hard       | -         | -        |
 
 </details>
 
