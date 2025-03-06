@@ -10,8 +10,6 @@ export default function App() {
       </p>
 
       <EndlessRunner
-        width={1000}
-        height={600}
         showHitboxes={false}
         showBorders={false}
         difficulty="medium"

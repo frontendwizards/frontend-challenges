@@ -149,7 +149,7 @@ export default class AssetLoader {
     return new Promise<LoadResult>((resolve) => {
       console.log("Loading obstacle sprite sheet...");
 
-      this.k.loadSprite("obstacle", "/assets/obstacles.png", {
+      this.k.loadSprite("obstacle", GameConfig.OBSTACLE_SPRITE_PATH, {
         sliceX: 5,
         sliceY: 2,
         noError: true,

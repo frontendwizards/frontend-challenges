@@ -4,9 +4,11 @@ export interface DifficultySettings {
   speedIncreaseFactor: number;
 }
 
+const BASE_URL = "https://raw.githubusercontent.com/frontendwizards/frontend-challenges/feat/add_new_problems/problems/subway-surfers/solutions/react-ts/public";
+
 export default class GameConfig {
   // Canvas settings
-  static readonly CANVAS_WIDTH = 1000;
+  static readonly CANVAS_WIDTH = 900;
   static readonly CANVAS_HEIGHT = 600;
   static readonly CANVAS_BACKGROUND_COLOR = "#000000";
 
@@ -27,23 +29,24 @@ export default class GameConfig {
   static readonly SPRITE_SCALE = 0.25; // Scale for player sprite (reduced from 0.3)
 
   // Asset settings
-  static readonly SPRITE_PATH = "/assets/characters/templerun"; // Path to sprite assets
+  static readonly SPRITE_PATH = `${BASE_URL}/assets/characters/templerun/`; // Path to sprite assets
   static readonly CHARACTER_SPRITE_COUNT = 10; // Number of character animation frames
   static readonly OBSTACLE_SPRITE_COUNT = 10; // Number of obstacle types
   static readonly OBSTACLE_SCALE = 0.3; // Scale for obstacle sprites (reduced from 0.5)
 
   // Coin settings
-  static readonly COIN_SPRITE_PATH = "/assets/coins/MonedaD.png"; // Path to coin sprite
+  static readonly COIN_SPRITE_PATH = `${BASE_URL}/assets/coins/MonedaD.png`; // Path to coin sprite
   static readonly COIN_SPRITE_FRAMES = 5; // Number of animation frames
   static readonly COIN_SCALE = 3; // Scale for coin sprite (adjusted for new lane sizes)
   static readonly COIN_SCORE_VALUE = 10; // Score value for collecting a coin
   static readonly COIN_SPAWN_INTERVAL = [1.0, 3.0]; // Min and max time between coins
   static readonly COIN_MIN_DISTANCE_FROM_OBSTACLE = 500; // Minimum distance from obstacles
-  static readonly COIN_SOUND_PATH = "/assets/sounds/coin-collect.mp3"; // Path to coin sound
+  static readonly COIN_SOUND_PATH = `${BASE_URL}/assets/sounds/coin-collect.mp3`; // Path to coin sound
   // Game mechanics
   static readonly LANE_COUNT = 3; // Number of lanes
   static readonly LANE_SPACING = 150; // Distance between lanes
   static readonly MAX_SPEED_INCREASE = 300; // Maximum speed increase over time
+  static readonly OBSTACLE_SPRITE_PATH = `${BASE_URL}/assets/obstacles.png`; // Path to obstacle sprite
 
   // Difficulty presets
   static readonly DIFFICULTY_SETTINGS: Record<string, DifficultySettings> = {
@@ -59,7 +62,7 @@ export default class GameConfig {
     },
     hard: {
       obstacleSpeed: 500,
-      spawnInterval: [0.5, .8] as [number, number],
+      spawnInterval: [0.5, 0.8] as [number, number],
       speedIncreaseFactor: 1.5,
     },
   };

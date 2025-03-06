@@ -96,14 +96,13 @@ const EndlessRunner = ({
       const isSmall = window.innerWidth < GameConfig.CANVAS_WIDTH;
 
       if (isSmall !== isScreenTooSmall) {
-        setIsScreenTooSmall(isSmall);
-
+        // setIsScreenTooSmall(isSmall);
         // Pause/resume game based on screen size
-        if (isSmall && gameplaySceneRef.current) {
-          pauseGame();
-        } else if (!isSmall && isPaused && gameplaySceneRef.current) {
-          resumeGame();
-        }
+        // if (isSmall && gameplaySceneRef.current) {
+        //   pauseGame();
+        // } else if (!isSmall && isPaused && gameplaySceneRef.current) {
+        //   resumeGame();
+        // }
       }
     };
 
@@ -224,7 +223,7 @@ const EndlessRunner = ({
         ref={canvasRef}
         width={width}
         height={height}
-        className={`border-4 border-gray-800 `}
+        className={`border-4 border-gray-800`}
       />
     </div>
   );
