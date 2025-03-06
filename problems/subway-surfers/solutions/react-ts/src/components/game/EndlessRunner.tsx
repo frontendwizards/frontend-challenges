@@ -224,7 +224,7 @@ const EndlessRunner = ({
         ref={canvasRef}
         width={width}
         height={height}
-        className={`border-4 border-gray-800 scale-90`}
+        className={`border-4 border-gray-800 `}
       />
     </div>
   );
