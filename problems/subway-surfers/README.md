@@ -1,18 +1,66 @@
-# Example Challenge Description
+# Subway Surfers Challenge
 
 ## Problem Description
 
-Based on the codebase and inspiring from other problems description,
+In this challenge, you'll create a simple endless runner 2D game inspired by Subway Surfers. The player character will be moving in a 2D world and will be able to move up and down between lanes (or tracks). The main objective is to avoid obstacles to stay alive as long as possible.
 
-Make a Readme, that will have the descrption of the problem and the requirements,
+The game will feature:
 
-in the description, mention that like subway surfers, make a simple endless runner 2d game, which means, the character will be moving in a 2d world, and the character will be able to move up and down between the lines, and the character will be able to collect coins, and the character willhave to aboid obstacles to stay alive.
+- A character that can move between multiple lanes
+- Randomly generated obstacles that the player must avoid
+- Increasing difficulty over time
 
+The player controls the character by pressing keys to move between lanes. The game ends when the player collides with an obstacle.
 
 ## Requirements
 
+### Create a 2D endless runner game with:
+
+- A character that can move between lanes (minimum 3 lanes)
+- Randomly generated obstacles that appear at different lanes
+- Collision detection between the player and obstacles
+- Game over screen when player collides with an obstacle
+
+### Basic controls:
+
+- Up/Down arrow keys to move between lanes
+- Alternatively, you can use other intuitive controls
+
+### Game mechanics:
+
+- The game speed should gradually increase over time
+- Obstacles should appear at random positions with safe paths always available
+
+### Visual and user experience:
+
+- Simple but clear graphics for the player character and obstacles
 
 ## Technology
 
-use any technology you want, I recommend using kaboom.js which handles sprites, animations, physics, etc.
+Use any technology you want, I recommend using Kaboom.js which handles sprites, animations, physics, etc. Kaboom.js is particularly well-suited for 2D games like this as it provides built-in functionality for:
 
+- Sprite rendering and animation
+- Collision detection
+- Input handling
+- Game loop management
+
+Other alternative technologies:
+
+- Phaser.js
+- HTML5 Canvas directly
+- Unity (WebGL export)
+
+## Bonus
+
+For an enhanced version of the game, consider adding these bonus features:
+
+- A scoring system based on distance/time survived and should be visible to the player
+- Collectible coins which will give you more score
+- Animated coins that spin or glitter
+- Sound effects when the player collects a coin
+- Sky and ground background
+- Decorative clouds that move in the background
+- Health bar that will decrease when the player collides with an obstacle
+- FPS counter display (it indicates the performance of the game, slow or fast)
+- Game over screen with final score and option to restart the game
+- Use your imagination to add other features

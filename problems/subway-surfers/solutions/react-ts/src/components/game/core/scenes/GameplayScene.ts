@@ -37,6 +37,7 @@ export default class GameplayScene extends BaseScene {
   private scoreDisplay: ScoreDisplay | null = null;
   private obstacleSpawnTimer: ActionReturnType | null = null;
   private coinSpawnTimer: ActionReturnType | null = null;
+  private isPaused: boolean = false;
 
   // Store lane debug objects
   private laneDebugObjects: GameObj[] = [];
@@ -158,7 +159,8 @@ export default class GameplayScene extends BaseScene {
 
     // Main game update loop
     k.onUpdate(() => {
-      if (!this.player || !this.player.isPlayerAlive()) return;
+      // Skip update if game is paused or player is dead
+      if (this.isPaused || !this.player || !this.player.isPlayerAlive()) return;
 
       // Make sure we have a valid dt value
       const deltaTime = isNaN(k.dt) || k.dt === 0 ? 1 / 60 : k.dt;
@@ -168,19 +170,13 @@ export default class GameplayScene extends BaseScene {
       this.score += deltaTime;
 
       // Update score display
-      if (this.scoreDisplay) {
-        this.scoreDisplay.updateScore(this.score);
-      }
+      this.scoreDisplay?.updateScore(this.score);
 
       // Update player animation
-      if (this.player) {
-        this.player.update(deltaTime);
-      }
+      this.player?.update(deltaTime);
 
       // Update environment
-      if (this.environment) {
-        this.environment.update(deltaTime);
-      }
+      this.environment?.update(deltaTime);
 
       // Update obstacles
       this.obstacles.forEach((obstacle, index) => {
@@ -513,5 +509,42 @@ export default class GameplayScene extends BaseScene {
       // Store these objects for cleanup on next frame
       this.laneDebugObjects.push(laneRect, laneText);
     });
+  }
+
+  public pause(): void {
+    if (this.isPaused) return;
+
+    this.isPaused = true;
+
+    // Store current timer actions so we can cancel and recreate them later
+    if (this.obstacleSpawnTimer) {
+      this.obstacleSpawnTimer.cancel();
+      this.obstacleSpawnTimer = null;
+    }
+
+    if (this.coinSpawnTimer) {
+      this.coinSpawnTimer.cancel();
+      this.coinSpawnTimer = null;
+    }
+  }
+
+  public resume(): void {
+    if (!this.isPaused) return;
+
+    this.isPaused = false;
+
+    // Restart timers with appropriate difficulty settings
+    const difficultySettings = GameConfig.getDifficultySettings(
+      this.difficulty
+    );
+
+    // Only restart timers if they're not already running
+    if (!this.obstacleSpawnTimer) {
+      this.startObstacleSpawning(difficultySettings.spawnInterval);
+    }
+
+    if (!this.coinSpawnTimer) {
+      this.startCoinSpawning();
+    }
   }
 }
