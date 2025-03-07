@@ -70,8 +70,3 @@ You might also want to support different layouts:
 ```
 
 Remember: This is just one possible implementation. Feel free to design your own API structure!
-
-
-## Credits
-
-This challenge is inspired by [GreatFrontend](https://www.greatfrontend.com/).
