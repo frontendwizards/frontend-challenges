@@ -223,6 +223,7 @@ const EndlessRunner = ({
         ref={canvasRef}
         width={width}
         height={height}
+        tabIndex={0}
         className={`border-4 border-gray-800`}
       />
     </div>
