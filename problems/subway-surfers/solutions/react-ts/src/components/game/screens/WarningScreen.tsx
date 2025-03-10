@@ -53,7 +53,6 @@ const WarningScreen: React.FC<WarningScreenProps> = ({
         <p className="text-center text-lg mb-6 text-white/90 leading-relaxed">
           Your screen is too small for the optimal game experience.
           <br />
-          <br />
           Please use a larger screen or resize your browser window.
         </p>
 

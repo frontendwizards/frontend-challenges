@@ -152,7 +152,7 @@ export default class Coin extends GameObject {
     let dt = 1 / 60;
     try {
       if (typeof this.k.dt === "function") {
-        dt = (this.k.dt as () => number)();
+        dt = (this.k.dt as () => number)(); 
       } else if (typeof this.k.dt === "number") {
         dt = this.k.dt;
       }

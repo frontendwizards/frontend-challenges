@@ -91,6 +91,7 @@ export default class Player extends GameObject {
     if (!this.gameObj || !this.isAlive) return;
 
     // Update to next frame
+    // 10 is the number of frames in the player sprite
     this.currentFrame = (this.currentFrame + 1) % 10;
 
     // Save current state

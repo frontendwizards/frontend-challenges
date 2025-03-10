@@ -53,7 +53,7 @@ const EndlessRunner: React.FC<EndlessRunnerProps> = ({
       {isScreenTooSmall ? (
         <WarningScreen minWidth={GameConfig.CANVAS_WIDTH} />
       ) : (
-        <>
+        <div className="bg-gray-900 rounded-lg backdrop-blur-sm bg-opacity-80">
           {isLoading && (
             <LoadingScreen
               progress={loadingProgress}
@@ -72,7 +72,7 @@ const EndlessRunner: React.FC<EndlessRunnerProps> = ({
           )}
 
           <GameCanvas ref={canvasRef} width={width} height={height} />
-        </>
+        </div>
       )}
     </div>
   );

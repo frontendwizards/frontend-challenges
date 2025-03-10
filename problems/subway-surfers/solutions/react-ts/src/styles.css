@@ -21,3 +21,8 @@ body {
 h1 {
   font-family: "Changa";
 }
+
+.game-frame {
+  position: relative;
+  display: inline-block;
+}
