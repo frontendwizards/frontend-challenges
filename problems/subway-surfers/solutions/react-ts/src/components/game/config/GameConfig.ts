@@ -40,8 +40,8 @@ export default class GameConfig {
   static readonly COIN_SCALE = 3; // Scale for coin sprite (adjusted for new lane sizes)
   static readonly COIN_SCORE_VALUE = 10; // Score value for collecting a coin
   static readonly COIN_SPAWN_INTERVAL = [1.0, 3.0]; // Min and max time between coins
-  static readonly COIN_MIN_DISTANCE_FROM_OBSTACLE = 400; // Minimum distance from obstacles
-  static readonly COIN_SOUND_PATH = `${BASE_URL}/assets/sounds/coin-collect.mp3`; // Path to coin sound
+  static readonly COIN_MIN_DISTANCE_FROM_OBSTACLE = 600; // Minimum distance from obstacles
+  static readonly COIN_SOUND_PATH = `${BASE_URL}/assets/sounds/subway-surfers-coin-collect.mp3`; // Path to coin sound
   // Game mechanics
   static readonly LANE_COUNT = 3; // Number of lanes
   static readonly LANE_SPACING = 150; // Distance between lanes
