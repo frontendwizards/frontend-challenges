@@ -94,18 +94,7 @@ export default class Player extends GameObject {
     // 10 is the number of frames in the player sprite
     this.currentFrame = (this.currentFrame + 1) % 10;
 
-    // Save current state
-    const oldHealth = this.health;
-    const oldLane = this.currentLane;
-
-    // Destroy old player
-    this.destroy();
-
-    // Recreate with new frame
-    this.health = oldHealth;
-    this.currentLane = oldLane;
-    this.createPlayer();
-    this.setupCollision();
+    this.updateGameObjSprite(`run${this.currentFrame}`);
   }
 
   private setupCollision(): void {

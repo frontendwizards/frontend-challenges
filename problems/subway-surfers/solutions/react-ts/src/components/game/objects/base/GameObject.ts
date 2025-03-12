@@ -22,8 +22,7 @@ export default abstract class GameObject {
   /**
    * Update method called every frame
    */
-  public update(_dt: number): void {
-  }
+  public update(_dt: number): void {}
 
   /**
    * Get the underlying Kaboom game object
@@ -92,5 +91,29 @@ export default abstract class GameObject {
    */
   public exists(): boolean {
     return this.gameObj !== null && this.gameObj.exists();
+  }
+
+  public updateGameObjFrame(newFrame: number): void {
+    if (this.gameObj) {
+      this.gameObj.frame = newFrame;
+    }
+  }
+
+  // Add a method to update the sprite of the existing gameObj
+  public updateGameObjSprite(spriteName: string): void {
+    if (!this.gameObj) return;
+
+    try {
+      // Remove the current sprite component
+      const spriteComp = this.gameObj.get("sprite");
+      if (spriteComp) {
+        this.gameObj.unuse("sprite");
+      }
+
+      // Add the new sprite component
+      this.gameObj.use(this.k.sprite(spriteName));
+    } catch (error) {
+      console.warn(`Failed to update player sprite to ${spriteName}`, error);
+    }
   }
 }

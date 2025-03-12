@@ -127,7 +127,7 @@ export default class GameplayScene extends BaseScene {
     this.scoreDisplay = new ScoreDisplay(k, {
       x: 24,
       y: 24,
-      width: 165,
+      width: 110,
       height: 40,
     });
     this.scoreDisplay.init();
@@ -476,7 +476,7 @@ export default class GameplayScene extends BaseScene {
         // Create obstacle in the selected lane
         this.createObstacle(selectedLane);
 
-        // Calculate next spawn time - gradually decrease as score increases
+        // Calculate next spawn time - gradually decrease as score increases 
         const minSpawnTime = Math.max(
           spawnInterval[0] - this.gameTime / 60,
           0.3

@@ -172,18 +172,12 @@ export default class Coin extends GameObject {
         (this.currentFrame + 1) % GameConfig.COIN_SPRITE_FRAMES;
 
       // Apply the new frame to the sprite
-      this.gameObj.frame = this.currentFrame;
+      this.updateGameObjFrame(this.currentFrame);
     }
   }
 
   public collect(): void {
-    if (!this.exists() || this.isCollected) return;
-
-    // Destroy the hitbox if it exists
-    if (this.hitbox && this.hitbox.exists()) {
-      this.hitbox.destroy();
-      this.hitbox = null;
-    }
+    if (!this.exists()) return;
 
     this.destroy();
 

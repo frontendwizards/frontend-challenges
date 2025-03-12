@@ -149,6 +149,8 @@ export interface GameObj {
   onDestroy: (callback: () => void) => void;
   z: number;
   isCollected?: boolean;
+  unuse: (component: string) => void;
+  get: (component: string) => CompType;
 }
 
 export interface CompType {
