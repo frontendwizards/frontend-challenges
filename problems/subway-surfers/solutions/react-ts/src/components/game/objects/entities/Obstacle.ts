@@ -14,7 +14,6 @@ export default class Obstacle extends GameObject {
   private lane: number;
   private speed: number;
   private showHitboxes: boolean;
-  private showBorders: boolean;
   private hitbox: GameObj | null = null;
   private spriteIndex: number;
 
@@ -23,7 +22,6 @@ export default class Obstacle extends GameObject {
     this.lane = options.lane;
     this.speed = options.speed;
     this.showHitboxes = options.showHitboxes;
-    this.showBorders = options.showBorders;
     this.spriteIndex = this.k.randi(0, 10); // Random obstacle sprite
   }
 
@@ -70,11 +68,6 @@ export default class Obstacle extends GameObject {
       const g = k.randi(100, 255);
       const b = k.randi(100, 255);
       this.addComponent(k.color(r, g, b));
-    }
-
-    // Add outline if showBorders is true
-    if (this.showBorders) {
-      this.addComponent(k.outline(2, k.rgb(255, 0, 0)));
     }
 
     const lanes = GameConfig.getLanePositions();

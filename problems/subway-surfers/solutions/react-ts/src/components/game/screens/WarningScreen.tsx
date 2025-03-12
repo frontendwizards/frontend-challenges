@@ -17,9 +17,6 @@ const WarningScreen: React.FC<WarningScreenProps> = ({
 
   return (
     <div className="flex flex-col justify-center items-center w-full h-full overflow-hidden">
-      {/* Background with gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br  opacity-90" />
-
       {/* Content container with animation */}
       <div
         className={`relative z-10 bg-white/10 backdrop-blur-sm p-8 rounded-xl shadow-2xl border border-white/20 text-white max-w-md mx-auto transition-all duration-700 transform ${

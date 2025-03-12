@@ -1,7 +1,12 @@
 import "./styles.css";
 import EndlessRunner from "./components/game/EndlessRunner";
+import { useEffect } from "react";
 
 export default function App() {
+  useEffect(() => {
+    console.log = () => {};
+  }, []);
+
   return (
     <main className="p-5 text-center min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
       <h1 className="text-5xl font-bold py-7 text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-600">

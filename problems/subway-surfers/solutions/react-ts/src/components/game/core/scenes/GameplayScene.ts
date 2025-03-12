@@ -417,7 +417,7 @@ export default class GameplayScene extends BaseScene {
         // Create obstacle in the selected lane
         this.createObstacle(selectedLane);
 
-        // Calculate next spawn time - gradually decrease as score increases 
+        // Calculate next spawn time - gradually decrease as score increases
         const minSpawnTime = Math.max(
           spawnInterval[0] - this.gameTime / 60,
           0.3
@@ -474,14 +474,6 @@ export default class GameplayScene extends BaseScene {
       const distance = Math.abs(coinPos - spawnPosX);
       const isTooClose = distance < effectiveSafetyDistance;
 
-      if (isTooClose) {
-        console.log(
-          `Lane ${lane}: Coin too close for obstacle! Distance: ${distance.toFixed(
-            0
-          )}, Required: ${effectiveSafetyDistance.toFixed(0)}`
-        );
-      }
-
       return isTooClose;
     });
 
@@ -504,14 +496,6 @@ export default class GameplayScene extends BaseScene {
 
       const distance = Math.abs(obstaclePos - spawnPosX);
       const isTooClose = distance < effectiveSafetyDistance;
-
-      if (isTooClose) {
-        console.log(
-          `Lane ${lane}: Other obstacle too close! Distance: ${distance.toFixed(
-            0
-          )}, Required: ${effectiveSafetyDistance.toFixed(0)}`
-        );
-      }
 
       return isTooClose;
     });
@@ -565,8 +549,6 @@ export default class GameplayScene extends BaseScene {
         // Random time between 1 and 1.5 seconds for next coin
         this.coinSpawnTimer = k.wait(k.rand(1, 1.5), spawnCoin);
       } else {
-        console.log("No safe lane found for coin, waiting to try again");
-
         // Release the spawn lock
         this.isSpawning = false;
 
