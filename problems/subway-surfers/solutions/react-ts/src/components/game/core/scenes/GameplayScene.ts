@@ -382,7 +382,7 @@ export default class GameplayScene extends BaseScene {
       this.isSpawning = true;
 
       // Find a safe lane for the obstacle (similar to coins)
-      const safetyDistance = GameConfig.COIN_MIN_DISTANCE_FROM_OBSTACLE * 2;
+      const safetyDistance = GameConfig.COIN_MIN_DISTANCE_FROM_OBSTACLE;
 
       // Create shuffled list of lane indices
       const availableLanes = Array.from(
@@ -477,30 +477,7 @@ export default class GameplayScene extends BaseScene {
       return isTooClose;
     });
 
-    // Also check if other obstacles are too close
-    const obstacleCollision = this.obstacles.some((obstacle) => {
-      // Skip obstacles that aren't in the same lane
-      if (obstacle.getLane() !== lane) return false;
-
-      const obstacleObj = obstacle.getGameObj();
-      if (!obstacleObj) return false;
-
-      const obstaclePos = obstacleObj.pos.x;
-
-      // Consider obstacle widths
-      const obstacleWidth = obstacleObj.width || 60;
-      const minSafeDistance = obstacleWidth;
-
-      // Use the larger of safetyDistance or the physical space needed
-      const effectiveSafetyDistance = Math.max(safetyDistance, minSafeDistance);
-
-      const distance = Math.abs(obstaclePos - spawnPosX);
-      const isTooClose = distance < effectiveSafetyDistance;
-
-      return isTooClose;
-    });
-
-    return !coinCollision && !obstacleCollision;
+    return !coinCollision;
   }
 
   private startCoinSpawning(): void {
