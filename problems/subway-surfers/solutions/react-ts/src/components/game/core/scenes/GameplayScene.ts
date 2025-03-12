@@ -294,65 +294,6 @@ export default class GameplayScene extends BaseScene {
   }
 
   /**
-   * Finds the lane with maximum distance from any obstacle
-   */
-  private findLaneWithMaximumSpace(
-    lanes: number[],
-    spawnPosX: number
-  ): { lane: number; distance: number } {
-    let selectedLane = -1;
-    let maxDistance = 0;
-
-    for (const lane of lanes) {
-      // Find the minimum distance to any obstacle in this lane
-      let minDistanceInLane = Number.MAX_VALUE;
-      let closestObstaclePos = "";
-
-      // Check all obstacles in this lane
-      for (const obstacle of this.obstacles) {
-        if (obstacle.getLane() !== lane) continue;
-
-        const obstacleObj = obstacle.getGameObj();
-        if (!obstacleObj) continue;
-
-        const obstaclePos = obstacleObj.pos.x;
-        // Include width in the distance calculation
-        const obstacleWidth = obstacleObj.width || 0;
-        const entityWidth = 40; // Approximate width of a coin
-
-        // Calculate raw distance and adjusted distance considering entity sizes
-        const rawDistance = Math.abs(obstaclePos - spawnPosX);
-        const adjustedDistance =
-          rawDistance - (obstacleWidth / 2 + entityWidth / 2);
-
-        if (adjustedDistance < minDistanceInLane) {
-          minDistanceInLane = adjustedDistance;
-          closestObstaclePos = `x=${obstaclePos.toFixed(0)}`;
-        }
-      }
-
-      console.log(
-        `Lane ${lane} - minimum safe distance: ${minDistanceInLane.toFixed(
-          0
-        )}, closest obstacle: ${closestObstaclePos || "none"}`
-      );
-
-      // If this lane has more space than previous best, select it
-      if (minDistanceInLane > maxDistance) {
-        maxDistance = minDistanceInLane;
-        selectedLane = lane;
-      }
-    }
-
-    console.log(
-      `Selected lane ${selectedLane} with maximum safe distance ${maxDistance.toFixed(
-        0
-      )}`
-    );
-    return { lane: selectedLane, distance: maxDistance };
-  }
-
-  /**
    * Creates a coin at the specified lane
    */
   private createCoin(lane: number): Coin {

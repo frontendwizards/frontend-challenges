@@ -17,7 +17,6 @@ export default class Coin extends GameObject {
   private speed: number = 0;
   private showHitboxes: boolean = false;
   private showBorders: boolean = false;
-  private isCollected = false;
   private hitbox: GameObj | null = null;
 
   // Animation properties, similar to Player
@@ -129,13 +128,13 @@ export default class Coin extends GameObject {
   }
 
   public update(): void {
-    if (!this.exists() || this.isCollected) return;
+    if (!this.exists()) return;
 
     // Update coin movement speed in case the game speed changes
     if (this.gameObj && this.gameObj.exists()) {
       this.gameObj.use(this.k.move(this.k.LEFT, this.speed));
 
-      // Update animation (only if not collected)
+      // Update animation
       this.updateAnimation();
 
       // Update hitbox position if it exists
@@ -146,7 +145,7 @@ export default class Coin extends GameObject {
   }
 
   private updateAnimation(): void {
-    if (!this.gameObj || this.isCollected) return;
+    if (!this.gameObj) return;
 
     // Get dt as a number (assume 1/60 if not available)
     let dt = 1 / 60;
@@ -180,8 +179,6 @@ export default class Coin extends GameObject {
     if (!this.exists()) return;
 
     this.destroy();
-
-    console.log("Coin collected");
 
     // Play collection sound - only once and asynchronously
     try {

@@ -155,14 +155,6 @@ export default class Player extends GameObject {
     // Coin collection collision detection
     this.gameObj.onCollide("coin", (coinObj: GameObj) => {
       try {
-        // Skip already collected coins
-        if (coinObj.isCollected === true) {
-          console.log("Coin already collected");
-          return;
-        }
-
-        coinObj.isCollected = true;
-
         console.log("Coin collecting");
         // Use the static factory method to create a Coin from a GameObj
         const coin = Coin.fromGameObj(this.k, coinObj);
