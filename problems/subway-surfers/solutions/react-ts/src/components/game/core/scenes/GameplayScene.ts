@@ -15,7 +15,6 @@ import { GameUtils } from "../../utils/GameUtils";
 
 export interface GameplaySceneOptions {
   showHitboxes: boolean;
-  showBorders: boolean;
   difficulty: string;
   debugLanes?: boolean;
 }
@@ -26,7 +25,6 @@ export default class GameplayScene extends BaseScene {
   private currentLane = GameConfig.PLAYER_INITIAL_LANE;
   private lanes = GameConfig.getLanePositions();
   private showHitboxes: boolean;
-  private showBorders: boolean;
   private difficulty: string;
   private debugLanes: boolean;
   private currentObstacleSpeed = 0;
@@ -47,7 +45,6 @@ export default class GameplayScene extends BaseScene {
   constructor(kaboomInstance: KaboomInterface, options: GameplaySceneOptions) {
     super(kaboomInstance);
     this.showHitboxes = options.showHitboxes;
-    this.showBorders = options.showBorders;
     this.difficulty = options.difficulty;
     this.debugLanes = options.debugLanes || false;
   }
@@ -194,6 +191,8 @@ export default class GameplayScene extends BaseScene {
         }
       });
 
+      this.scoreDisplay?.update();
+
       // Update coins
       this.coins.forEach((coin, index) => {
         coin.update();
@@ -266,7 +265,6 @@ export default class GameplayScene extends BaseScene {
       lanes: this.lanes,
       speed: this.currentObstacleSpeed,
       showHitboxes: this.showHitboxes,
-      showBorders: this.showBorders,
     });
     coin.init();
     this.coins.push(coin);
@@ -282,7 +280,6 @@ export default class GameplayScene extends BaseScene {
       lanes: this.lanes,
       speed: this.currentObstacleSpeed,
       showHitboxes: this.showHitboxes,
-      showBorders: this.showBorders,
     });
     obstacle.init();
     this.obstacles.push(obstacle);

@@ -7,7 +7,6 @@ export interface ObstacleOptions {
   lanes: number[];
   speed: number;
   showHitboxes: boolean;
-  showBorders: boolean;
 }
 
 export default class Obstacle extends GameObject {
@@ -60,20 +59,10 @@ export default class Obstacle extends GameObject {
       );
     } catch (_error) {
       console.warn("Failed to add obstacle sprite, using fallback rectangle");
-      // Fallback to rectangle with random color if sprite loading fails
-      this.addComponent(
-        k.rect(GameConfig.OBSTACLE_WIDTH, GameConfig.OBSTACLE_HEIGHT)
-      );
-
-      // Add random color for variety
-      const r = k.randi(100, 255);
-      const g = k.randi(100, 255);
-      const b = k.randi(100, 255);
-      this.addComponent(k.color(r, g, b));
     }
 
     const lanes = GameConfig.getLanePositions();
-    const randomLaneY = lanes[k.randi(0, lanes.length - 1)];
+    const randomLaneY = lanes[k.randi(0, lanes.length)];
     const laneX = GameConfig.CANVAS_WIDTH + GameConfig.OBSTACLE_WIDTH;
 
     // Add common components

@@ -26,7 +26,6 @@ export default function App() {
 
       <EndlessRunner
         showHitboxes={false}
-        showBorders={false}
         difficulty="medium"
       />
     </main>

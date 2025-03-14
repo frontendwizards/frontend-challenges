@@ -21,7 +21,6 @@ class UIScoreCoin extends Coin {
       lanes: [], // Not important for UI
       speed: 0, // It won't move
       showHitboxes: false,
-      showBorders: false,
     });
 
     this.uiPosition = uiPos;

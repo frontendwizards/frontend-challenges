@@ -8,7 +8,6 @@ export interface CoinOptions {
   lanes: number[];
   speed: number;
   showHitboxes?: boolean;
-  showBorders?: boolean;
 }
 
 export default class Coin extends GameObject {
@@ -16,13 +15,12 @@ export default class Coin extends GameObject {
   private lanes: number[] = [];
   private speed: number = 0;
   private showHitboxes: boolean = false;
-  private showBorders: boolean = false;
   private hitbox: GameObj | null = null;
 
   // Animation properties, similar to Player
   private currentFrame: number = 0;
   private animationTimer: number = 0;
-  private animationSpeed: number = 0.1; // Time between frames (seconds)
+  protected animationSpeed: number = 0.1; // Time between frames (seconds)
 
   constructor(kaboomInstance: KaboomInterface, options: CoinOptions) {
     super(kaboomInstance);
@@ -30,7 +28,6 @@ export default class Coin extends GameObject {
     this.lanes = options.lanes;
     this.speed = options.speed;
     this.showHitboxes = options.showHitboxes || false;
-    this.showBorders = options.showBorders || false;
   }
 
   // Static factory method to create a Coin instance from an existing GameObj
@@ -94,11 +91,6 @@ export default class Coin extends GameObject {
 
     // Add tag
     this.addTag("coin");
-
-    // Show borders if enabled
-    if (this.showBorders) {
-      this.addComponent(k.outline(2, k.rgb(255, 255, 0)));
-    }
 
     // Create the game object
     this.createGameObj();

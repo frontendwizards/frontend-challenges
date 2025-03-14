@@ -1,3 +1,5 @@
+import { Vec2 } from "kaboom";
+
 export interface KaboomInterface {
   canvas: HTMLCanvasElement;
   add: (components: unknown[]) => GameObj;
@@ -54,6 +56,7 @@ export interface KaboomInterface {
   width: number;
   height: number;
   debug: DebugInfo;
+  vec2: (x: number, y: number) => Vec2;
 }
 
 export interface DebugInfo {
