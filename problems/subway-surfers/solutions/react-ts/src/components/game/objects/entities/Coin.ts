@@ -62,20 +62,17 @@ export default class Coin extends GameObject {
     const laneY = this.lanes[this.lane];
     const laneX = GameConfig.CANVAS_WIDTH + GameConfig.COIN_WIDTH;
 
-    // Clear previous components
     this.components = [];
     this.tags = [];
     this.props = {};
 
-    // Add sprite component with initial frame
     this.addComponent(
       k.sprite("coin", {
-        frame: this.currentFrame, // Start with the current frame
+        frame: this.currentFrame,
         noError: true,
       })
     );
 
-    // Add position and movement components
     this.addComponent(k.pos(laneX, laneY));
     this.addComponent(k.scale(GameConfig.COIN_SCALE));
     this.addComponent(
@@ -86,23 +83,16 @@ export default class Coin extends GameObject {
     );
 
     this.addComponent(k.anchor("center"));
-    this.addComponent(k.z(5)); // Above the background, below the player
+    this.addComponent(k.z(5));
     this.addComponent(k.move(k.LEFT, this.speed));
-
-    // Add tag
     this.addTag("coin");
-
-    // Create the game object
     this.createGameObj();
 
-    // Add destroy when off-screen behavior
-    if (this.gameObj) {
-      this.gameObj.onUpdate(() => {
-        if (this.gameObj && this.gameObj.pos.x < -50) {
-          this.destroy();
-        }
-      });
-    }
+    this.gameObj?.onUpdate(() => {
+      if (this.gameObj && this.gameObj?.pos.x < -50) {
+        this.destroy();
+      }
+    });
   }
 
   // Create a visible hitbox for the coin
@@ -171,14 +161,13 @@ export default class Coin extends GameObject {
   public collect(): void {
     if (!this.exists()) return;
 
-    this.destroy();
-
-    // Play collection sound - only once and asynchronously
     try {
       AudioPlayer.playCoinCollectSound();
     } catch (e) {
       console.warn("Could not create coin sound", e);
     }
+
+    this.destroy();
   }
 
   public override destroy(): void {

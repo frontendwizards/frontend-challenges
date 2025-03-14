@@ -80,7 +80,7 @@ export default class GameplayScene extends BaseScene {
 
     // Delay coin spawning to prevent initial overlap
     this.k.wait(1.5, () => {
-      this.startCoinSpawning();
+      this.startCoinSpawning(difficultySettings.spawnInterval);
     });
   }
 
@@ -91,6 +91,7 @@ export default class GameplayScene extends BaseScene {
   }
 
   private setupPlayer(): void {
+    const getCurrentScore = () => this.score;
     // Create player
     this.player = new Player(this.k, {
       initialLane: this.currentLane,
@@ -100,11 +101,10 @@ export default class GameplayScene extends BaseScene {
       onHealthChange: (health: number) => {
         this.healthBar?.updateHealth(health);
       },
+      getCurrentScoreCallback: getCurrentScore,
     });
-    this.player.init();
 
-    // Set score callback
-    this.player.setCurrentScoreCallback(() => this.score);
+    this.player.init();
   }
 
   private setupUI(): void {
@@ -155,9 +155,7 @@ export default class GameplayScene extends BaseScene {
       this.score += GameConfig.COIN_SCORE_VALUE;
 
       // Update score display immediately
-      if (this.scoreDisplay) {
-        this.scoreDisplay.updateScore(this.score);
-      }
+      this.scoreDisplay?.updateScore(this.score);
     });
 
     // Main game update loop
@@ -222,7 +220,7 @@ export default class GameplayScene extends BaseScene {
   /**
    * Checks if a lane has any obstacles too close to a specific position
    */
-  private isLaneSafeForSpawning(
+  private isLaneSafeForCoin(
     lane: number,
     spawnPosX: number,
     safetyDistance: number
@@ -306,11 +304,7 @@ export default class GameplayScene extends BaseScene {
       `Step 1: Looking for a completely safe lane with no obstacles closer than ${safetyDistance}`
     );
     for (const lane of availableLanes) {
-      const isSafe = this.isLaneSafeForSpawning(
-        lane,
-        spawnPosX,
-        safetyDistance
-      );
+      const isSafe = this.isLaneSafeForCoin(lane, spawnPosX, safetyDistance);
       if (isSafe) {
         console.log(`Found completely safe lane: ${lane}`);
         return lane;
@@ -435,7 +429,7 @@ export default class GameplayScene extends BaseScene {
     return !isTooClose;
   }
 
-  private startCoinSpawning(): void {
+  private startCoinSpawning(spawnInterval: [number, number]): void {
     const k = this.k;
 
     const spawnCoin = () => {
@@ -466,7 +460,10 @@ export default class GameplayScene extends BaseScene {
 
         // Schedule next coin spawn
         // Random time between 1 and 1.5 seconds for next coin
-        this.coinSpawnTimer = k.wait(k.rand(1, 1.5), spawnCoin);
+        this.coinSpawnTimer = k.wait(
+          k.rand(spawnInterval[0], spawnInterval[1]),
+          spawnCoin
+        );
       } else {
         // Release the spawn lock
         this.isSpawning = false;
@@ -603,7 +600,7 @@ export default class GameplayScene extends BaseScene {
     }
 
     if (!this.coinSpawnTimer) {
-      this.startCoinSpawning();
+      this.startCoinSpawning(difficultySettings.spawnInterval);
     }
   }
 }
