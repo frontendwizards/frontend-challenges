@@ -12,7 +12,6 @@ interface UseGameInitializationProps {
   width: number;
   height: number;
   showHitboxes: boolean;
-  showBorders: boolean;
   difficulty: "easy" | "medium" | "hard";
   debugLanes: boolean;
   isScreenTooSmall: boolean;
@@ -37,7 +36,6 @@ export const useGameInitialization = ({
   width,
   height,
   showHitboxes,
-  showBorders,
   difficulty,
   debugLanes,
   isScreenTooSmall,
@@ -75,7 +73,7 @@ export const useGameInitialization = ({
       canvas: canvasRef.current,
       width,
       height,
-      debug: showHitboxes || showBorders,
+      debug: showHitboxes,
       background: GameConfig.CANVAS_BACKGROUND_COLOR,
     });
 
@@ -119,7 +117,6 @@ export const useGameInitialization = ({
         // Register all game scenes
         const gameplayScene = new GameplayScene(kaboomInstance, {
           showHitboxes,
-          showBorders,
           difficulty,
           debugLanes,
         });
@@ -145,7 +142,6 @@ export const useGameInitialization = ({
     width,
     height,
     showHitboxes,
-    showBorders,
     difficulty,
     debugLanes,
     isScreenTooSmall,

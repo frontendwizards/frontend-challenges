@@ -8,7 +8,6 @@ export interface CoinOptions {
   lanes: number[];
   speed: number;
   showHitboxes?: boolean;
-  showBorders?: boolean;
 }
 
 export default class Coin extends GameObject {
@@ -16,13 +15,12 @@ export default class Coin extends GameObject {
   private lanes: number[] = [];
   private speed: number = 0;
   private showHitboxes: boolean = false;
-  private showBorders: boolean = false;
   private hitbox: GameObj | null = null;
 
   // Animation properties, similar to Player
   private currentFrame: number = 0;
   private animationTimer: number = 0;
-  private animationSpeed: number = 0.1; // Time between frames (seconds)
+  protected animationSpeed: number = 0.1; // Time between frames (seconds)
 
   constructor(kaboomInstance: KaboomInterface, options: CoinOptions) {
     super(kaboomInstance);
@@ -30,7 +28,6 @@ export default class Coin extends GameObject {
     this.lanes = options.lanes;
     this.speed = options.speed;
     this.showHitboxes = options.showHitboxes || false;
-    this.showBorders = options.showBorders || false;
   }
 
   // Static factory method to create a Coin instance from an existing GameObj
@@ -65,20 +62,17 @@ export default class Coin extends GameObject {
     const laneY = this.lanes[this.lane];
     const laneX = GameConfig.CANVAS_WIDTH + GameConfig.COIN_WIDTH;
 
-    // Clear previous components
     this.components = [];
     this.tags = [];
     this.props = {};
 
-    // Add sprite component with initial frame
     this.addComponent(
       k.sprite("coin", {
-        frame: this.currentFrame, // Start with the current frame
+        frame: this.currentFrame,
         noError: true,
       })
     );
 
-    // Add position and movement components
     this.addComponent(k.pos(laneX, laneY));
     this.addComponent(k.scale(GameConfig.COIN_SCALE));
     this.addComponent(
@@ -89,28 +83,16 @@ export default class Coin extends GameObject {
     );
 
     this.addComponent(k.anchor("center"));
-    this.addComponent(k.z(5)); // Above the background, below the player
+    this.addComponent(k.z(5));
     this.addComponent(k.move(k.LEFT, this.speed));
-
-    // Add tag
     this.addTag("coin");
-
-    // Show borders if enabled
-    if (this.showBorders) {
-      this.addComponent(k.outline(2, k.rgb(255, 255, 0)));
-    }
-
-    // Create the game object
     this.createGameObj();
 
-    // Add destroy when off-screen behavior
-    if (this.gameObj) {
-      this.gameObj.onUpdate(() => {
-        if (this.gameObj && this.gameObj.pos.x < -50) {
-          this.destroy();
-        }
-      });
-    }
+    this.gameObj?.onUpdate(() => {
+      if (this.gameObj && this.gameObj?.pos.x < -50) {
+        this.destroy();
+      }
+    });
   }
 
   // Create a visible hitbox for the coin
@@ -179,14 +161,13 @@ export default class Coin extends GameObject {
   public collect(): void {
     if (!this.exists()) return;
 
-    this.destroy();
-
-    // Play collection sound - only once and asynchronously
     try {
       AudioPlayer.playCoinCollectSound();
     } catch (e) {
       console.warn("Could not create coin sound", e);
     }
+
+    this.destroy();
   }
 
   public override destroy(): void {

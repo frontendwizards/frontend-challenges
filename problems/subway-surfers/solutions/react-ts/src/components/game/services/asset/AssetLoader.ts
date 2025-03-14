@@ -112,11 +112,6 @@ export default class AssetLoader {
       );
 
       this.assetsLoaded = loadedCount;
-
-      // Even if we couldn't load all assets, consider the loading complete
-      if (loadedCount >= totalCount * 0.5) {
-        console.log("Enough assets loaded to proceed");
-      }
     } catch (error) {
       console.error("Error during parallel asset loading:", error);
       // Even on error, mark assets as loaded to prevent hanging

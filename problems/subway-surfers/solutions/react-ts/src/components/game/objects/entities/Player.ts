@@ -3,7 +3,6 @@ import GameObject from "../base/GameObject";
 import GameConfig from "../../config/GameConfig";
 import Coin from "./Coin";
 import SceneManager from "../../core/SceneManager";
-import { GameUtils } from "../../utils/GameUtils";
 
 export interface PlayerOptions {
   initialLane: number;
@@ -25,6 +24,7 @@ export default class Player extends GameObject {
   private showHitboxes: boolean;
   private onHealthChange?: (health: number) => void;
   private sceneManager: SceneManager;
+  private getCurrentScoreCallback: () => number;
 
   constructor(kaboomInstance: KaboomInterface, options: PlayerOptions) {
     super(kaboomInstance);
@@ -32,6 +32,7 @@ export default class Player extends GameObject {
     this.showHitboxes = options.showHitboxes;
     this.onHealthChange = options.onHealthChange;
     this.sceneManager = options.sceneManager;
+    this.getCurrentScoreCallback = options.getCurrentScoreCallback;
   }
 
   public init(): void {
@@ -57,8 +58,6 @@ export default class Player extends GameObject {
 
   private createPlayer(): void {
     const k = this.k;
-
-    // Clear old components
     this.clearComponents();
 
     try {
@@ -67,34 +66,24 @@ export default class Player extends GameObject {
       console.warn("Failed to load player sprite", error);
     }
 
-    // Get the lane position directly from GameConfig
     const laneY = GameConfig.getLanePosition(this.currentLane);
 
-    // Add common components
     this.addComponent(k.pos(GameConfig.PLAYER_POSITION_X, laneY));
     this.addComponent(k.anchor("center"));
     this.addComponent(k.area({ scale: 0.7 }));
     this.addComponent(k.scale(GameConfig.SPRITE_SCALE));
-
-    // Add tag
     this.addTag("player");
-
-    // Add properties
     this.addProp("speed", GameConfig.PLAYER_SPEED);
     this.addProp("isAlive", this.isAlive);
     this.addProp("health", this.health);
 
-    // Create the game object
     this.createGameObj();
   }
 
   private updateAnimation(): void {
     if (!this.gameObj || !this.isAlive) return;
 
-    // Update to next frame
-    // 10 is the number of frames in the player sprite
     this.currentFrame = (this.currentFrame + 1) % 10;
-
     this.updateGameObjSprite(`run${this.currentFrame}`);
   }
 
@@ -103,41 +92,29 @@ export default class Player extends GameObject {
 
     const k = this.k;
 
-    // Collision detection
     this.gameObj.onCollide("obstacle", (obstacle: GameObj) => {
-      // Remove the obstacle when hit
       obstacle.destroy();
-
-      // Decrease health
       this.health--;
 
-      // Update health property on game object
       if (this.gameObj) {
         this.gameObj.health = this.health;
       }
 
-      // Notify about health change using callback
       if (this.onHealthChange) {
         this.onHealthChange(this.health);
       }
 
-      // Shake screen for feedback
       k.shake(5);
 
-      // Check if player ran out of health
       if (this.health <= 0) {
         this.handleGameOver();
       }
     });
 
-    // Coin collection collision detection
     this.gameObj.onCollide("coin", (coinObj: GameObj) => {
       try {
-        console.log("Coin collecting");
-        // Use the static factory method to create a Coin from a GameObj
         const coin = Coin.fromGameObj(this.k, coinObj);
         coin.collect();
-        console.log("Coin collected");
       } catch (e) {
         console.warn("Error collecting coin", e);
       }
@@ -156,7 +133,7 @@ export default class Player extends GameObject {
     // Wait a short time before transitioning to game over
     this.k.wait(0.4, () => {
       // Get current score from callback if available
-      const finalScore = this.getCurrentScoreCallback()
+      const finalScore = this.getCurrentScoreCallback();
 
       const roundedScore = Math.floor(finalScore);
       console.log(`Player: Game over with score ${roundedScore}`);
@@ -222,10 +199,5 @@ export default class Player extends GameObject {
       this.hitbox = null;
     }
     super.destroy();
-  }
-
-  // Add method to set score callback
-  public setCurrentScoreCallback(callback: () => number): void {
-    this.getCurrentScoreCallback = callback;
   }
 }

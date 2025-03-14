@@ -14,7 +14,6 @@ interface EndlessRunnerProps {
   width?: number;
   height?: number;
   showHitboxes?: boolean;
-  showBorders?: boolean;
   difficulty?: "easy" | "medium" | "hard";
   debugLanes?: boolean;
 }
@@ -23,7 +22,6 @@ const EndlessRunner: React.FC<EndlessRunnerProps> = ({
   width = GameConfig.CANVAS_WIDTH,
   height = GameConfig.CANVAS_HEIGHT,
   showHitboxes = false,
-  showBorders = false,
   difficulty = "medium",
   debugLanes = false,
 }) => {
@@ -37,7 +35,6 @@ const EndlessRunner: React.FC<EndlessRunnerProps> = ({
     width,
     height,
     showHitboxes,
-    showBorders,
     difficulty,
     debugLanes,
     isScreenTooSmall,
