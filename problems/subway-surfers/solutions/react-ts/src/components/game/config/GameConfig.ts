@@ -4,7 +4,8 @@ export interface DifficultySettings {
   speedIncreaseFactor: number;
 }
 
-const BASE_URL = "https://raw.githubusercontent.com/frontendwizards/frontend-challenges/feat/add_new_problems/problems/subway-surfers/solutions/react-ts/public";
+const BASE_URL =
+  "https://raw.githubusercontent.com/frontendwizards/frontend-challenges/feat/add_new_problems/problems/subway-surfers/solutions/react-ts/public";
 
 export default class GameConfig {
   // Canvas settings
@@ -38,6 +39,8 @@ export default class GameConfig {
   static readonly COIN_SPRITE_PATH = `${BASE_URL}/assets/coins/MonedaD.png`; // Path to coin sprite
   static readonly COIN_SPRITE_FRAMES = 5; // Number of animation frames
   static readonly COIN_SCALE = 3; // Scale for coin sprite (adjusted for new lane sizes)
+  static readonly COIN_WIDTH = 40; // Width of the coin sprite
+  static readonly COIN_HEIGHT = 40; // Height of the coin sprite
   static readonly COIN_SCORE_VALUE = 10; // Score value for collecting a coin
   static readonly COIN_SPAWN_INTERVAL = [1.0, 3.0]; // Min and max time between coins
   static readonly COIN_MIN_DISTANCE_FROM_OBSTACLE = 600; // Minimum distance from obstacles
@@ -47,6 +50,10 @@ export default class GameConfig {
   static readonly LANE_SPACING = 150; // Distance between lanes
   static readonly MAX_SPEED_INCREASE = 300; // Maximum speed increase over time
   static readonly OBSTACLE_SPRITE_PATH = `${BASE_URL}/assets/obstacles.png`; // Path to obstacle sprite
+
+  // Obstacles settings
+  static readonly OBSTACLE_WIDTH = 60; // Width of the obstacle sprite
+  static readonly OBSTACLE_HEIGHT = 60; // Height of the obstacle sprite
 
   // Difficulty presets
   static readonly DIFFICULTY_SETTINGS: Record<string, DifficultySettings> = {
