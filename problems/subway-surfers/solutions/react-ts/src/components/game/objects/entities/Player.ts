@@ -3,6 +3,7 @@ import GameObject from "../base/GameObject";
 import GameConfig from "../../config/GameConfig";
 import Coin from "./Coin";
 import SceneManager from "../../core/SceneManager";
+import { GameUtils } from "../../utils/GameUtils";
 
 export interface PlayerOptions {
   initialLane: number;
@@ -11,6 +12,7 @@ export interface PlayerOptions {
   onHealthChange?: (health: number) => void;
   onGameOver?: (callback: () => number) => void;
   sceneManager: SceneManager;
+  getCurrentScoreCallback: () => number;
 }
 
 export default class Player extends GameObject {
@@ -22,7 +24,6 @@ export default class Player extends GameObject {
   private hitbox: GameObj | null = null;
   private showHitboxes: boolean;
   private onHealthChange?: (health: number) => void;
-  private getCurrentScoreCallback?: () => number;
   private sceneManager: SceneManager;
 
   constructor(kaboomInstance: KaboomInterface, options: PlayerOptions) {
@@ -39,7 +40,7 @@ export default class Player extends GameObject {
   }
 
   public update(dt: number): void {
-    if (!this.isAlive) return;
+    if (!this.isAlive || !this.gameObj) return;
 
     // Update animation
     this.animationTimer += dt;
@@ -49,7 +50,7 @@ export default class Player extends GameObject {
     }
 
     // Update hitbox position if it exists
-    if (this.hitbox && this.gameObj) {
+    if (this.hitbox) {
       this.hitbox.pos = this.gameObj.pos;
     }
   }
@@ -125,30 +126,7 @@ export default class Player extends GameObject {
 
       // Check if player ran out of health
       if (this.health <= 0) {
-        this.isAlive = false;
-        if (this.gameObj) {
-          this.gameObj.isAlive = false;
-        }
-
-        // Add more dramatic shake
-        k.shake(12);
-
-        // Wait a short time before transitioning to game over
-        k.wait(0.4, () => {
-          // Get current score from callback if available
-          const finalScore = this.getCurrentScoreCallback
-            ? this.getCurrentScoreCallback()
-            : 0;
-
-          const roundedScore = Math.floor(finalScore);
-          console.log(`Player: Game over with score ${roundedScore}`);
-
-          // Use SceneManager if available, otherwise fall back to k.go
-          console.log(
-            "Player: Using SceneManager to transition to game over scene"
-          );
-          this.sceneManager.startScene("gameover", roundedScore);
-        });
+        this.handleGameOver();
       }
     });
 
@@ -163,6 +141,31 @@ export default class Player extends GameObject {
       } catch (e) {
         console.warn("Error collecting coin", e);
       }
+    });
+  }
+
+  private handleGameOver(): void {
+    this.isAlive = false;
+    if (this.gameObj) {
+      this.gameObj.isAlive = false;
+    }
+
+    // Add more dramatic shake
+    this.k.shake(12);
+
+    // Wait a short time before transitioning to game over
+    this.k.wait(0.4, () => {
+      // Get current score from callback if available
+      const finalScore = this.getCurrentScoreCallback()
+
+      const roundedScore = Math.floor(finalScore);
+      console.log(`Player: Game over with score ${roundedScore}`);
+
+      // Use SceneManager to transition to game over scene
+      console.log(
+        "Player: Using SceneManager to transition to game over scene"
+      );
+      this.sceneManager.startScene("gameover", roundedScore);
     });
   }
 

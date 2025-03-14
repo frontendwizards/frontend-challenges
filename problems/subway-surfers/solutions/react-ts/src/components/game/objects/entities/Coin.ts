@@ -63,6 +63,7 @@ export default class Coin extends GameObject {
   private createCoin(): void {
     const k = this.k;
     const laneY = this.lanes[this.lane];
+    const laneX = GameConfig.CANVAS_WIDTH + GameConfig.COIN_WIDTH;
 
     // Clear previous components
     this.components = [];
@@ -78,12 +79,12 @@ export default class Coin extends GameObject {
     );
 
     // Add position and movement components
-    this.addComponent(k.pos(GameConfig.CANVAS_WIDTH, laneY));
+    this.addComponent(k.pos(laneX, laneY));
     this.addComponent(k.scale(GameConfig.COIN_SCALE));
     this.addComponent(
       k.area({
-        width: 40,
-        height: 40,
+        width: GameConfig.COIN_WIDTH,
+        height: GameConfig.COIN_HEIGHT,
       })
     );
 

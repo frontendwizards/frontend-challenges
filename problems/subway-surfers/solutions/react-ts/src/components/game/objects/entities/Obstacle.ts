@@ -61,7 +61,9 @@ export default class Obstacle extends GameObject {
     } catch (_error) {
       console.warn("Failed to add obstacle sprite, using fallback rectangle");
       // Fallback to rectangle with random color if sprite loading fails
-      this.addComponent(k.rect(60, 60));
+      this.addComponent(
+        k.rect(GameConfig.OBSTACLE_WIDTH, GameConfig.OBSTACLE_HEIGHT)
+      );
 
       // Add random color for variety
       const r = k.randi(100, 255);
@@ -72,9 +74,10 @@ export default class Obstacle extends GameObject {
 
     const lanes = GameConfig.getLanePositions();
     const randomLaneY = lanes[k.randi(0, lanes.length - 1)];
+    const laneX = GameConfig.CANVAS_WIDTH + GameConfig.OBSTACLE_WIDTH;
 
     // Add common components
-    this.addComponent(k.pos(GameConfig.CANVAS_WIDTH, randomLaneY));
+    this.addComponent(k.pos(laneX, randomLaneY));
     this.addComponent(k.anchor("center"));
     this.addComponent(k.area({ scale: 0.8 }));
     this.addComponent(k.move(k.LEFT, this.speed));

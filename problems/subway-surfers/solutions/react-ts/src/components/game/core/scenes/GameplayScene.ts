@@ -11,6 +11,7 @@ import Coin from "../../objects/entities/Coin";
 import Environment from "../../objects/environment/Environment";
 import HealthBar from "../../objects/ui/HealthBar";
 import ScoreDisplay from "../../objects/ui/ScoreDisplay";
+import { GameUtils } from "../../utils/GameUtils";
 
 export interface GameplaySceneOptions {
   showHitboxes: boolean;
@@ -144,9 +145,7 @@ export default class GameplayScene extends BaseScene {
     });
 
     k.onKeyPress("down", () => {
-      if (this.player) {
-        this.player.moveDown();
-      }
+      this.player?.moveDown();
     });
   }
 
@@ -222,18 +221,6 @@ export default class GameplayScene extends BaseScene {
   }
 
   /**
-   * Shuffles an array in place
-   */
-  private shuffleArray<T>(array: T[]): T[] {
-    const k = this.k;
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(k.rand(0, 1) * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-  }
-
-  /**
    * Checks if a lane has any obstacles too close to a specific position
    */
   private isLaneSafeForSpawning(
@@ -241,56 +228,33 @@ export default class GameplayScene extends BaseScene {
     spawnPosX: number,
     safetyDistance: number
   ): boolean {
-    let obstacleX = null;
-    // Check if any obstacle is too close
-    const obstacleCollision = this.obstacles.some((obstacle) => {
-      // Skip obstacles that aren't in the same lane
-      if (obstacle.getLane() !== lane) return false;
-
-      const obstacleObj = obstacle.getGameObj();
-      if (!obstacleObj) return false;
-
-      // Check if obstacle is too close to spawn position
-      const obstaclePos = obstacleObj.pos.x;
-      console.log({ obstacleObj: obstacleObj.pos.x });
-
-      // Consider obstacle width for more accurate safety check
-      const obstacleWidth = obstacleObj.width || 0;
-      const entityWidth = 40; // Approximate width of a coin
-      const minSafeDistance = obstacleWidth / 2 + entityWidth / 2;
-
-      // Use the larger of safetyDistance or the physical space needed
-      const effectiveSafetyDistance = Math.max(safetyDistance, minSafeDistance);
-
-      console.log({
-        obstacleWidth,
-      });
-
-      const distance = Math.abs(obstaclePos - spawnPosX);
-      const isTooClose = distance < effectiveSafetyDistance;
-
-      if (isTooClose) {
-        console.log(
-          `Lane ${lane}: Obstacle too close! Distance: ${distance.toFixed(
-            0
-          )}, Required: ${effectiveSafetyDistance.toFixed(0)}`
-        );
-      } else {
-        obstacleX = obstaclePos;
-      }
-
-      return isTooClose;
-    });
-
-    // Log when a lane is detected as safe
-    if (!obstacleCollision) {
-      console.log(
-        // `Lane ${lane} is safe for spawning at position ${spawnPosX} with safety distance ${safetyDistance}, obstaclePos: ${obstacleX}`
-        `spawned at ${spawnPosX}, obstacleX: ${obstacleX}, distance: ${safetyDistance}`
-      );
+    if (!this.obstacles.length) {
+      return true;
     }
 
-    return !obstacleCollision;
+    const obstacle = this.obstacles[this.obstacles.length - 1];
+
+    // Skip obstacles that aren't in the same lane
+    if (obstacle.getLane() !== lane) return true;
+
+    const obstacleObj = obstacle.getGameObj();
+    if (!obstacleObj) return true;
+
+    // Check if obstacle is too close to spawn position
+    const obstaclePos = obstacleObj.pos.x;
+
+    // Consider obstacle width for more accurate safety check
+    const obstacleWidth = obstacleObj.width || 0;
+    const entityWidth = 40; // Approximate width of a coin
+    const minSafeDistance = obstacleWidth / 2 + entityWidth / 2;
+
+    // Use the larger of safetyDistance or the physical space needed
+    const effectiveSafetyDistance = Math.max(safetyDistance, minSafeDistance);
+
+    const distance = Math.abs(obstaclePos - spawnPosX);
+    const isTooClose = distance < effectiveSafetyDistance;
+
+    return !isTooClose;
   }
 
   /**
@@ -328,22 +292,17 @@ export default class GameplayScene extends BaseScene {
   /**
    * Find the safest lane for spawning an entity
    */
-  private findSafeLane(
-    safetyDistance: number,
-    minAcceptableDistance: number = GameConfig.COIN_MIN_DISTANCE_FROM_OBSTACLE
-  ): number {
+  private findSafeLane(safetyDistance: number): number {
     const spawnPosX = GameConfig.CANVAS_WIDTH;
 
-    console.log(
-      `Finding safe lane with safety distance: ${safetyDistance}, min acceptable: ${minAcceptableDistance}`
-    );
+    console.log(`Finding safe lane with safety distance: ${safetyDistance}`);
 
     // Create shuffled list of lane indices
     const availableLanes = Array.from(
       { length: GameConfig.LANE_COUNT },
       (_, i) => i
     );
-    this.shuffleArray(availableLanes);
+    GameUtils.shuffle(availableLanes);
 
     // First try: find a lane with no obstacles nearby
     console.log(
@@ -389,7 +348,7 @@ export default class GameplayScene extends BaseScene {
         { length: GameConfig.LANE_COUNT },
         (_, i) => i
       );
-      this.shuffleArray(availableLanes);
+      GameUtils.shuffle(availableLanes);
 
       // Try to find a safe lane
       let selectedLane = -1;
@@ -411,31 +370,28 @@ export default class GameplayScene extends BaseScene {
         // Try again after a short delay
         this.obstacleSpawnTimer = k.wait(0.1, spawn);
         return;
-      } else {
-        console.log("Found safe lane for obstacle: " + selectedLane);
-
-        // Create obstacle in the selected lane
-        this.createObstacle(selectedLane);
-
-        // Calculate next spawn time - gradually decrease as score increases
-        const minSpawnTime = Math.max(
-          spawnInterval[0] - this.gameTime / 60,
-          0.3
-        );
-        const maxSpawnTime = Math.max(
-          spawnInterval[1] - this.gameTime / 30,
-          minSpawnTime + 0.5
-        );
-
-        // Release the spawn lock
-        this.isSpawning = false;
-
-        // Schedule next obstacle spawn
-        this.obstacleSpawnTimer = k.wait(
-          k.rand(minSpawnTime, maxSpawnTime),
-          spawn
-        );
       }
+
+      console.log("Found safe lane for obstacle: " + selectedLane);
+
+      // Create obstacle in the selected lane
+      this.createObstacle(selectedLane);
+
+      // Calculate next spawn time - gradually decrease as score increases
+      const minSpawnTime = Math.max(spawnInterval[0] - this.gameTime / 60, 0.3);
+      const maxSpawnTime = Math.max(
+        spawnInterval[1] - this.gameTime / 30,
+        minSpawnTime + 0.5
+      );
+
+      // Release the spawn lock
+      this.isSpawning = false;
+
+      // Schedule next obstacle spawn
+      this.obstacleSpawnTimer = k.wait(
+        k.rand(minSpawnTime, maxSpawnTime),
+        spawn
+      );
     };
 
     // Start spawning obstacles
@@ -446,38 +402,40 @@ export default class GameplayScene extends BaseScene {
    * Checks if a lane is safe for spawning an obstacle
    */
   private isLaneSafeForObstacle(lane: number, safetyDistance: number): boolean {
+    if (!this.coins.length) {
+      return true;
+    }
+
     // Use a different spawn position than coins
     const spawnPosX = GameConfig.CANVAS_WIDTH;
 
-    // Create a snapshot of the current coins to prevent race conditions
-    const currentCoins = [...this.coins];
+    const coin = this.coins[this.coins.length - 1];
 
-    // Check if any coin is too close
-    const coinCollision = currentCoins.some((coin) => {
-      // Skip coins that aren't in the same lane
-      if (coin.getLane() !== lane) return false;
+    // Skip coins that aren't in the same lane
+    if (!coin || coin.getLane() !== lane) {
+      return true;
+    }
 
-      const coinObj = coin.getGameObj();
-      if (!coinObj) return false;
+    const coinObj = coin.getGameObj();
+    if (!coinObj) {
+      return true;
+    }
 
-      // Check if coin is too close to spawn position
-      const coinPos = coinObj.pos.x;
+    // Check if coin is too close to spawn position
+    const coinPos = coinObj.pos.x;
 
-      // Consider coin width for accurate safety check
-      const coinWidth = coinObj.width || 40; // Approximate width
-      const obstacleWidth = 60; // Approximate width
-      const minSafeDistance = coinWidth / 2 + obstacleWidth / 2;
+    // Consider coin width for accurate safety check
+    const coinWidth = coinObj.width || 40; // Approximate width
+    const obstacleWidth = 60; // Approximate width
+    const minSafeDistance = coinWidth / 2 + obstacleWidth / 2;
 
-      // Use the larger of safetyDistance or the physical space needed
-      const effectiveSafetyDistance = Math.max(safetyDistance, minSafeDistance);
+    // Use the larger of safetyDistance or the physical space needed
+    const effectiveSafetyDistance = Math.max(safetyDistance, minSafeDistance);
 
-      const distance = Math.abs(coinPos - spawnPosX);
-      const isTooClose = distance < effectiveSafetyDistance;
+    const distance = Math.abs(coinPos - spawnPosX);
+    const isTooClose = distance < effectiveSafetyDistance;
 
-      return isTooClose;
-    });
-
-    return !coinCollision;
+    return !isTooClose;
   }
 
   private startCoinSpawning(): void {
@@ -496,23 +454,10 @@ export default class GameplayScene extends BaseScene {
       // Set the spawn lock
       this.isSpawning = true;
 
-      // Use a larger safety margin to keep coins further from obstacles
-      // Increase the multiplier to ensure coins are far from obstacles
-      const safetyMarginMultiplier = 3.5; // Increased from 2.5 to 3.5
-      const minSafeDistance =
-        GameConfig.COIN_MIN_DISTANCE_FROM_OBSTACLE * safetyMarginMultiplier;
-      const minAcceptableDistance =
-        GameConfig.COIN_MIN_DISTANCE_FROM_OBSTACLE * 1.5; // Increased minimum acceptable distance
-
-      console.log(
-        `Attempting to spawn coin with safe distance: ${minSafeDistance}, min acceptable: ${minAcceptableDistance}`
-      );
+      const minSafeDistance = GameConfig.COIN_MIN_DISTANCE_FROM_OBSTACLE;
 
       // Find a safe lane for spawning
-      const selectedLane = this.findSafeLane(
-        minSafeDistance,
-        minAcceptableDistance
-      );
+      const selectedLane = this.findSafeLane(minSafeDistance);
 
       // If we found a suitable lane, spawn the coin there
       if (selectedLane !== -1) {
