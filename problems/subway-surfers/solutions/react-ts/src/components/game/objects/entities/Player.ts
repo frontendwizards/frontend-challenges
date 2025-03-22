@@ -43,8 +43,8 @@ export default class Player extends GameObject {
   public update(dt: number): void {
     if (!this.isAlive || !this.gameObj) return;
 
-    // Update animation
-    this.animationTimer += dt;
+    // Update animation based on player speed
+    this.animationTimer += dt * GameConfig.PLAYER_SPEED;
     if (this.animationTimer > 0.1) {
       this.animationTimer = 0;
       this.updateAnimation();

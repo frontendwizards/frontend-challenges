@@ -79,15 +79,15 @@ export default class Environment extends GameObject {
     // Add a moon in the corner
     this.sun = k.add([
       k.circle(60),
-      k.pos(WIDTH - 100, HEIGHT * SKY_PERCENTAGE * 0.3), // Position relative to sky height
-      k.color(232, 233, 235), // Off-white/silver color for moon
+      k.pos(WIDTH - 200, HEIGHT * SKY_PERCENTAGE * 0.3), // Position relative to sky height
+      k.color(...[217, 171, 44]), // Off-white/silver color for moon
       { z: -150 },
     ]);
 
     // Add crescent moon effect by overlapping a slightly offset dark circle
     k.add([
       k.circle(55),
-      k.pos(WIDTH - 80, HEIGHT * SKY_PERCENTAGE * 0.3 - 5), // Slightly offset to create crescent
+      k.pos(WIDTH - 180, HEIGHT * SKY_PERCENTAGE * 0.3 - 5), // Slightly offset to create crescent
       k.color(10, 17, 40), // Same as sky color
       { z: -149 }, // Slightly in front of moon
     ]);

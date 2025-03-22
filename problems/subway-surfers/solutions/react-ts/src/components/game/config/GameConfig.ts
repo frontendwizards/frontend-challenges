@@ -17,14 +17,13 @@ export default class GameConfig {
   static readonly GROUND_COLOR = "#47424f";
   static readonly SKY_COLOR = "#0a1128";
   static readonly HORIZON_COLOR = "#27294B";
-  static readonly SUN_COLOR = "#E8E9EB";
-  static readonly CLOUD_COLOR = [210, 210, 220, 0.3];
+  static readonly CLOUD_COLOR = [180, 190, 220, 0.4];
   static readonly BOTTOM_MARGIN_PERCENTAGE = 0.15;
 
   // Player settings
   static readonly PLAYER_POSITION_X = 200;
   static readonly PLAYER_INITIAL_LANE = 1;
-  static readonly PLAYER_SPEED = 400;
+  static readonly PLAYER_SPEED = 1.2;
   static readonly PLAYER_INITIAL_HEALTH = 3;
   static readonly SPRITE_SCALE = 0.25;
 
@@ -106,7 +105,7 @@ export default class GameConfig {
   static getDifficultySettings(difficulty: string): DifficultySettings {
     const validDifficulty =
       difficulty in this.DIFFICULTY_SETTINGS ? difficulty : "medium";
-    
+
     return this.DIFFICULTY_SETTINGS[
       validDifficulty as keyof typeof this.DIFFICULTY_SETTINGS
     ];

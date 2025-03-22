@@ -151,10 +151,8 @@ export default class AssetLoader {
       });
 
       // Just resolve at the end assuming success
-      setTimeout(() => {
-        console.log("Successfully loaded obstacles sprite sheet");
-        resolve({ success: true, name: "obstacles" });
-      }, 100);
+      console.log("Successfully loaded obstacles sprite sheet");
+      resolve({ success: true, name: "obstacles" });
     });
   }
 

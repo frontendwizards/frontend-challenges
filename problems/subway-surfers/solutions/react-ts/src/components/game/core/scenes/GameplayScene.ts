@@ -231,6 +231,8 @@ export default class GameplayScene extends BaseScene {
 
     const obstacle = this.obstacles[this.obstacles.length - 1];
 
+    console.log(`log: obstacle: ${obstacle}`);
+
     // Skip obstacles that aren't in the same lane
     if (obstacle.getLane() !== lane) return true;
 
@@ -241,9 +243,13 @@ export default class GameplayScene extends BaseScene {
     const obstaclePos = obstacleObj.pos.x;
 
     // Consider obstacle width for more accurate safety check
-    const obstacleWidth = obstacleObj.width || 0;
-    const entityWidth = 40; // Approximate width of a coin
+    const obstacleWidth = obstacleObj.width;
+    const entityWidth = GameConfig.COIN_WIDTH;
     const minSafeDistance = obstacleWidth / 2 + entityWidth / 2;
+
+    console.log(
+      `log: minSafeDistance: ${minSafeDistance}, safetyDistance: ${safetyDistance}`
+    );
 
     // Use the larger of safetyDistance or the physical space needed
     const effectiveSafetyDistance = Math.max(safetyDistance, minSafeDistance);
@@ -416,8 +422,8 @@ export default class GameplayScene extends BaseScene {
     const coinPos = coinObj.pos.x;
 
     // Consider coin width for accurate safety check
-    const coinWidth = coinObj.width || 40; // Approximate width
-    const obstacleWidth = 60; // Approximate width
+    const coinWidth = coinObj.width;
+    const obstacleWidth = GameConfig.OBSTACLE_WIDTH;
     const minSafeDistance = coinWidth / 2 + obstacleWidth / 2;
 
     // Use the larger of safetyDistance or the physical space needed
