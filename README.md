@@ -47,7 +47,7 @@ Each challenge has:
 | [Whack a Mole](https://frontwizards.com/challenge/user-interface/whack-a-mole)     | Medium     | ✅        | ✅         | [Solution](/problems/whack-a-mole/solutions/react-ts)    |
 | [Wordle Game](https://frontwizards.com/challenge/user-interface/wordle-game)       | Hard       | ✅        | ✅         | [Solution](/problems/wordle-game/solutions/react-ts)     |
 | [Memory Game](https://frontwizards.com/challenge/user-interface/memory-game)       | Hard       | ✅        | ✅         | [Solution](/problems/memory-game/solutions/react-ts)     |
-| [Subway Surfers](https://frontwizards.com/challenge/user-interface/subway-surfers) | Hard       | -         | -          | [Solution](/problems/subway-surfers/solutions/react-ts)  |
+| [Subway Surfers](https://frontwizards.com/challenge/user-interface/subway-surfers) | Legendary  | -         | -          | [Solution](/problems/subway-surfers/solutions/react-ts)  |
 
 </details>
 
