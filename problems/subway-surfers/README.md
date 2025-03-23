@@ -19,8 +19,8 @@ You will have fun while learning:
 - 🎮 **Game Speed** :
   Making your game run smoothly at 60 FPS
 
-- 🏃‍♂️ **Multiple Events** :
-  Handling many things happening at the same time
+- 🏃‍♂️ **Race Condition** :
+  Learning how to handle respawning multiple objects at the same time
 
 - ⌨️ **Controls** :
   Making the game respond quickly to player inputs
