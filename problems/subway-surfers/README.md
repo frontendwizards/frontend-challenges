@@ -1,4 +1,4 @@
-# Subway Surfers Challenge (Work in progress)
+# 🎮 Subway Surfers Challenge (Work in progress)
 
 ## Problem Description
 
@@ -6,9 +6,9 @@ In this challenge, you'll create a simple endless runner 2D game inspired by Sub
 
 The game will feature:
 
-- A character that can move between multiple lanes
-- Randomly generated obstacles that the player must avoid
-- Increasing difficulty over time
+- 🏃‍♂️ A character that can move between multiple lanes
+- 🚧 Randomly generated obstacles that the player must avoid
+- 📈 Increasing difficulty over time
 
 The player controls the character by pressing keys to move between lanes. The game ends when the player collides with an obstacle.
 
@@ -16,7 +16,7 @@ The player controls the character by pressing keys to move between lanes. The ga
 
 You will have fun while learning:
 
-- 🎮 **Game Speed** :
+- ⚡ **Game Speed** :
   Making your game run smoothly at 60 FPS
 
 - 🏃‍♂️ **Race Condition** :
@@ -34,7 +34,7 @@ You will have fun while learning:
 - 🎨 **Animations** :
   Making characters and objects move smoothly
 
-- 🎲 **Difficulty** :
+- 📈 **Difficulty** :
   Making the game get harder over time
 
 - 🎵 **Sounds** :
@@ -50,33 +50,32 @@ You will have fun while learning:
 
 ### Create a 2D endless runner game with:
 
-- A character that can move between lanes (minimum 3 lanes)
-- Randomly generated obstacles that appear at different lanes
-- Collision detection between the player and obstacles
-- Game over screen when player collides with an obstacle
+- 🏃‍♂️ A character that can move between lanes (minimum 3 lanes)
+- 🚧 Randomly generated obstacles that appear at different lanes
+- 💥 Collision detection between the player and obstacles
+- ⚠️ Game over screen when player collides with an obstacle
 
 ### Basic controls:
 
-- Up/Down arrow keys to move between lanes
-- Alternatively, you can use other intuitive controls
+- ⬆️⬇️ Up/Down arrow keys to move between lanes
 
 ### Game mechanics:
 
-- The game speed should gradually increase over time
-- Obstacles should appear at random positions with safe paths always available
+- 📈 The game speed should gradually increase over time
+- 🛡️ Obstacles should appear at random positions with safe paths always available
 
 ### Visual and user experience:
 
-- Simple but clear graphics for the player character and obstacles
+- 🎨 Simple but clear graphics for the player character and obstacles
 
 ## Technology
 
 Use any technology you want, I recommend using Kaboom.js which handles sprites, animations, physics, etc. Kaboom.js is particularly well-suited for 2D games like this as it provides built-in functionality for:
 
-- Sprite rendering and animation
-- Collision detection
-- Input handling
-- Game loop management
+- 🖼️ Sprite rendering and animation
+- 💥 Collision detection
+- ⌨️ Input handling
+- ⚙️ Game loop management
 
 Other alternative technologies:
 
@@ -88,13 +87,13 @@ Other alternative technologies:
 
 For an enhanced version of the game, consider adding these bonus features:
 
-- A scoring system based on distance/time survived and should be visible to the player
-- Collectible coins which will give you more score
-- Animated coins that spin or glitter
-- Sound effects when the player collects a coin
-- Sky and ground background
-- Decorative clouds that move in the background
-- Health bar that will decrease when the player collides with an obstacle
-- FPS counter display (it indicates the performance of the game, slow or fast)
-- Game over screen with final score and option to restart the game
-- Use your imagination to add other features
+- 🏆 A scoring system based on distance/time survived and should be visible to the player
+- 💰 Collectible coins which will give you more score
+- ✨ Animated coins that spin or glitter
+- 🎵 Sound effects when the player collects a coin
+- 🌤️ Sky and ground background
+- ☁️ Decorative clouds that move in the background
+- ❤️ Health bar that will decrease when the player collides with an obstacle
+- 📊 FPS counter display (it indicates the performance of the game, slow or fast)
+- 🎮 Game over screen with final score and option to restart the game
+- 💡 Use your imagination to add other features
