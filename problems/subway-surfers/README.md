@@ -12,6 +12,40 @@ The game will feature:
 
 The player controls the character by pressing keys to move between lanes. The game ends when the player collides with an obstacle.
 
+## What You Will Learn
+
+You will have fun while learning:
+
+- 🎮 **Game Speed** :
+  Making your game run smoothly at 60 FPS
+
+- 🏃‍♂️ **Multiple Events** :
+  Handling many things happening at the same time
+
+- ⌨️ **Controls** :
+  Making the game respond quickly to player inputs
+
+- 🎯 **Game States** :
+  Switching between playing, game over, and restart
+
+- 💥 **Hitting Objects** :
+  Making sure collisions feel fair and fun
+
+- 🎨 **Animations** :
+  Making characters and objects move smoothly
+
+- 🎲 **Difficulty** :
+  Making the game get harder over time
+
+- 🎵 **Sounds** :
+  Adding fun sound effects to the game
+
+- 📊 **Score** :
+  Keeping track of the player score
+
+- 🎨 **Looks** :
+  Making the game look nice and fun to play
+
 ## Requirements
 
 ### Create a 2D endless runner game with:

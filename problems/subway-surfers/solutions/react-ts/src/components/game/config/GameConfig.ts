@@ -55,18 +55,18 @@ export default class GameConfig {
 
   static readonly DIFFICULTY_SETTINGS: Record<string, DifficultySettings> = {
     easy: {
-      obstacleSpeed: 300,
-      spawnInterval: [1.8, 3.0] as [number, number],
+      obstacleSpeed: 400,
+      spawnInterval: [1.5, 2.5],
       speedIncreaseFactor: 0.5,
     },
     medium: {
-      obstacleSpeed: 400,
-      spawnInterval: [1.2, 2.5] as [number, number],
+      obstacleSpeed: 500,
+      spawnInterval: [1.0, 2.0],
       speedIncreaseFactor: 1.0,
     },
     hard: {
-      obstacleSpeed: 500,
-      spawnInterval: [0.5, 1] as [number, number],
+      obstacleSpeed: 600,
+      spawnInterval: [0.4, 0.8],
       speedIncreaseFactor: 1.5,
     },
   };
