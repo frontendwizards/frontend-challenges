@@ -110,15 +110,6 @@ export default class Player extends GameObject {
         this.handleGameOver();
       }
     });
-
-    this.gameObj.onCollide("coin", (coinObj: GameObj) => {
-      try {
-        const coin = Coin.fromGameObj(this.k, coinObj);
-        coin.collect();
-      } catch (e) {
-        console.warn("Error collecting coin", e);
-      }
-    });
   }
 
   private handleGameOver(): void {

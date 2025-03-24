@@ -11,12 +11,12 @@ import Coin from "../../objects/entities/Coin";
 import Environment from "../../objects/environment/Environment";
 import HealthBar from "../../objects/ui/HealthBar";
 import ScoreDisplay from "../../objects/ui/ScoreDisplay";
+import DebugDisplay from "../../objects/ui/DebugDisplay";
 import { GameUtils } from "../../utils/GameUtils";
 
 export interface GameplaySceneOptions {
   showHitboxes: boolean;
   difficulty: string;
-  debugLanes?: boolean;
 }
 
 export default class GameplayScene extends BaseScene {
@@ -26,7 +26,6 @@ export default class GameplayScene extends BaseScene {
   private lanes = GameConfig.getLanePositions();
   private showHitboxes: boolean;
   private difficulty: string;
-  private debugLanes: boolean;
   private currentObstacleSpeed = 0;
   private obstacles: Obstacle[] = [];
   private coins: Coin[] = [];
@@ -34,19 +33,41 @@ export default class GameplayScene extends BaseScene {
   private environment: Environment | null = null;
   private healthBar: HealthBar | null = null;
   private scoreDisplay: ScoreDisplay | null = null;
+  private debugDisplay: DebugDisplay | null = null;
   private obstacleSpawnTimer: ActionReturnType | null = null;
   private coinSpawnTimer: ActionReturnType | null = null;
   private isPaused: boolean = false;
   private isSpawning: boolean = false;
+  private spawnQueue: Array<() => void> = []; // Queue for spawn operations
 
   // Store lane debug objects
   private laneDebugObjects: GameObj[] = [];
+
+  private scheduleSpawn(spawnFn: () => void): void {
+    // Add spawn function to queue
+    this.spawnQueue.push(spawnFn);
+
+    // If nothing is currently spawning, process the queue
+    if (!this.isSpawning) {
+      this.processSpawnQueue();
+    }
+  }
+
+  private processSpawnQueue(): void {
+    if (this.spawnQueue.length === 0) {
+      this.isSpawning = false;
+      return;
+    }
+
+    this.isSpawning = true;
+    const nextSpawn = this.spawnQueue.shift();
+    nextSpawn?.();
+  }
 
   constructor(kaboomInstance: KaboomInterface, options: GameplaySceneOptions) {
     super(kaboomInstance);
     this.showHitboxes = options.showHitboxes;
     this.difficulty = options.difficulty;
-    this.debugLanes = options.debugLanes || false;
   }
 
   public getName(): string {
@@ -111,24 +132,32 @@ export default class GameplayScene extends BaseScene {
     const WIDTH = GameConfig.CANVAS_WIDTH;
     const k = this.k;
 
-    // Create health bar
+    // Create health bar (more minimal)
     this.healthBar = new HealthBar(k, {
       x: WIDTH - 120,
       y: 20,
-      width: 80,
-      height: 10,
+      width: 100,
+      height: 8,
       maxHealth: GameConfig.PLAYER_INITIAL_HEALTH,
     });
     this.healthBar.init();
 
     // Create score display
     this.scoreDisplay = new ScoreDisplay(k, {
-      x: 24,
-      y: 24,
-      width: 110,
+      x: 20,
+      y: 20,
+      width: 120,
       height: 40,
     });
     this.scoreDisplay.init();
+
+    // Create debug display
+    this.debugDisplay = new DebugDisplay(k, {
+      x: WIDTH - 120,
+      y: 60,
+      getSpawningState: () => this.isSpawning,
+    });
+    this.debugDisplay.init();
   }
 
   private setupControls(): void {
@@ -150,12 +179,19 @@ export default class GameplayScene extends BaseScene {
     const k = this.k;
 
     // Set up global collision handlers
-    k.onCollide("player", "coin", () => {
-      // Increase score (handled here rather than in Player to keep score in GameplayScene)
-      this.score += GameConfig.COIN_SCORE_VALUE;
+    k.onCollide("player", "coin", (_, coinObj) => {
+      // Find the coin instance
+      const coin = this.coins.find((c) => c.getGameObj() === coinObj);
+      if (!coin) {
+        return;
+      }
 
+      // Increase score
+      this.score += GameConfig.COIN_SCORE_VALUE;
       // Update score display immediately
       this.scoreDisplay?.updateScore(this.score);
+      // Collect the coin (which will play sound and destroy it)
+      coin.collect();
     });
 
     // Main game update loop
@@ -172,6 +208,9 @@ export default class GameplayScene extends BaseScene {
 
       // Update score display
       this.scoreDisplay?.updateScore(this.score);
+
+      // Update debug display
+      this.debugDisplay?.update();
 
       // Update player animation
       this.player?.update(deltaTime);
@@ -209,11 +248,6 @@ export default class GameplayScene extends BaseScene {
       this.currentObstacleSpeed =
         GameConfig.getDifficultySettings(this.difficulty).obstacleSpeed +
         speedIncrease;
-
-      // Draw debug lanes if enabled
-      if (this.debugLanes) {
-        this.drawDebugLanes();
-      }
     });
   }
 
@@ -225,18 +259,16 @@ export default class GameplayScene extends BaseScene {
     spawnPosX: number,
     safetyDistance: number
   ): boolean {
-    if (!this.obstacles.length) {
+    // Find the last obstacle in the specified lane (non-mutating approach)
+    const lastObstacleInLane = [...this.obstacles]
+      .reverse()
+      .find((obs) => obs.getLane() === lane);
+
+    if (!lastObstacleInLane) {
       return true;
     }
 
-    const obstacle = this.obstacles[this.obstacles.length - 1];
-
-    console.log(`log: obstacle: ${obstacle}`);
-
-    // Skip obstacles that aren't in the same lane
-    if (obstacle.getLane() !== lane) return true;
-
-    const obstacleObj = obstacle.getGameObj();
+    const obstacleObj = lastObstacleInLane.getGameObj();
     if (!obstacleObj) return true;
 
     // Check if obstacle is too close to spawn position
@@ -246,10 +278,6 @@ export default class GameplayScene extends BaseScene {
     const obstacleWidth = obstacleObj.width;
     const entityWidth = GameConfig.COIN_WIDTH;
     const minSafeDistance = obstacleWidth / 2 + entityWidth / 2;
-
-    console.log(
-      `log: minSafeDistance: ${minSafeDistance}, safetyDistance: ${safetyDistance}`
-    );
 
     // Use the larger of safetyDistance or the physical space needed
     const effectiveSafetyDistance = Math.max(safetyDistance, minSafeDistance);
@@ -265,7 +293,7 @@ export default class GameplayScene extends BaseScene {
    */
   private createCoin(lane: number): Coin {
     const coin = new Coin(this.k, {
-      lane: lane,
+      lane,
       lanes: this.lanes,
       speed: this.currentObstacleSpeed,
       showHitboxes: this.showHitboxes,
@@ -296,8 +324,6 @@ export default class GameplayScene extends BaseScene {
   private findSafeLane(safetyDistance: number): number {
     const spawnPosX = GameConfig.CANVAS_WIDTH;
 
-    console.log(`Finding safe lane with safety distance: ${safetyDistance}`);
-
     // Create shuffled list of lane indices
     const availableLanes = Array.from(
       { length: GameConfig.LANE_COUNT },
@@ -306,18 +332,13 @@ export default class GameplayScene extends BaseScene {
     GameUtils.shuffle(availableLanes);
 
     // First try: find a lane with no obstacles nearby
-    console.log(
-      `Step 1: Looking for a completely safe lane with no obstacles closer than ${safetyDistance}`
-    );
     for (const lane of availableLanes) {
       const isSafe = this.isLaneSafeForCoin(lane, spawnPosX, safetyDistance);
       if (isSafe) {
-        console.log(`Found completely safe lane: ${lane}`);
         return lane;
       }
     }
 
-    console.log(`No safe lane found, all lanes have obstacles too close`);
     return -1; // No safe lane found
   }
 
@@ -327,68 +348,48 @@ export default class GameplayScene extends BaseScene {
     const spawn = () => {
       if (!this.player || !this.player.isPlayerAlive()) return;
 
-      // Check if something else is already spawning
-      if (this.isSpawning) {
-        // If locked, retry after a short delay
-        this.obstacleSpawnTimer = k.wait(0.1, spawn);
-        return;
-      }
+      // Instead of trying to acquire lock directly, schedule the spawn
+      this.scheduleSpawn(() => {
+        const safetyDistance = GameConfig.COIN_MIN_DISTANCE_FROM_OBSTACLE;
+        const availableLanes = Array.from(
+          { length: GameConfig.LANE_COUNT },
+          (_, i) => i
+        );
+        GameUtils.shuffle(availableLanes);
 
-      // Set the spawn lock
-      this.isSpawning = true;
-
-      // Find a safe lane for the obstacle (similar to coins)
-      const safetyDistance = GameConfig.COIN_MIN_DISTANCE_FROM_OBSTACLE;
-
-      // Create shuffled list of lane indices
-      const availableLanes = Array.from(
-        { length: GameConfig.LANE_COUNT },
-        (_, i) => i
-      );
-      GameUtils.shuffle(availableLanes);
-
-      // Try to find a safe lane
-      let selectedLane = -1;
-      for (const lane of availableLanes) {
-        // Check if this lane is safe for an obstacle (use different offset than coins)
-        if (this.isLaneSafeForObstacle(lane, safetyDistance)) {
-          selectedLane = lane;
-          break;
+        let selectedLane = -1;
+        for (const lane of availableLanes) {
+          if (this.isLaneSafeForObstacle(lane, safetyDistance)) {
+            selectedLane = lane;
+            break;
+          }
         }
-      }
 
-      // If no safe lane found, wait and try again instead of using random lane
-      if (selectedLane === -1) {
-        console.log("No safe lane for obstacle, waiting to try again");
+        if (selectedLane === -1) {
+          // Schedule retry
+          this.obstacleSpawnTimer = k.wait(0.1, spawn);
+          return;
+        }
 
-        // Release the spawn lock
-        this.isSpawning = false;
+        this.createObstacle(selectedLane);
 
-        // Try again after a short delay
-        this.obstacleSpawnTimer = k.wait(0.1, spawn);
-        return;
-      }
+        const minSpawnTime = Math.max(
+          spawnInterval[0] - this.gameTime / 60,
+          0.3
+        );
+        const maxSpawnTime = Math.max(
+          spawnInterval[1] - this.gameTime / 30,
+          minSpawnTime + 0.5
+        );
 
-      console.log("Found safe lane for obstacle: " + selectedLane);
+        this.processSpawnQueue();
 
-      // Create obstacle in the selected lane
-      this.createObstacle(selectedLane);
-
-      // Calculate next spawn time - gradually decrease as score increases
-      const minSpawnTime = Math.max(spawnInterval[0] - this.gameTime / 60, 0.3);
-      const maxSpawnTime = Math.max(
-        spawnInterval[1] - this.gameTime / 30,
-        minSpawnTime + 0.5
-      );
-
-      // Release the spawn lock
-      this.isSpawning = false;
-
-      // Schedule next obstacle spawn
-      this.obstacleSpawnTimer = k.wait(
-        k.rand(minSpawnTime, maxSpawnTime),
-        spawn
-      );
+        // Schedule next obstacle spawn
+        this.obstacleSpawnTimer = k.wait(
+          k.rand(minSpawnTime, maxSpawnTime),
+          spawn
+        );
+      });
     };
 
     // Start spawning obstacles
@@ -399,21 +400,19 @@ export default class GameplayScene extends BaseScene {
    * Checks if a lane is safe for spawning an obstacle
    */
   private isLaneSafeForObstacle(lane: number, safetyDistance: number): boolean {
-    if (!this.coins.length) {
+    // Find the last coin in the same lane (non-mutating approach)
+    const lastCoinInLane = [...this.coins]
+      .reverse()
+      .find((coin) => coin.getLane() === lane);
+
+    if (!lastCoinInLane) {
       return true;
     }
 
     // Use a different spawn position than coins
     const spawnPosX = GameConfig.CANVAS_WIDTH;
 
-    const coin = this.coins[this.coins.length - 1];
-
-    // Skip coins that aren't in the same lane
-    if (!coin || coin.getLane() !== lane) {
-      return true;
-    }
-
-    const coinObj = coin.getGameObj();
+    const coinObj = lastCoinInLane.getGameObj();
     if (!coinObj) {
       return true;
     }
@@ -441,42 +440,28 @@ export default class GameplayScene extends BaseScene {
     const spawnCoin = () => {
       if (!this.player || !this.player.isPlayerAlive()) return;
 
-      // Check if something else is already spawning
-      if (this.isSpawning) {
-        // If locked, retry after a short delay
-        this.coinSpawnTimer = k.wait(0.1, spawnCoin);
-        return;
-      }
+      // Schedule coin spawn
+      this.scheduleSpawn(() => {
+        const selectedLane = this.findSafeLane(
+          GameConfig.COIN_MIN_DISTANCE_FROM_OBSTACLE
+        );
 
-      // Set the spawn lock
-      this.isSpawning = true;
+        if (selectedLane === -1) {
+          this.coinSpawnTimer = k.wait(0.1, spawnCoin);
+          return;
+        }
 
-      const minSafeDistance = GameConfig.COIN_MIN_DISTANCE_FROM_OBSTACLE;
-
-      // Find a safe lane for spawning
-      const selectedLane = this.findSafeLane(minSafeDistance);
-
-      // If we found a suitable lane, spawn the coin there
-      if (selectedLane !== -1) {
-        console.log(`Spawning coin in lane ${selectedLane}`);
         this.createCoin(selectedLane);
 
-        // Release the spawn lock
-        this.isSpawning = false;
+        // Process next spawn in queue
+        this.processSpawnQueue();
 
         // Schedule next coin spawn
-        // Random time between 1 and 1.5 seconds for next coin
         this.coinSpawnTimer = k.wait(
           k.rand(spawnInterval[0], spawnInterval[1]),
           spawnCoin
         );
-      } else {
-        // Release the spawn lock
-        this.isSpawning = false;
-
-        // Try again after a short delay
-        this.coinSpawnTimer = k.wait(0.1, spawnCoin);
-      }
+      });
     };
 
     // Start spawning coins
@@ -484,7 +469,6 @@ export default class GameplayScene extends BaseScene {
   }
 
   public destroy(): void {
-    console.log("log: GameplayScene destroy");
     // Clean up all debug objects
     this.laneDebugObjects.forEach((obj) => {
       if (obj.exists()) {
@@ -514,6 +498,11 @@ export default class GameplayScene extends BaseScene {
       this.scoreDisplay = null;
     }
 
+    if (this.debugDisplay) {
+      this.debugDisplay.destroy();
+      this.debugDisplay = null;
+    }
+
     // Clean up all obstacles
     this.obstacles.forEach((obstacle) => obstacle.destroy());
     this.obstacles = [];
@@ -537,40 +526,6 @@ export default class GameplayScene extends BaseScene {
 
   public getCurrentScore(): number {
     return Math.floor(this.score);
-  }
-
-  // Add a dedicated function for drawing debug lanes
-  private drawDebugLanes(): void {
-    // First destroy previous debug objects to avoid accumulation
-    this.laneDebugObjects.forEach((obj) => {
-      if (obj.exists()) {
-        obj.destroy();
-      }
-    });
-    this.laneDebugObjects = [];
-
-    // Draw lanes as red rectangles
-    this.lanes.forEach((lane, index) => {
-      // Use rect() instead of drawRect()
-      const laneRect = this.k.add([
-        this.k.rect(GameConfig.CANVAS_WIDTH, 10),
-        this.k.pos(0, lane),
-        this.k.color(255, 0, 0),
-        this.k.z(100), // High z-index to ensure lanes are visible on top
-        this.k.outline(2, this.k.rgb(255, 255, 255)),
-      ]);
-
-      // Add lane number for easier debugging
-      const laneText = this.k.add([
-        this.k.text(`Lane ${index}`, { size: 16 }),
-        this.k.pos(50, lane - 15),
-        this.k.color(255, 255, 0),
-        this.k.z(100),
-      ]);
-
-      // Store these objects for cleanup on next frame
-      this.laneDebugObjects.push(laneRect, laneText);
-    });
   }
 
   public pause(): void {

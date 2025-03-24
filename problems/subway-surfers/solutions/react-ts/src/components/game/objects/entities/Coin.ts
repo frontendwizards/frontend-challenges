@@ -30,24 +30,6 @@ export default class Coin extends GameObject {
     this.showHitboxes = options.showHitboxes || false;
   }
 
-  // Static factory method to create a Coin instance from an existing GameObj
-  static fromGameObj(kaboomInstance: KaboomInterface, coinObj: GameObj): Coin {
-    // Create a minimal coin instance
-    const coin = new Coin(kaboomInstance, {
-      lane: 0, // Default lane
-      lanes: [], // Empty lanes array
-      speed: 0, // No speed needed for collection
-    });
-
-    // Directly set the gameObj property
-    coin.gameObj = coinObj;
-    if (!coin.tags?.length) {
-      coin.tags = ["coin"];
-    }
-
-    return coin;
-  }
-
   public init(): void {
     this.createCoin();
 

@@ -1,7 +1,6 @@
 import { KaboomInterface, GameObj } from "../../types/KaboomTypes";
-import GameObject from "../base/GameObject";
 
-export interface HealthBarOptions {
+interface HealthBarOptions {
   x: number;
   y: number;
   width: number;
@@ -9,117 +8,98 @@ export interface HealthBarOptions {
   maxHealth: number;
 }
 
-export default class HealthBar extends GameObject {
+export default class HealthBar {
+  private k: KaboomInterface;
   private x: number;
   private y: number;
-  private barWidth: number;
-  private barHeight: number;
+  private width: number;
+  private height: number;
   private maxHealth: number;
   private currentHealth: number;
-  private container: GameObj | null = null;
-  private label: GameObj | null = null;
+  private background: GameObj | null = null;
+  private foreground: GameObj | null = null;
+  private icon: GameObj | null = null;
 
-  constructor(kaboomInstance: KaboomInterface, options: HealthBarOptions) {
-    super(kaboomInstance);
+  constructor(k: KaboomInterface, options: HealthBarOptions) {
+    this.k = k;
     this.x = options.x;
     this.y = options.y;
-    this.barWidth = options.width;
-    this.barHeight = options.height;
+    this.width = options.width;
+    this.height = options.height;
     this.maxHealth = options.maxHealth;
     this.currentHealth = options.maxHealth;
   }
 
   public init(): void {
-    this.createContainer();
-    this.createLabel();
-    this.createHealthBar();
-  }
+    // Create heart icon
+    this.icon = this.k.add([
+      this.k.text("❤️", { size: 20 }),
+      this.k.pos(this.x - 24, this.y - 2),
+      this.k.fixed(),
+      this.k.z(100),
+    ]);
 
-  private createContainer(): void {
-    const k = this.k;
+    // Create background (empty health bar) with rounded corners
+    this.background = this.k.add([
+      this.k.rect(this.width, this.height, { radius: 3 }),
+      this.k.pos(this.x, this.y),
+      this.k.color(40, 40, 40),
+      this.k.fixed(),
+      this.k.z(99),
+    ]);
 
-    // Create container for health bar
-    this.container = k.add([
-      k.rect(100, 60), // Make taller to include both text and bar
-      k.pos(this.x, this.y),
-      k.outline(2, k.rgb(255, 255, 255)),
-      k.color(0, 0, 0, 0.7), // Semi-transparent black
-      { z: 100 }, // Keep above other elements
+    // Create foreground (filled health bar) with rounded corners
+    this.foreground = this.k.add([
+      this.k.rect(this.width, this.height, { radius: 3 }),
+      this.k.pos(this.x, this.y),
+      this.k.color(50, 220, 50),
+      this.k.fixed(),
+      this.k.z(100),
     ]);
   }
 
-  private createLabel(): void {
-    const k = this.k;
+  public updateHealth(newHealth: number): void {
+    if (!this.foreground || !this.icon) return;
 
-    // Create health label
-    this.label = k.add([
-      k.text("HEALTH", { size: 16 }),
-      k.pos(this.x + 50, this.y + 15),
-      k.anchor("center"),
-      k.color(255, 255, 255),
-      { z: 101 }, // Above container
-    ]);
-  }
+    this.currentHealth = Math.max(0, Math.min(newHealth, this.maxHealth));
+    const healthPercentage = this.currentHealth / this.maxHealth;
 
-  private createHealthBar(): void {
-    const k = this.k;
-    const health = this.currentHealth;
+    // Update health bar width
+    this.foreground.width = this.width * healthPercentage;
 
-    // Clear previous components
-    this.components = [];
-    this.tags = [];
-    this.props = {};
-
-    // Add health bar components
-    this.addComponent(
-      k.rect(this.barWidth * (health / this.maxHealth), this.barHeight)
-    );
-    this.addComponent(k.pos(this.x + 10, this.y + 40));
-
-    // Update color based on health level
-    if (health <= this.maxHealth / 3) {
-      // Red for low health
-      this.addComponent(k.color(255, 0, 0));
-    } else if (health <= (this.maxHealth * 2) / 3) {
-      // Yellow for medium health
-      this.addComponent(k.color(255, 255, 0));
+    // Update colors based on health percentage
+    if (healthPercentage > 0.6) {
+      this.foreground.color = this.k.rgb(50, 220, 50); // Green
+      this.icon.opacity = 1;
+    } else if (healthPercentage > 0.3) {
+      this.foreground.color = this.k.rgb(220, 220, 50); // Yellow
+      this.icon.opacity = 0.8;
     } else {
-      // Green for high health
-      this.addComponent(k.color(0, 255, 0));
+      this.foreground.color = this.k.rgb(220, 50, 50); // Red
+      this.icon.opacity = 0.6;
     }
 
-    // Add z-index property
-    this.addProp("z", 101);
-
-    // Create the game object
-    this.createGameObj();
+    // Add pulsing effect when health is low
+    if (healthPercentage <= 0.3) {
+      const pulseScale = 1 + Math.sin(this.k.dt * 10) * 0.1;
+      this.icon.scale = pulseScale;
+    } else {
+      this.icon.scale = 1;
+    }
   }
 
-  public updateHealth(health: number): void {
-    if (!this.gameObj) return;
-    this.currentHealth = health;
-
-    // Only destroy the health bar itself, not the container or label
-    this.gameObj.destroy();
-    this.gameObj = null;
-
-    // Then create a new health bar with the updated health
-    this.createHealthBar();
-  }
-
-  public override destroy(): void {
-    // Destroy container and label
-    if (this.container) {
-      this.container.destroy();
-      this.container = null;
+  public destroy(): void {
+    if (this.background && this.background.exists()) {
+      this.background.destroy();
     }
-
-    if (this.label) {
-      this.label.destroy();
-      this.label = null;
+    if (this.foreground && this.foreground.exists()) {
+      this.foreground.destroy();
     }
-
-    // Destroy the health bar
-    super.destroy();
+    if (this.icon && this.icon.exists()) {
+      this.icon.destroy();
+    }
+    this.background = null;
+    this.foreground = null;
+    this.icon = null;
   }
 }

@@ -13,7 +13,6 @@ interface UseGameInitializationProps {
   height: number;
   showHitboxes: boolean;
   difficulty: "easy" | "medium" | "hard";
-  debugLanes: boolean;
   isScreenTooSmall: boolean;
 }
 
@@ -37,7 +36,6 @@ export const useGameInitialization = ({
   height,
   showHitboxes,
   difficulty,
-  debugLanes,
   isScreenTooSmall,
 }: UseGameInitializationProps): UseGameInitializationReturn => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -118,7 +116,6 @@ export const useGameInitialization = ({
         const gameplayScene = new GameplayScene(kaboomInstance, {
           showHitboxes,
           difficulty,
-          debugLanes,
         });
         gameplayScene.register(sceneManager);
         gameplaySceneRef.current = gameplayScene;
@@ -137,15 +134,7 @@ export const useGameInitialization = ({
     return () => {
       gameEngine.destroy();
     };
-  }, [
-    canvasRef,
-    width,
-    height,
-    showHitboxes,
-    difficulty,
-    debugLanes,
-    isScreenTooSmall,
-  ]);
+  }, [canvasRef, width, height, showHitboxes, difficulty, isScreenTooSmall]);
 
   return {
     isLoading,

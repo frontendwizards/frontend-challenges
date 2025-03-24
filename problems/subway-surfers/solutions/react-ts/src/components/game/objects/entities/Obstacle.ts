@@ -29,12 +29,6 @@ export default class Obstacle extends GameObject {
   }
 
   public update(): void {
-    // Obstacles are automatically moved by Kaboom's move component
-    // Just update the hitbox if it exists
-    if (this.hitbox && this.gameObj) {
-      this.hitbox.pos = this.gameObj.pos;
-    }
-
     // Check if obstacle is off-screen and destroy it
     if (this.gameObj && this.gameObj.pos.x < -100) {
       this.destroy();
@@ -83,24 +77,6 @@ export default class Obstacle extends GameObject {
 
     // Create the game object
     this.createGameObj();
-  }
-
-  private createHitbox(): void {
-    if (!this.gameObj) return;
-
-    const k = this.k;
-    const hitboxWidth = this.gameObj.width * 0.8;
-    const hitboxHeight = this.gameObj.height * 0.8;
-
-    this.hitbox = k.add([
-      k.rect(hitboxWidth, hitboxHeight),
-      k.pos(this.gameObj.pos.x, this.gameObj.pos.y),
-      k.anchor("center"),
-      k.outline(2, k.rgb(255, 0, 0)),
-      k.color(255, 0, 0, 0.3),
-      k.move(k.LEFT, this.speed),
-      "obstacleHitbox",
-    ]);
   }
 
   public override destroy(): void {

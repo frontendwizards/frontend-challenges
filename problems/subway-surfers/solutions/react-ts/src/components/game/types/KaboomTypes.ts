@@ -142,7 +142,7 @@ export interface GameObj {
   offsetY?: number;
   parentCloud?: GameObj;
   play: (anim: string, options?: { loop?: boolean }) => void;
-  scale: Vector2;
+  scale: Vector2 | number;
   flipX: boolean;
   flipY: boolean;
   hidden: boolean;
@@ -154,6 +154,11 @@ export interface GameObj {
   isCollected?: boolean;
   unuse: (component: string) => void;
   get: (component: string) => CompType;
+  color: ColorComp;
+  icon: GameObj;
+  opacity: number;
+  vec2: (x: number, y: number) => Vec2;
+  lerp: (a: number, b: number, t: number) => number;
 }
 
 export interface CompType {
