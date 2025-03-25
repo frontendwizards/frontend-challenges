@@ -40,7 +40,7 @@ export default class GameConfig {
   static readonly COIN_WIDTH = 40;
   static readonly COIN_HEIGHT = 40;
   static readonly COIN_SCORE_VALUE = 10;
-  static readonly COIN_MIN_DISTANCE_FROM_OBSTACLE = 600;
+  static readonly COIN_MIN_DISTANCE_FROM_OBSTACLE = 400;
   static readonly COIN_SOUND_PATH = `${BASE_URL}/assets/sounds/subway-surfers-coin-collect.mp3`;
 
   // Lane settings
@@ -66,7 +66,7 @@ export default class GameConfig {
     },
     hard: {
       obstacleSpeed: 600,
-      spawnInterval: [0.4, 0.8],
+      spawnInterval: [0.15, 0.4],
       speedIncreaseFactor: 1.5,
     },
   };
@@ -109,5 +109,9 @@ export default class GameConfig {
     return this.DIFFICULTY_SETTINGS[
       validDifficulty as keyof typeof this.DIFFICULTY_SETTINGS
     ];
+  }
+
+  static getRandomLane(): number {
+    return Math.floor(Math.random() * this.LANE_COUNT);
   }
 }

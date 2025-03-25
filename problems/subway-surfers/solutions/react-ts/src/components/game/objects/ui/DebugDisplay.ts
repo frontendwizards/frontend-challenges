@@ -3,14 +3,12 @@ import { KaboomInterface, GameObj } from "../../types/KaboomTypes";
 interface DebugDisplayOptions {
   x: number;
   y: number;
-  getSpawningState: () => boolean;
 }
 
 export default class DebugDisplay {
   private k: KaboomInterface;
   private x: number;
   private y: number;
-  private getSpawningState: () => boolean;
   private debugText: GameObj | null = null;
   private background: GameObj | null = null;
   private lastTime: number = performance.now();
@@ -26,7 +24,6 @@ export default class DebugDisplay {
     this.k = k;
     this.x = options.x;
     this.y = options.y;
-    this.getSpawningState = options.getSpawningState;
   }
 
   public init(): void {
