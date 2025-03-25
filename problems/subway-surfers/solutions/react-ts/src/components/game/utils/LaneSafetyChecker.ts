@@ -4,6 +4,8 @@ import Coin from "../objects/entities/Coin";
 import { GameUtils } from "./GameUtils";
 
 export class LaneSafetyChecker {
+  static readonly NO_SAFE_LANE = -1;
+
   /**
    * Checks if a lane has any obstacles too close to a specific position
    */
@@ -96,7 +98,6 @@ export class LaneSafetyChecker {
       }
     }
 
-    // If no completely safe lane found, just return a random lane
-    return availableLanes[0];
+    return LaneSafetyChecker.NO_SAFE_LANE;
   }
 }

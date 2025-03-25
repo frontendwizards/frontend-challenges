@@ -1,16 +1,20 @@
 import "./styles.css";
 import EndlessRunner from "./components/game/EndlessRunner";
 import Controls from "./components/game/ui/Controls";
+import { useEffect } from "react";
 
+// this is a hack to prevent the console from being spammed with logs
+// normally we would use a logger library or remove the logs altogether
 console.log = () => {};
 
 export default function App() {
+  useScrollToTop();
 
   return (
     <main className="p-5 min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
       <div className="max-w-6xl mx-auto">
         {/* Centered Game Header */}
-        <h1 className="text-5xl font-bold py-7 text-center text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-600 mb-8">
+        <h1 className="text-5xl font-bold py-2 text-center text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-600 mb-8">
           Desert Runner Game
         </h1>
 
@@ -52,3 +56,22 @@ export default function App() {
     </main>
   );
 }
+
+// (never mind this) this is unreleated to the game
+const useScrollToTop = () => {
+  useEffect(() => {
+    const scrollToTop = () => {
+      document.documentElement.style.scrollBehavior = "auto";
+      window.scrollTo(0, 0);
+      if (history.scrollRestoration) {
+        history.scrollRestoration = "manual";
+      }
+    };
+
+    window.addEventListener("load", scrollToTop);
+
+    return () => {
+      window.removeEventListener("load", scrollToTop);
+    };
+  }, []);
+};

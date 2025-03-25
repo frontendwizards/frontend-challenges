@@ -21,7 +21,7 @@ export default class Coin extends GameObject {
   // Animation properties
   private currentFrame: number = 0;
   private animationTimer: number = 0;
-  protected animationSpeed: number = 0.1; // Time between frames (seconds)
+  protected animationSpeed: number = 0.1; // Time between frames (in seconds)
 
   constructor(kaboomInstance: KaboomInterface, options: CoinOptions) {
     super(kaboomInstance);
@@ -118,7 +118,7 @@ export default class Coin extends GameObject {
     // Update animation timer
     this.animationTimer += deltaTime;
 
-    // Update to next frame when timer exceeds animation speed
+    // Update to next frame when timer passes the animation speed (aka time_passed > 100ms)
     if (this.animationTimer >= this.animationSpeed) {
       this.animationTimer = 0;
 
@@ -133,6 +133,9 @@ export default class Coin extends GameObject {
 
   public collect(): void {
     if (!this.exists()) return;
+
+    // mark as collected
+    this.addProp("collected", true);
 
     try {
       AudioPlayer.playCoinCollectSound();

@@ -4,7 +4,7 @@ import {
   GameObj,
 } from "../../types/KaboomTypes";
 import { BaseScene } from "./BaseScene";
-import GameConfig from "../../config/GameConfig";
+import GameConfig, { DifficultySettings } from "../../config/GameConfig";
 import Player from "../../objects/entities/Player";
 import Obstacle from "../../objects/entities/Obstacle";
 import Coin from "../../objects/entities/Coin";
@@ -31,7 +31,7 @@ export default class GameplayScene extends BaseScene {
   private lanes = GameConfig.getLanePositions();
   private showHitboxes: boolean;
   private difficulty: string;
-  private currentObstacleSpeed = 0;
+  private currentGameSpeed = 0;
   private obstacles: Obstacle[] = [];
   private coins: Coin[] = [];
   private player: Player | null = null;
@@ -42,6 +42,7 @@ export default class GameplayScene extends BaseScene {
   private spawnTimer: ActionReturnType | null = null;
   private isPaused: boolean = false;
   private nextSpawnType: EntityType = EntityType.OBSTACLE;
+  private difficultySettings: DifficultySettings;
 
   // Store lane debug objects
   private laneDebugObjects: GameObj[] = [];
@@ -50,24 +51,30 @@ export default class GameplayScene extends BaseScene {
     super(kaboomInstance);
     this.showHitboxes = options.showHitboxes;
     this.difficulty = options.difficulty;
+    // Get difficulty settings
+    this.difficultySettings = GameConfig.getDifficultySettings(this.difficulty);
     // Initialize the TimeManager with Kaboom instance
     TimeManager.initialize(kaboomInstance);
   }
 
-  private attemptSpawn(): void {
-    const randomLane = this.findSafeLane(
+  private attemptSpawn(): number {
+    const safeLane = this.findSafeLane(
       GameConfig.COIN_MIN_DISTANCE_FROM_OBSTACLE
     );
 
-    console.log("nextSpawnType", this.nextSpawnType, randomLane);
+    if (safeLane === LaneSafetyChecker.NO_SAFE_LANE) {
+      return LaneSafetyChecker.NO_SAFE_LANE;
+    }
 
     if (this.nextSpawnType === EntityType.OBSTACLE) {
-      this.createObstacle(randomLane);
+      this.createObstacle(safeLane);
       this.nextSpawnType = EntityType.COIN;
     } else {
-      this.createCoin(randomLane);
+      this.createCoin(safeLane);
       this.nextSpawnType = EntityType.OBSTACLE;
     }
+
+    return safeLane;
   }
 
   public getName(): string {
@@ -82,11 +89,7 @@ export default class GameplayScene extends BaseScene {
     this.obstacles = [];
     this.coins = [];
 
-    // Get difficulty settings
-    const difficultySettings = GameConfig.getDifficultySettings(
-      this.difficulty
-    );
-    this.currentObstacleSpeed = difficultySettings.obstacleSpeed;
+    this.currentGameSpeed = this.difficultySettings.obstacleSpeed;
 
     // Set up game elements
     this.setupEnvironment();
@@ -96,7 +99,7 @@ export default class GameplayScene extends BaseScene {
     this.setupGameLoop();
 
     // Start entity spawning system
-    this.startEntitySpawning(difficultySettings.spawnInterval);
+    this.startEntitySpawning(this.difficultySettings.spawnInterval);
   }
 
   private setupEnvironment(): void {
@@ -175,7 +178,7 @@ export default class GameplayScene extends BaseScene {
     k.onCollide("player", "coin", (_, coinObj) => {
       // Find the coin instance
       const coin = this.coins.find((c) => c.getGameObj() === coinObj);
-      if (!coin) {
+      if (!coin || coin.hasProp("collected")) {
         return;
       }
 
@@ -237,9 +240,8 @@ export default class GameplayScene extends BaseScene {
         Math.floor(deltaTime / 10) * 20 // Increase by 20 every 10 seconds
       );
 
-      this.currentObstacleSpeed =
-        GameConfig.getDifficultySettings(this.difficulty).obstacleSpeed +
-        speedIncrease;
+      this.currentGameSpeed =
+        this.difficultySettings.obstacleSpeed + speedIncrease;
     });
   }
 
@@ -250,9 +252,8 @@ export default class GameplayScene extends BaseScene {
     const coin = new Coin(this.k, {
       lane,
       lanes: this.lanes,
-      speed: this.currentObstacleSpeed,
+      speed: this.currentGameSpeed,
       showHitboxes: this.showHitboxes,
-      timeManager: TimeManager.getInstance(),
     });
     coin.init();
     this.coins.push(coin);
@@ -266,7 +267,7 @@ export default class GameplayScene extends BaseScene {
     const obstacle = new Obstacle(this.k, {
       lane: lane,
       lanes: this.lanes,
-      speed: this.currentObstacleSpeed,
+      speed: this.currentGameSpeed,
       showHitboxes: this.showHitboxes,
     });
     obstacle.init();
@@ -280,14 +281,19 @@ export default class GameplayScene extends BaseScene {
     const scheduleNextSpawn = () => {
       if (!this.player || !this.player.isPlayerAlive()) return;
 
-      this.attemptSpawn();
+      const safeLane = this.attemptSpawn();
 
-      // Simple spawn timing with minimum safety threshold
+      if (safeLane === LaneSafetyChecker.NO_SAFE_LANE) {
+        // If no safe lane is found, try again after a short delay
+        // Don't change nextSpawnType - keep trying same type until success
+        this.spawnTimer = k.wait(0.1, scheduleNextSpawn);
+        return;
+      }
+
       const [minTime, maxTime] = spawnInterval;
-
-      // Schedule next spawn between min and max time
       const nextSpawnTime = k.rand(minTime, maxTime);
 
+      // Schedule next spawn
       this.spawnTimer = k.wait(nextSpawnTime, scheduleNextSpawn);
     };
 
@@ -366,11 +372,8 @@ export default class GameplayScene extends BaseScene {
     this.isPaused = false;
 
     // Restart spawn system with appropriate difficulty settings
-    const difficultySettings = GameConfig.getDifficultySettings(
-      this.difficulty
-    );
     if (!this.spawnTimer) {
-      this.startEntitySpawning(difficultySettings.spawnInterval);
+      this.startEntitySpawning(this.difficultySettings.spawnInterval);
     }
   }
 

@@ -23,7 +23,6 @@ const GameCanvas = forwardRef<HTMLCanvasElement, GameCanvasProps>(
           ref={ref}
           width={width}
           height={height}
-          tabIndex={0}
           className="border-4 border-amber-500 rounded-md relative z-10"
           aria-label="Game Canvas"
         />

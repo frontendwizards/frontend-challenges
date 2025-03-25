@@ -56,6 +56,10 @@ export default abstract class GameObject {
     this.props[key] = value;
   }
 
+  public hasProp(key: string): boolean {
+    return this.props[key] !== undefined;
+  }
+
   /**
    * Clear all components, tags, and properties
    */

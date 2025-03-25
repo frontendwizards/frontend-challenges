@@ -40,13 +40,13 @@ export default class GameConfig {
   static readonly COIN_WIDTH = 40;
   static readonly COIN_HEIGHT = 40;
   static readonly COIN_SCORE_VALUE = 10;
-  static readonly COIN_MIN_DISTANCE_FROM_OBSTACLE = 400;
+  static readonly COIN_MIN_DISTANCE_FROM_OBSTACLE = 300;
   static readonly COIN_SOUND_PATH = `${BASE_URL}/assets/sounds/subway-surfers-coin-collect.mp3`;
 
   // Lane settings
   static readonly LANE_COUNT = 3;
   static readonly LANE_SPACING = 150;
-  static readonly MAX_SPEED_INCREASE = 300;
+  static readonly MAX_SPEED_INCREASE = 400;
   static readonly OBSTACLE_SPRITE_PATH = `${BASE_URL}/assets/obstacles.png`;
 
   // Difficulty settings
@@ -65,8 +65,8 @@ export default class GameConfig {
       speedIncreaseFactor: 1.0,
     },
     hard: {
-      obstacleSpeed: 600,
-      spawnInterval: [0.15, 0.4],
+      obstacleSpeed: 500,
+      spawnInterval: [0.2, 0.4],
       speedIncreaseFactor: 1.5,
     },
   };
