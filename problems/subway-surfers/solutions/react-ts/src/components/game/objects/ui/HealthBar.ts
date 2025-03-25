@@ -1,6 +1,8 @@
 import { KaboomInterface, GameObj } from "../../types/KaboomTypes";
+import GameObject from "../base/GameObject";
+import { TimeManager } from "../../utils/TimeManager";
 
-interface HealthBarOptions {
+export interface HealthBarOptions {
   x: number;
   y: number;
   width: number;
@@ -8,8 +10,7 @@ interface HealthBarOptions {
   maxHealth: number;
 }
 
-export default class HealthBar {
-  private k: KaboomInterface;
+export default class HealthBar extends GameObject {
   private x: number;
   private y: number;
   private width: number;
@@ -20,8 +21,8 @@ export default class HealthBar {
   private foreground: GameObj | null = null;
   private icon: GameObj | null = null;
 
-  constructor(k: KaboomInterface, options: HealthBarOptions) {
-    this.k = k;
+  constructor(kaboomInstance: KaboomInterface, options: HealthBarOptions) {
+    super(kaboomInstance);
     this.x = options.x;
     this.y = options.y;
     this.width = options.width;
@@ -58,10 +59,10 @@ export default class HealthBar {
     ]);
   }
 
-  public updateHealth(newHealth: number): void {
+  public updateHealth(health: number): void {
     if (!this.foreground || !this.icon) return;
 
-    this.currentHealth = Math.max(0, Math.min(newHealth, this.maxHealth));
+    this.currentHealth = Math.max(0, Math.min(health, this.maxHealth));
     const healthPercentage = this.currentHealth / this.maxHealth;
 
     // Update health bar width
@@ -81,7 +82,8 @@ export default class HealthBar {
 
     // Add pulsing effect when health is low
     if (healthPercentage <= 0.3) {
-      const pulseScale = 1 + Math.sin(this.k.dt * 10) * 0.1;
+      const deltaTime = TimeManager.getInstance().getDeltaTime();
+      const pulseScale = 1 + Math.sin(deltaTime * 10) * 0.1;
       this.icon.scale = pulseScale;
     } else {
       this.icon.scale = 1;

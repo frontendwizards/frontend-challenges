@@ -1,4 +1,4 @@
-# 🎮 Subway Surfers Challenge (Work in progress)
+# 🎮 Subway Surfers Challenge
 
 ## Problem Description
 
@@ -16,11 +16,11 @@ The player controls the character by pressing keys to move between lanes. The ga
 
 You will have fun while learning:
 
-- ⚡ **Game Speed** :
-  Making your game run smoothly at 60 FPS
+- ⚡ **Game Loop** :
+  Making your game run smoothly at 60 FPS and managing the game state
 
-- 🏃‍♂️ **Race Condition** :
-  Learning how to handle respawning multiple objects at the same time
+- 🎯 **Entity Management** :
+  Handling repawning multiple game objects (obstacles, coins)
 
 - ⌨️ **Controls** :
   Making the game respond quickly to player inputs
@@ -28,23 +28,23 @@ You will have fun while learning:
 - 🎯 **Game States** :
   Switching between playing, game over, and restart
 
-- 💥 **Hitting Objects** :
+- 💥 **Collision Detection** :
   Making sure collisions feel fair and fun
 
 - 🎨 **Animations** :
   Making characters and objects move smoothly
 
-- 📈 **Difficulty** :
-  Making the game get harder over time
+- 📈 **Difficulty Scaling** :
+  Making the game get harder over time in a balanced way
 
-- 🎵 **Sounds** :
-  Adding fun sound effects to the game
+- 🎵 **Sound Effects** :
+  Adding fun sound effects to enhance gameplay
 
-- 📊 **Score** :
-  Keeping track of the player score
+- 📊 **Score System** :
+  Implementing and displaying player progress
 
-- 🎨 **Looks** :
-  Making the game look nice and fun to play
+- 🎨 **Game Design** :
+  Creating an engaging and visually appealing game experience
 
 ## Requirements
 

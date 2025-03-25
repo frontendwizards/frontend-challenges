@@ -23,7 +23,7 @@ export default class GameConfig {
   // Player settings
   static readonly PLAYER_POSITION_X = 200;
   static readonly PLAYER_INITIAL_LANE = 1;
-  static readonly PLAYER_SPEED = 1.2;
+  static readonly PLAYER_SPEED = 2;
   static readonly PLAYER_INITIAL_HEALTH = 3;
   static readonly SPRITE_SCALE = 0.25;
 

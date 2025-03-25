@@ -2,6 +2,7 @@ import { GameObj, KaboomInterface } from "../../types/KaboomTypes";
 import GameObject from "../base/GameObject";
 import GameConfig from "../../config/GameConfig";
 import AudioPlayer from "../../services/audio/AudioPlayer";
+import { TimeManager } from "../../utils/TimeManager";
 
 export interface CoinOptions {
   lane: number;
@@ -17,7 +18,7 @@ export default class Coin extends GameObject {
   private showHitboxes: boolean = false;
   private hitbox: GameObj | null = null;
 
-  // Animation properties, similar to Player
+  // Animation properties
   private currentFrame: number = 0;
   private animationTimer: number = 0;
   protected animationSpeed: number = 0.1; // Time between frames (seconds)
@@ -95,12 +96,14 @@ export default class Coin extends GameObject {
   public update(): void {
     if (!this.exists()) return;
 
+    const deltaTime = TimeManager.getInstance().getDeltaTime();
+
     // Update coin movement speed in case the game speed changes
     if (this.gameObj && this.gameObj.exists()) {
       this.gameObj.use(this.k.move(this.k.LEFT, this.speed));
 
       // Update animation
-      this.updateAnimation();
+      this.updateAnimation(deltaTime);
 
       // Update hitbox position if it exists
       if (this.hitbox && this.hitbox.exists()) {
@@ -109,23 +112,11 @@ export default class Coin extends GameObject {
     }
   }
 
-  private updateAnimation(): void {
+  private updateAnimation(deltaTime: number): void {
     if (!this.gameObj) return;
 
-    // Get dt as a number (assume 1/60 if not available)
-    let dt = 1 / 60;
-    try {
-      if (typeof this.k.dt === "function") {
-        dt = (this.k.dt as () => number)();
-      } else if (typeof this.k.dt === "number") {
-        dt = this.k.dt;
-      }
-    } catch (e) {
-      console.warn("Error getting dt", e);
-    }
-
     // Update animation timer
-    this.animationTimer += dt;
+    this.animationTimer += deltaTime;
 
     // Update to next frame when timer exceeds animation speed
     if (this.animationTimer >= this.animationSpeed) {

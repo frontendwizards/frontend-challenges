@@ -12,7 +12,8 @@ import Environment from "../../objects/environment/Environment";
 import HealthBar from "../../objects/ui/HealthBar";
 import ScoreDisplay from "../../objects/ui/ScoreDisplay";
 import DebugDisplay from "../../objects/ui/DebugDisplay";
-import { GameUtils } from "../../utils/GameUtils";
+import { LaneSafetyChecker } from "../../utils/LaneSafetyChecker";
+import { TimeManager } from "../../utils/TimeManager";
 
 export interface GameplaySceneOptions {
   showHitboxes: boolean;
@@ -26,7 +27,6 @@ enum EntityType {
 
 export default class GameplayScene extends BaseScene {
   private score = 0;
-  private gameTime = 0;
   private currentLane = GameConfig.PLAYER_INITIAL_LANE;
   private lanes = GameConfig.getLanePositions();
   private showHitboxes: boolean;
@@ -50,6 +50,8 @@ export default class GameplayScene extends BaseScene {
     super(kaboomInstance);
     this.showHitboxes = options.showHitboxes;
     this.difficulty = options.difficulty;
+    // Initialize the TimeManager with Kaboom instance
+    TimeManager.initialize(kaboomInstance);
   }
 
   private attemptSpawn(): void {
@@ -75,7 +77,6 @@ export default class GameplayScene extends BaseScene {
   public create(): void {
     // Initialize game variables
     this.score = 0;
-    this.gameTime = 0;
     this.currentLane = GameConfig.PLAYER_INITIAL_LANE;
     this.lanes = GameConfig.getLanePositions();
     this.obstacles = [];
@@ -125,7 +126,7 @@ export default class GameplayScene extends BaseScene {
     const WIDTH = GameConfig.CANVAS_WIDTH;
     const k = this.k;
 
-    // Create health bar (more minimal)
+    // Create health bar
     this.healthBar = new HealthBar(k, {
       x: WIDTH - 120,
       y: 20,
@@ -191,11 +192,9 @@ export default class GameplayScene extends BaseScene {
       // Skip update if game is paused or player is dead
       if (this.isPaused || !this.player || !this.player.isPlayerAlive()) return;
 
-      // Make sure we have a valid dt value
-      const deltaTime = isNaN(k.dt) || k.dt === 0 ? 1 / 60 : k.dt;
+      // Get delta time from TimeManager singleton
+      const deltaTime = TimeManager.getInstance().getDeltaTime();
 
-      // Update game time and score
-      this.gameTime += deltaTime;
       this.score += deltaTime;
 
       // Update score display
@@ -205,10 +204,10 @@ export default class GameplayScene extends BaseScene {
       this.debugDisplay?.update();
 
       // Update player animation
-      this.player?.update(deltaTime);
+      this.player?.update();
 
       // Update environment
-      this.environment?.update(deltaTime);
+      this.environment?.update();
 
       // Update obstacles
       this.obstacles.forEach((obstacle, index) => {
@@ -235,8 +234,9 @@ export default class GameplayScene extends BaseScene {
       // Increase obstacle speed gradually over time
       const speedIncrease = Math.min(
         GameConfig.MAX_SPEED_INCREASE,
-        Math.floor(this.gameTime / 10) * 20 // Increase by 20 every 10 seconds
+        Math.floor(deltaTime / 10) * 20 // Increase by 20 every 10 seconds
       );
+
       this.currentObstacleSpeed =
         GameConfig.getDifficultySettings(this.difficulty).obstacleSpeed +
         speedIncrease;
@@ -252,6 +252,7 @@ export default class GameplayScene extends BaseScene {
       lanes: this.lanes,
       speed: this.currentObstacleSpeed,
       showHitboxes: this.showHitboxes,
+      timeManager: TimeManager.getInstance(),
     });
     coin.init();
     this.coins.push(coin);
@@ -374,102 +375,13 @@ export default class GameplayScene extends BaseScene {
   }
 
   /**
-   * Checks if a lane has any obstacles too close to a specific position
-   */
-  private isLaneSafeFromObstacles(
-    lane: number,
-    spawnPosX: number,
-    safetyDistance: number
-  ): boolean {
-    // Find the last obstacle in the specified lane (non-mutating approach)
-    const lastObstacleInLane = [...this.obstacles]
-      .reverse()
-      .find((obs) => obs.getLane() === lane);
-
-    if (!lastObstacleInLane) {
-      return true;
-    }
-
-    const obstacleObj = lastObstacleInLane.getGameObj();
-    if (!obstacleObj) return true;
-
-    // Check if obstacle is too close to spawn position
-    const obstaclePos = obstacleObj.pos.x;
-
-    // Consider obstacle width for more accurate safety check
-    const obstacleWidth = obstacleObj.width;
-    const entityWidth = GameConfig.COIN_WIDTH;
-    const minSafeDistance = obstacleWidth / 2 + entityWidth / 2;
-
-    // Use the larger of safetyDistance or the physical space needed
-    const effectiveSafetyDistance = Math.max(safetyDistance, minSafeDistance);
-
-    const distance = Math.abs(obstaclePos - spawnPosX);
-    const isTooClose = distance < effectiveSafetyDistance;
-
-    return !isTooClose;
-  }
-
-  private isLaneSafeFromCoins(
-    lane: number,
-    spawnPosX: number,
-    safetyDistance: number
-  ): boolean {
-    const lastCoinInLane = [...this.coins]
-      .reverse()
-      .find((coin) => coin.getLane() === lane);
-
-    if (!lastCoinInLane) {
-      return true;
-    }
-
-    const coinObj = lastCoinInLane.getGameObj();
-    if (!coinObj) return true;
-
-    const coinPos = coinObj.pos.x;
-    const coinWidth = coinObj.width;
-    const entityWidth = GameConfig.OBSTACLE_WIDTH;
-    const minSafeDistance = coinWidth / 2 + entityWidth / 2;
-
-    // Use the larger of safetyDistance or the physical space needed
-    const effectiveSafetyDistance = Math.max(safetyDistance, minSafeDistance);
-
-    const distance = Math.abs(coinPos - spawnPosX);
-    const isTooClose = distance < effectiveSafetyDistance;
-
-    return !isTooClose;
-  }
-
-  /**
    * Find the safest lane for spawning an entity
    */
   private findSafeLane(safetyDistance: number): number {
-    const spawnPosX = GameConfig.CANVAS_WIDTH;
-    const availableLanes = Array.from(
-      { length: GameConfig.LANE_COUNT },
-      (_, i) => i
+    return LaneSafetyChecker.findSafeLane(
+      this.obstacles,
+      this.coins,
+      safetyDistance
     );
-    GameUtils.shuffle(availableLanes);
-
-    // Check both coins and obstacles in a single pass
-    for (const lane of availableLanes) {
-      const isSafeFromCoins = this.isLaneSafeFromCoins(
-        lane,
-        spawnPosX,
-        safetyDistance
-      );
-      const isSafeFromObstacles = this.isLaneSafeFromObstacles(
-        lane,
-        spawnPosX,
-        safetyDistance
-      );
-
-      if (isSafeFromCoins && isSafeFromObstacles) {
-        return lane;
-      }
-    }
-
-    // If no completely safe lane found, just return a random lane
-    return availableLanes[0];
   }
 }

@@ -36,11 +36,11 @@ export default class Cloud extends GameObject {
     this.createCloud();
   }
 
-  public update(dt: number): void {
+  public update(deltaTime: number): void {
     if (!this.gameObj) return;
 
     // Move the cloud
-    this.gameObj.pos.x -= this.speed * dt;
+    this.gameObj.pos.x -= this.speed * deltaTime;
 
     // Move all child parts along with the main cloud
     this.cloudParts.forEach((part) => {

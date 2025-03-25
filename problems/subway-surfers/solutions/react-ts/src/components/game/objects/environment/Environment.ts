@@ -2,6 +2,7 @@ import { KaboomInterface, GameObj } from "../../types/KaboomTypes";
 import GameObject from "../base/GameObject";
 import GameConfig from "../../config/GameConfig";
 import Cloud from "./Cloud";
+import { TimeManager } from "../../utils/TimeManager";
 
 export default class Environment extends GameObject {
   private clouds: Cloud[] = [];
@@ -25,9 +26,10 @@ export default class Environment extends GameObject {
     this.createClouds();
   }
 
-  public update(dt: number): void {
+  public update(): void {
+    const deltaTime = TimeManager.getInstance().getDeltaTime();
     // Update all clouds
-    this.clouds.forEach((cloud) => cloud.update(dt));
+    this.clouds.forEach((cloud) => cloud.update(deltaTime));
   }
 
   private createSky(): void {

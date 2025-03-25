@@ -3,6 +3,7 @@ import GameObject from "../base/GameObject";
 import GameConfig from "../../config/GameConfig";
 import Coin from "./Coin";
 import SceneManager from "../../core/SceneManager";
+import { TimeManager } from "../../utils/TimeManager";
 
 export interface PlayerOptions {
   initialLane: number;
@@ -40,11 +41,13 @@ export default class Player extends GameObject {
     this.setupCollision();
   }
 
-  public update(dt: number): void {
+  public update(): void {
     if (!this.isAlive || !this.gameObj) return;
 
+    const deltaTime = TimeManager.getInstance().getDeltaTime();
+
     // Update animation based on player speed
-    this.animationTimer += dt * GameConfig.PLAYER_SPEED;
+    this.animationTimer += deltaTime * GameConfig.PLAYER_SPEED;
     if (this.animationTimer > 0.1) {
       this.animationTimer = 0;
       this.updateAnimation();
