@@ -12,6 +12,7 @@ export default function App() {
       <h1 className="text-5xl font-bold py-7 text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-600">
         Desert Runner Game
       </h1>
+
       <p className="mb-8 text-gray-300 max-w-md mx-auto">
         Use{" "}
         <span className="px-2 py-1 bg-gray-700 rounded text-amber-400 font-semibold">
@@ -23,11 +24,15 @@ export default function App() {
         </span>{" "}
         arrow keys to move. Avoid the obstacles!
       </p>
+      <p className="mb-8 text-gray-300 max-w-md mx-auto">
+        Use{" "}
+        <span className="px-2 py-1 bg-gray-700 rounded text-amber-400 font-semibold">
+          P
+        </span>{" "}
+        to hide and show FPS
+      </p>
 
-      <EndlessRunner
-        showHitboxes={false}
-        difficulty="medium"
-      />
+      <EndlessRunner showHitboxes={false} difficulty="hard" />
     </main>
   );
 }
