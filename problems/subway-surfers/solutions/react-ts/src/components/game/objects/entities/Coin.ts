@@ -3,13 +3,14 @@ import GameObject from "../base/GameObject";
 import GameConfig from "../../config/GameConfig";
 import AudioPlayer from "../../services/audio/AudioPlayer";
 import { TimeManager } from "../../utils/TimeManager";
+import { CollectionAnimation } from "../../animations/CollectionAnimation";
 
 export interface CoinOptions {
   lane: number;
   lanes: number[];
   speed: number;
   showHitboxes?: boolean;
-  onCollect?: (score: number) => void; // Add callback for score updates
+  onCollect?: (score: number) => void;
 }
 
 export default class Coin extends GameObject {
@@ -19,21 +20,13 @@ export default class Coin extends GameObject {
   private showHitboxes: boolean = false;
   private hitbox: GameObj | null = null;
   private isCollecting: boolean = false;
-  private collectionTimer: number = 0;
-  private readonly COLLECTION_DURATION: number = 0.5; // Duration in seconds
-  private startPos: { x: number; y: number } | null = null;
-  private targetPos: { x: number; y: number } | null = null;
   private onCollect: ((score: number) => void) | undefined;
+  private collectionAnimation: CollectionAnimation;
 
   // Animation properties
   private currentFrame: number = 0;
   private animationTimer: number = 0;
   protected animationSpeed: number = 0.1; // Time between frames (in seconds)
-
-  // Animation constants
-  private readonly ARC_HEIGHT: number = 100; // How high the coin flies
-  private readonly SCALE_AMOUNT: number = 0.2; // How much the coin scales up/down
-  private readonly FADE_SPEED: number = 0.5; // How quickly the coin fades out
 
   constructor(kaboomInstance: KaboomInterface, options: CoinOptions) {
     super(kaboomInstance);
@@ -42,6 +35,15 @@ export default class Coin extends GameObject {
     this.speed = options.speed;
     this.showHitboxes = options.showHitboxes || false;
     this.onCollect = options.onCollect;
+
+    // Initialize collection animation
+    this.collectionAnimation = new CollectionAnimation(kaboomInstance, {
+      duration: 0.5,
+      arcHeight: 100,
+      scaleAmount: 0.2,
+      fadeSpeed: 0.5,
+      targetPosition: kaboomInstance.vec2(100, 80), // Score display position
+    });
   }
 
   public init(): void {
@@ -91,7 +93,6 @@ export default class Coin extends GameObject {
     });
   }
 
-  // Create a visible hitbox for the coin
   private createHitbox(): void {
     if (!this.gameObj) return;
 
@@ -112,82 +113,20 @@ export default class Coin extends GameObject {
     const deltaTime = TimeManager.getInstance().getDeltaTime();
 
     // Handle collection animation
-    if (this.isCollecting && this.gameObj && this.startPos && this.targetPos) {
-      this.updateCollectionAnimation(deltaTime);
+    if (this.isCollecting && this.gameObj) {
+      const isComplete = this.collectionAnimation.update(
+        deltaTime,
+        this.gameObj,
+        this.hitbox
+      );
+      if (isComplete) {
+        this.destroy();
+      }
       return;
     }
 
     // Normal update logic
     this.updateNormalMovement(deltaTime);
-  }
-
-  private updateCollectionAnimation(deltaTime: number): void {
-    this.collectionTimer += deltaTime;
-    const progress = this.collectionTimer / this.COLLECTION_DURATION;
-
-    if (progress >= 1) {
-      this.destroy();
-      return;
-    }
-
-    // Calculate new position and visual effects
-    const newPosition = this.calculateCollectionPosition(progress);
-    const visualEffects = this.calculateVisualEffects(progress);
-
-    // Apply the changes
-    this.applyCollectionAnimation(newPosition, visualEffects);
-  }
-
-  private calculateCollectionPosition(progress: number): {
-    x: number;
-    y: number;
-  } {
-    const easedProgress = this.easeOutQuad(progress);
-
-    // Calculate base position (moving from start to target)
-    const x =
-      this.startPos!.x + (this.targetPos!.x - this.startPos!.x) * easedProgress;
-    const y =
-      this.startPos!.y + (this.targetPos!.y - this.startPos!.y) * easedProgress;
-
-    // Add arc motion using sine wave
-    const arcOffset = -Math.sin(progress * Math.PI) * this.ARC_HEIGHT;
-
-    return { x, y: y + arcOffset };
-  }
-
-  private calculateVisualEffects(progress: number): {
-    scale: number;
-    opacity: number;
-  } {
-    // Calculate scale with a subtle bounce effect
-    const scale = 1 + Math.sin(progress * Math.PI) * this.SCALE_AMOUNT;
-
-    // Calculate opacity (slower fade out)
-    const opacity = 1 - progress * this.FADE_SPEED;
-
-    return { scale, opacity };
-  }
-
-  private applyCollectionAnimation(
-    position: { x: number; y: number },
-    effects: { scale: number; opacity: number }
-  ): void {
-    if (!this.gameObj) return;
-
-    // Update position
-    this.gameObj.pos = this.k.vec2(position.x, position.y);
-
-    // Update visual effects
-    this.gameObj.scale = this.k.vec2(effects.scale, effects.scale);
-    this.gameObj.opacity = effects.opacity;
-
-    // Update hitbox if it exists
-    if (this.hitbox?.exists()) {
-      this.hitbox.pos = this.gameObj.pos;
-      this.hitbox.scale = this.k.vec2(effects.scale, effects.scale);
-      this.hitbox.opacity = effects.opacity;
-    }
   }
 
   private updateNormalMovement(deltaTime: number): void {
@@ -211,7 +150,7 @@ export default class Coin extends GameObject {
     // Update animation timer
     this.animationTimer += deltaTime;
 
-    // Update to next frame when timer passes the animation speed (aka time_passed > 100ms)
+    // Update to next frame when timer passes the animation speed
     if (this.animationTimer >= this.animationSpeed) {
       this.animationTimer = 0;
 
@@ -232,12 +171,8 @@ export default class Coin extends GameObject {
 
     // Start collection animation
     this.isCollecting = true;
-    this.collectionTimer = 0;
-
-    // Store initial position and set target
     if (this.gameObj) {
-      this.startPos = { x: this.gameObj.pos.x, y: this.gameObj.pos.y };
-      this.targetPos = { x: 100, y: 80 }; // Score display position
+      this.collectionAnimation.start(this.gameObj.pos);
     }
 
     // Play collection sound
@@ -260,10 +195,5 @@ export default class Coin extends GameObject {
 
   public getLane(): number {
     return this.lane;
-  }
-
-  // Easing function for smooth motion
-  private easeOutQuad(t: number): number {
-    return t * (2 - t);
   }
 }
