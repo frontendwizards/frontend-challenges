@@ -133,10 +133,8 @@ export default class AssetLoader {
       });
 
       // Just resolve at the end assuming success
-      setTimeout(() => {
-        console.log(`Successfully loaded sprite: ${spriteName}`);
-        resolve({ success: true, name: spriteName });
-      }, 100);
+      console.log(`Successfully loaded sprite: ${spriteName}`);
+      resolve({ success: true, name: spriteName });
     });
   }
 
@@ -175,10 +173,8 @@ export default class AssetLoader {
       });
 
       // Just resolve at the end assuming success
-      setTimeout(() => {
-        console.log("Successfully loaded coin sprite sheet");
-        resolve({ success: true, name: "coin" });
-      }, 100);
+      console.log("Successfully loaded coin sprite sheet");
+      resolve({ success: true, name: "coin" });
     });
   }
 

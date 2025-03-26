@@ -80,9 +80,9 @@ export default class Coin extends GameObject {
       })
     );
 
-    this.addComponent(k.anchor("center"));
+    this.addComponent(k.move(this.k.LEFT, this.speed));
     this.addComponent(k.z(5));
-    this.addComponent(k.move(k.LEFT, this.speed));
+    this.addComponent(k.anchor("center"));
     this.addTag("coin");
     this.createGameObj();
 
@@ -131,9 +131,6 @@ export default class Coin extends GameObject {
 
   private updateNormalMovement(deltaTime: number): void {
     if (!this.gameObj?.exists()) return;
-
-    // Update position
-    this.gameObj.use(this.k.move(this.k.LEFT, this.speed));
 
     // Update animation
     this.updateAnimation(deltaTime);

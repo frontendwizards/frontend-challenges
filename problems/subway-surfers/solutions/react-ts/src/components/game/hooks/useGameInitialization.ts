@@ -27,9 +27,40 @@ interface UseGameInitializationReturn {
   resumeGame: () => void;
 }
 
-/**
- * Custom hook to initialize the game, load assets, and manage game state
- */
+const initializeGameEngine = (
+  canvas: HTMLCanvasElement,
+  width: number,
+  height: number,
+  showHitboxes: boolean
+): GameEngine => {
+  return new GameEngine({
+    canvas,
+    width,
+    height,
+    debug: showHitboxes,
+    background: GameConfig.CANVAS_BACKGROUND_COLOR,
+  });
+};
+
+const initializeScenes = (
+  kaboomInstance: KaboomInterface,
+  sceneManager: SceneManager,
+  showHitboxes: boolean,
+  difficulty: "easy" | "medium" | "hard"
+): GameplayScene => {
+  const gameplayScene = new GameplayScene(kaboomInstance, {
+    showHitboxes,
+    difficulty,
+  });
+  gameplayScene.register(sceneManager);
+
+  const gameOverScene = new GameOverScene(kaboomInstance);
+  gameOverScene.register(sceneManager);
+
+  sceneManager.startScene("game");
+  return gameplayScene;
+};
+
 export const useGameInitialization = ({
   canvasRef,
   width,
@@ -46,8 +77,6 @@ export const useGameInitialization = ({
   const gameEngineRef = useRef<GameEngine | null>(null);
   const gameplaySceneRef = useRef<GameplayScene | null>(null);
 
-  // NOTE: The pause and resume functions are not used for now, but are kept for future use
-  // Function to pause the game
   const pauseGame = () => {
     if (gameplaySceneRef.current && !isPaused) {
       gameplaySceneRef.current.pause();
@@ -55,7 +84,6 @@ export const useGameInitialization = ({
     }
   };
 
-  // Function to resume the game
   const resumeGame = () => {
     if (gameplaySceneRef.current && isPaused) {
       gameplaySceneRef.current.resume();
@@ -66,24 +94,16 @@ export const useGameInitialization = ({
   useEffect(() => {
     if (!canvasRef.current || isScreenTooSmall) return;
 
-    // Initialize game engine
-    const gameEngine = new GameEngine({
-      canvas: canvasRef.current,
+    const gameEngine = initializeGameEngine(
+      canvasRef.current,
       width,
       height,
-      debug: showHitboxes,
-      background: GameConfig.CANVAS_BACKGROUND_COLOR,
-    });
-
-    // Store the game engine in ref for pause/resume functionality
+      showHitboxes
+    );
     gameEngineRef.current = gameEngine;
 
     const k = gameEngine.getKaboomInstance();
-
-    // Initialize scene manager
     const sceneManager = new SceneManager(k);
-
-    // Initialize asset loader
     const assetLoader = new AssetLoader(k);
 
     // Start loading assets
@@ -91,12 +111,21 @@ export const useGameInitialization = ({
     setError(null);
 
     assetLoader.loadAssets({
-      onProgress: (progress) => {
-        setLoadingProgress(progress);
-      },
+      onProgress: (progress) => setLoadingProgress(progress),
       onComplete: () => {
-        console.log("Asset loading complete, initializing game...");
-        initializeGame(k, sceneManager);
+        console.log("Asset loading complete");
+        try {
+          const gameplayScene = initializeScenes(
+            k,
+            sceneManager,
+            showHitboxes,
+            difficulty
+          );
+          gameplaySceneRef.current = gameplayScene;
+        } catch (err) {
+          console.error("Game initialization error:", err);
+          setError("Failed to initialize game. Please try again.");
+        }
         setIsLoading(false);
       },
       onError: (err) => {
@@ -105,31 +134,6 @@ export const useGameInitialization = ({
         setIsLoading(false);
       },
     });
-
-    // Function to initialize the game
-    const initializeGame = (
-      kaboomInstance: KaboomInterface,
-      sceneManager: SceneManager
-    ) => {
-      try {
-        // Register all game scenes
-        const gameplayScene = new GameplayScene(kaboomInstance, {
-          showHitboxes,
-          difficulty,
-        });
-        gameplayScene.register(sceneManager);
-        gameplaySceneRef.current = gameplayScene;
-
-        const gameOverScene = new GameOverScene(kaboomInstance);
-        gameOverScene.register(sceneManager);
-
-        // Start with the gameplay scene
-        sceneManager.startScene("game");
-      } catch (err) {
-        console.error("Game initialization error:", err);
-        setError("Failed to initialize game. Please try again.");
-      }
-    };
 
     return () => {
       gameEngine.destroy();

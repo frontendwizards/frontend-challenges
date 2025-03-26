@@ -97,3 +97,7 @@ For an enhanced version of the game, consider adding these bonus features:
 - 📊 FPS counter display (it indicates the performance of the game, slow or fast)
 - 🎮 Game over screen with final score and option to restart the game
 - 💡 Use your imagination to add other features
+
+## Credits
+
+- Special thanks to [**Ayoub**](https://www.linkedin.com/in/ayoub-ben-hamou/), [**Oumoussa**](https://www.linkedin.com/in/aoumoussa/), and [**Mouad**](https://www.linkedin.com/in/mouad-ait-ougrram/) for their review and help.
