@@ -178,15 +178,9 @@ export default class GameplayScene extends BaseScene {
     k.onCollide("player", "coin", (_, coinObj) => {
       // Find the coin instance
       const coin = this.coins.find((c) => c.getGameObj() === coinObj);
-      if (!coin || coin.hasProp("collected")) {
-        return;
-      }
+      if (!coin) return;
 
-      // Increase score
-      this.score += GameConfig.COIN_SCORE_VALUE;
-      // Update score display immediately
-      this.scoreDisplay?.updateScore(this.score);
-      // Collect the coin (which will play sound and destroy it)
+      // Collect the coin (which will handle score update and destruction)
       coin.collect();
     });
 
@@ -254,6 +248,10 @@ export default class GameplayScene extends BaseScene {
       lanes: this.lanes,
       speed: this.currentGameSpeed,
       showHitboxes: this.showHitboxes,
+      onCollect: (scoreValue) => {
+        this.score += scoreValue;
+        this.scoreDisplay?.updateScore(this.score);
+      },
     });
     coin.init();
     this.coins.push(coin);

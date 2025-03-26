@@ -9,6 +9,7 @@ export interface CoinOptions {
   lanes: number[];
   speed: number;
   showHitboxes?: boolean;
+  onCollect?: (score: number) => void; // Add callback for score updates
 }
 
 export default class Coin extends GameObject {
@@ -17,11 +18,22 @@ export default class Coin extends GameObject {
   private speed: number = 0;
   private showHitboxes: boolean = false;
   private hitbox: GameObj | null = null;
+  private isCollecting: boolean = false;
+  private collectionTimer: number = 0;
+  private readonly COLLECTION_DURATION: number = 0.5; // Duration in seconds
+  private startPos: { x: number; y: number } | null = null;
+  private targetPos: { x: number; y: number } | null = null;
+  private onCollect: ((score: number) => void) | undefined;
 
   // Animation properties
   private currentFrame: number = 0;
   private animationTimer: number = 0;
   protected animationSpeed: number = 0.1; // Time between frames (in seconds)
+
+  // Animation constants
+  private readonly ARC_HEIGHT: number = 100; // How high the coin flies
+  private readonly SCALE_AMOUNT: number = 0.2; // How much the coin scales up/down
+  private readonly FADE_SPEED: number = 0.5; // How quickly the coin fades out
 
   constructor(kaboomInstance: KaboomInterface, options: CoinOptions) {
     super(kaboomInstance);
@@ -29,6 +41,7 @@ export default class Coin extends GameObject {
     this.lanes = options.lanes;
     this.speed = options.speed;
     this.showHitboxes = options.showHitboxes || false;
+    this.onCollect = options.onCollect;
   }
 
   public init(): void {
@@ -98,17 +111,97 @@ export default class Coin extends GameObject {
 
     const deltaTime = TimeManager.getInstance().getDeltaTime();
 
-    // Update coin movement speed in case the game speed changes
-    if (this.gameObj && this.gameObj.exists()) {
-      this.gameObj.use(this.k.move(this.k.LEFT, this.speed));
+    // Handle collection animation
+    if (this.isCollecting && this.gameObj && this.startPos && this.targetPos) {
+      this.updateCollectionAnimation(deltaTime);
+      return;
+    }
 
-      // Update animation
-      this.updateAnimation(deltaTime);
+    // Normal update logic
+    this.updateNormalMovement(deltaTime);
+  }
 
-      // Update hitbox position if it exists
-      if (this.hitbox && this.hitbox.exists()) {
-        this.hitbox.pos = this.gameObj.pos;
-      }
+  private updateCollectionAnimation(deltaTime: number): void {
+    this.collectionTimer += deltaTime;
+    const progress = this.collectionTimer / this.COLLECTION_DURATION;
+
+    if (progress >= 1) {
+      this.destroy();
+      return;
+    }
+
+    // Calculate new position and visual effects
+    const newPosition = this.calculateCollectionPosition(progress);
+    const visualEffects = this.calculateVisualEffects(progress);
+
+    // Apply the changes
+    this.applyCollectionAnimation(newPosition, visualEffects);
+  }
+
+  private calculateCollectionPosition(progress: number): {
+    x: number;
+    y: number;
+  } {
+    const easedProgress = this.easeOutQuad(progress);
+
+    // Calculate base position (moving from start to target)
+    const x =
+      this.startPos!.x + (this.targetPos!.x - this.startPos!.x) * easedProgress;
+    const y =
+      this.startPos!.y + (this.targetPos!.y - this.startPos!.y) * easedProgress;
+
+    // Add arc motion using sine wave
+    const arcOffset = -Math.sin(progress * Math.PI) * this.ARC_HEIGHT;
+
+    return { x, y: y + arcOffset };
+  }
+
+  private calculateVisualEffects(progress: number): {
+    scale: number;
+    opacity: number;
+  } {
+    // Calculate scale with a subtle bounce effect
+    const scale = 1 + Math.sin(progress * Math.PI) * this.SCALE_AMOUNT;
+
+    // Calculate opacity (slower fade out)
+    const opacity = 1 - progress * this.FADE_SPEED;
+
+    return { scale, opacity };
+  }
+
+  private applyCollectionAnimation(
+    position: { x: number; y: number },
+    effects: { scale: number; opacity: number }
+  ): void {
+    if (!this.gameObj) return;
+
+    // Update position
+    this.gameObj.pos = this.k.vec2(position.x, position.y);
+
+    // Update visual effects
+    this.gameObj.scale = this.k.vec2(effects.scale, effects.scale);
+    this.gameObj.opacity = effects.opacity;
+
+    // Update hitbox if it exists
+    if (this.hitbox?.exists()) {
+      this.hitbox.pos = this.gameObj.pos;
+      this.hitbox.scale = this.k.vec2(effects.scale, effects.scale);
+      this.hitbox.opacity = effects.opacity;
+    }
+  }
+
+  private updateNormalMovement(deltaTime: number): void {
+    if (!this.gameObj?.exists()) return;
+
+    // Update position
+    this.gameObj.use(this.k.move(this.k.LEFT, this.speed));
+
+    // Update animation
+    this.updateAnimation(deltaTime);
+
+    // Update hitbox position
+    if (this.hitbox?.exists()) {
+      this.hitbox.pos = this.gameObj.pos;
     }
   }
 
@@ -132,18 +225,27 @@ export default class Coin extends GameObject {
   }
 
   public collect(): void {
-    if (!this.exists()) return;
+    if (!this.exists() || this.isCollecting) return;
 
-    // mark as collected
-    this.addProp("collected", true);
+    // Update score if callback exists
+    this.onCollect?.(GameConfig.COIN_SCORE_VALUE);
 
+    // Start collection animation
+    this.isCollecting = true;
+    this.collectionTimer = 0;
+
+    // Store initial position and set target
+    if (this.gameObj) {
+      this.startPos = { x: this.gameObj.pos.x, y: this.gameObj.pos.y };
+      this.targetPos = { x: 100, y: 80 }; // Score display position
+    }
+
+    // Play collection sound
     try {
       AudioPlayer.playCoinCollectSound();
     } catch (e) {
       console.warn("Could not create coin sound", e);
     }
-
-    this.destroy();
   }
 
   public override destroy(): void {
@@ -158,5 +260,10 @@ export default class Coin extends GameObject {
 
   public getLane(): number {
     return this.lane;
+  }
+
+  // Easing function for smooth motion
+  private easeOutQuad(t: number): number {
+    return t * (2 - t);
   }
 }
