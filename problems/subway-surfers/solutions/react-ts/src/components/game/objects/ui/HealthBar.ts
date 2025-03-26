@@ -1,6 +1,5 @@
 import { KaboomInterface, GameObj } from "../../types/KaboomTypes";
 import GameObject from "../base/GameObject";
-import { TimeManager } from "../../utils/TimeManager";
 
 export interface HealthBarOptions {
   x: number;
@@ -78,15 +77,6 @@ export default class HealthBar extends GameObject {
     } else {
       this.foreground.color = this.k.rgb(220, 50, 50); // Red
       this.icon.opacity = 0.6;
-    }
-
-    // Add pulsing effect when health is low
-    if (healthPercentage <= 0.3) {
-      const deltaTime = TimeManager.getInstance().getDeltaTime();
-      const pulseScale = 1 + Math.sin(deltaTime * 10) * 0.1;
-      this.icon.scale = pulseScale;
-    } else {
-      this.icon.scale = 1;
     }
   }
 
