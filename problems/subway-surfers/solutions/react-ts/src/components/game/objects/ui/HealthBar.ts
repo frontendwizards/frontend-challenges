@@ -31,21 +31,31 @@ export default class HealthBar extends GameObject {
   }
 
   public init(): void {
-    // Create heart icon
-    this.icon = this.k.add([
-      this.k.text("❤️", { size: 20 }),
-      this.k.pos(this.x - 24, this.y - 2),
+    // Create main background panel
+    this.k.add([
+      this.k.rect(this.width + 70, this.height + 30),
+      this.k.pos(this.x - 35, this.y - 15),
+      this.k.outline(2, this.k.rgb(255, 255, 255, 0.3)),
+      this.k.color(0, 0, 0, 180),
       this.k.fixed(),
-      this.k.z(100),
+      this.k.z(97),
+    ]);
+
+    // Create heart icon with slight adjustment
+    this.icon = this.k.add([
+      this.k.text("❤️", { size: 22 }),
+      this.k.pos(this.x - 28, this.y - 3),
+      this.k.fixed(),
+      this.k.z(102),
     ]);
 
     // Create background (empty health bar) with rounded corners
     this.background = this.k.add([
       this.k.rect(this.width, this.height, { radius: 3 }),
       this.k.pos(this.x, this.y),
-      this.k.color(40, 40, 40),
+      this.k.color(30, 30, 30),
       this.k.fixed(),
-      this.k.z(99),
+      this.k.z(101),
     ]);
 
     // Create foreground (filled health bar) with rounded corners
@@ -54,7 +64,7 @@ export default class HealthBar extends GameObject {
       this.k.pos(this.x, this.y),
       this.k.color(50, 220, 50),
       this.k.fixed(),
-      this.k.z(100),
+      this.k.z(102),
     ]);
   }
 

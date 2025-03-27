@@ -40,7 +40,7 @@ export interface KaboomInterface {
   onDraw: (callback: () => void) => void;
   onClick: (tag: string, callback: () => void) => void;
   dt: number;
-  rgb: (r: number, g: number, b: number) => ColorComp;
+  rgb: (r: number, g: number, b: number, a?: number) => ColorComp;
   fixed: () => CompType;
   destroyAll: () => void;
   scenes: Record<string, unknown>;

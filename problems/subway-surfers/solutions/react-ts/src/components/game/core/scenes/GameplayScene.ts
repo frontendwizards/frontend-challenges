@@ -98,8 +98,10 @@ export default class GameplayScene extends BaseScene {
     this.setupControls();
     this.setupGameLoop();
 
-    // Start entity spawning system
-    this.startEntitySpawning(this.difficultySettings.spawnInterval);
+    this.k.wait(1, () => {
+      // Start entity spawning system
+      this.startEntitySpawning(this.difficultySettings.spawnInterval);
+    });
   }
 
   private setupEnvironment(): void {
