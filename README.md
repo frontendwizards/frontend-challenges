@@ -29,7 +29,7 @@ Each challenge has:
 
 ## 💪 Problems
 
-<details>
+<details open>
 <summary>🎨 User Interface Challenges</summary>
 
 | Title                                                                              | Difficulty | Completed | Accessible | Solution                                                 |
