@@ -200,3 +200,5 @@ export interface KaboomConfig {
   stretch?: boolean;
   letterbox?: boolean;
 }
+
+export type Color = [number, number, number, number];

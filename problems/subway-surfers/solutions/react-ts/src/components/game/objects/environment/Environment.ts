@@ -82,7 +82,7 @@ export default class Environment extends GameObject {
     this.sun = k.add([
       k.circle(60),
       k.pos(WIDTH - 200, HEIGHT * SKY_PERCENTAGE * 0.3), // Position relative to sky height
-      k.color(...[217, 171, 44]), // Off-white/silver color for moon
+      k.color(217, 171, 44), // Off-white/silver color for moon
       { z: -150 },
     ]);
 

@@ -1,3 +1,5 @@
+import { Color } from "../types/KaboomTypes";
+
 export interface DifficultySettings {
   obstacleSpeed: number;
   spawnInterval: [number, number];
@@ -17,7 +19,7 @@ export default class GameConfig {
   static readonly GROUND_COLOR = "#47424f";
   static readonly SKY_COLOR = "#0a1128";
   static readonly HORIZON_COLOR = "#27294B";
-  static readonly CLOUD_COLOR = [180, 190, 220, 0.4];
+  static readonly CLOUD_COLOR: Color = [180, 190, 220, 0.4];
   static readonly BOTTOM_MARGIN_PERCENTAGE = 0.15;
 
   // Player settings
