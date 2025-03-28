@@ -22,6 +22,8 @@ You will have fun while learning:
 - 🎯 **Entity Management** :
   Handling repawning multiple game objects (obstacles, coins)
 
+- **Object-Oriented Programming (OOP)**
+
 - ⌨️ **Controls** :
   Making the game respond quickly to player inputs
 
