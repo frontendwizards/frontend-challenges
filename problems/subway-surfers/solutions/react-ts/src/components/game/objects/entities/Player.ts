@@ -77,8 +77,6 @@ export default class Player extends GameObject {
     this.addComponent(k.scale(GameConfig.SPRITE_SCALE));
     this.addTag("player");
     this.addProp("speed", GameConfig.PLAYER_SPEED);
-    this.addProp("isAlive", this.isAlive);
-    this.addProp("health", this.health);
 
     this.createGameObj();
   }
