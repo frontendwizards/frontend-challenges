@@ -1,0 +1,7 @@
+version: 2
+updates:
+  - package-ecosystem: "npm" # or "github-actions", "docker", etc.
+    directory: "/" # Change if dependencies are inside a subfolder
+    schedule:
+      interval: "daily" # Can be "weekly" or "monthly"
+    open-pull-requests-limit: 30 # Increase this limit

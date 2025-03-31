@@ -129,12 +129,12 @@ Each challenge has:
 <details>
 <summary>React hooks</summary>
 
-| Title           | Difficulty | Completed | Solution |
-| --------------- | ---------- | --------- | -------- |
-| UseTimeout      | Easy       | -         | -        |
-| UseClickOutside | Medium     | -         | -        |
-| UseEffect       | Hard       | -         | -        |
-| UseState        | Hard       | -         | -        |
+| Title           | Difficulty | Completed | Tests | Solution |
+| --------------- | ---------- | --------- | ----- | -------- |
+| UseTimeout      | Easy       | -         | -     | -        |
+| UseClickOutside | Medium     | -         | -     | -        |
+| UseState        | Hard       | -         | -     | -        |
+| UseEffect       | Hard       | -         | -     | -        |
 
 </details>
 
