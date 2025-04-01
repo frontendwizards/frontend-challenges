@@ -1,7 +1,14 @@
 version: 2
 updates:
-  - package-ecosystem: "npm" # or "github-actions", "docker", etc.
-    directory: "/" # Change if dependencies are inside a subfolder
+  - package-ecosystem: "npm"
+    directory: "/"
     schedule:
-      interval: "daily" # Can be "weekly" or "monthly"
-    open-pull-requests-limit: 40 # Increase this limit
+      interval: "hourly"
+    open-pull-requests-limit: 40
+    # Enable security updates
+    allow:
+      - dependency-type: "all"
+        update-type: "semver:minor"
+    # Labels for easier filtering
+    labels:
+      - "dependencies"
