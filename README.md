@@ -44,6 +44,7 @@ Each challenge has:
 | [File Tree](https://frontwizards.com/challenge/user-interface/file-tree)           | Medium     | ✅        | ✅         | [Solution](/problems/file-tree/solutions/react-ts)       |
 | [Twitter like](https://frontwizards.com/challenge/user-interface/twitter-like)     | Medium     | ✅        | ✅         | [Solution](/problems/twitter-like/solutions/react-ts)    |
 | Twitter like II                                                                    | Medium     | -         | -          | [Solution](/problems/twitter-like-II/solutions/react-ts) |
+| Nested Checkboxes I                                                                | Medium     | -         | -          | -                                                        |
 | [Whack a Mole](https://frontwizards.com/challenge/user-interface/whack-a-mole)     | Medium     | ✅        | ✅         | [Solution](/problems/whack-a-mole/solutions/react-ts)    |
 | [Wordle Game](https://frontwizards.com/challenge/user-interface/wordle-game)       | Hard       | ✅        | ✅         | [Solution](/problems/wordle-game/solutions/react-ts)     |
 | [Memory Game](https://frontwizards.com/challenge/user-interface/memory-game)       | Hard       | ✅        | ✅         | [Solution](/problems/memory-game/solutions/react-ts)     |
