@@ -8,7 +8,6 @@ updates:
     # Enable security updates
     allow:
       - dependency-type: "all"
-        update-type: "semver:minor"
     # Labels for easier filtering
     labels:
       - "dependencies"
