@@ -3,7 +3,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "hourly"
+      interval: "daily"
     open-pull-requests-limit: 40
     # Enable security updates
     allow:
