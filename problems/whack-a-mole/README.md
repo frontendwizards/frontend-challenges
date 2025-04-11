@@ -14,7 +14,3 @@ Create a Whack-a-Mole game where players must click on moles as they randomly ap
 - The player has 20 seconds to hit as many moles as possible.
 - The game ends when the timer runs out. The final score is displayed and the player has the option to play again.
 - The game should have a start button and display the current score and time remaining.
-
-## Credits
-
-This challenge is inspired by [GreatFrontend](https://www.greatfrontend.com/).
