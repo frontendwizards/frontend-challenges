@@ -43,16 +43,14 @@ export const NestedCheckboxes = ({
   const makeTheItemChecked = (item: Item, isChecked: boolean) => {
     item.checked = isChecked;
     setItems([...items]);
-    
+
     console.log(item, isChecked);
     item.children?.forEach((child) => {
       makeTheItemChecked(child, isChecked);
     });
   };
 
-  const setNestedItems = (items: Item[]) => {
-
-  };
+  const setNestedItems = (items: Item[]) => {};
 
   return (
     <div style={{ paddingLeft: `${depth * 20}px` }}>
@@ -104,7 +102,7 @@ export default function App() {
   const [items, setItems] = useState(categoryData);
   return (
     <main className="h-full">
-      <NestedCheckboxes items={items} setItems={setItems} parent={items}/>
+      <NestedCheckboxes items={items} setItems={setItems} parent={items} />
     </main>
   );
 }
