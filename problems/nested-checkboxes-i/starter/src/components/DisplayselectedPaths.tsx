@@ -27,7 +27,7 @@ export const DisplayselectedPaths = ({
 
   return (
     <div className="mt-4">
-      <h3 className="font-medium">Selected Items:</h3>
+      <h2 className="font-medium">Selected Items:</h2>
       {displayPaths.length === 0 ? (
         <p>No items selected</p>
       ) : (

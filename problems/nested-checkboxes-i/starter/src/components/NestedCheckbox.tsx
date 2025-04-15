@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, KeyboardEvent } from "react";
 
 export interface Item {
   name: string;
@@ -14,6 +14,13 @@ const Checkbox = ({
   checked?: boolean;
   onChange: (isChecked: boolean) => void;
 }) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === " " || e.key === "Enter") {
+      e.preventDefault();
+      onChange(!checked);
+    }
+  };
+
   return (
     <div className="flex items-center gap-1">
       <input
@@ -21,6 +28,10 @@ const Checkbox = ({
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
+        onKeyDown={handleKeyDown}
+        role="checkbox"
+        aria-checked={checked}
+        tabIndex={0}
       />
       <label htmlFor={label}>{label}</label>
     </div>
@@ -58,35 +69,42 @@ export const NestedCheckboxes = ({
     onSelect?.(updatedSelectedPaths);
   };
 
-  const isItemChecked = (item: Item): boolean => {
-    const fullItemPath = getFullItemPath(item);
+  const getFullItemPath = useCallback(
+    (item: Item) => {
+      return parentName ? `${parentName}/${item.name}` : item.name;
+    },
+    [parentName]
+  );
 
-    console.log({ fullItemPath, selectedPaths });
+  const isItemChecked = useCallback(
+    (item: Item): boolean => {
+      const fullItemPath = getFullItemPath(item);
 
-    if (selectedPaths.has(fullItemPath) || selectedPaths.has(parentName)) {
-      return true;
-    }
+      console.log({ fullItemPath, selectedPaths });
 
-    // check if parent is selected
-    const isParentSelected = Array.from(selectedPaths).some((path) =>
-      fullItemPath.startsWith(path)
-    );
+      if (selectedPaths.has(fullItemPath) || selectedPaths.has(parentName)) {
+        return true;
+      }
 
-    if (isParentSelected) return true;
+      // check if parent is selected
+      const isParentSelected = Array.from(selectedPaths).some((path) =>
+        fullItemPath.startsWith(path)
+      );
 
-    // check if all children are selected
-    const isAllChildrenSelected = item.children?.every(isItemChecked) ?? false;
+      if (isParentSelected) return true;
 
-    if (item?.children?.length) {
-      console.log({ children: item.children, isAllChildrenSelected });
-    }
+      // check if all children are selected
+      const isAllChildrenSelected =
+        item.children?.every(isItemChecked) ?? false;
 
-    return isAllChildrenSelected;
-  };
+      if (item?.children?.length) {
+        console.log({ children: item.children, isAllChildrenSelected });
+      }
 
-  const getFullItemPath = (item: Item) => {
-    return parentName ? `${parentName}/${item.name}` : item.name;
-  };
+      return isAllChildrenSelected;
+    },
+    [selectedPaths, parentName, getFullItemPath]
+  );
 
   return (
     <div style={{ paddingLeft: `${depth * 20}px` }}>
