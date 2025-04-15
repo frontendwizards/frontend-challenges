@@ -34,7 +34,9 @@ export default function App() {
       "Vegetables/Carrots",
       "Vegetables/Broccoli",
       "Vegetables/Leafy Greens",
-      "Vegetables",
+      "Dairy/Milk",
+      "Dairy/Cheese",
+      "Dairy/Yogurt",
     ])
   );
 
