@@ -39,7 +39,7 @@ export default function App() {
   );
 
   return (
-    <main className="container mx-auto p-4 max-w-2xl">
+    <main className="container mx-auto pt-12 px-4 max-w-2xl">
       <h1 className="text-2xl font-bold mb-4">Nested Checkboxes</h1>
       <div className="space-y-4">
         <NestedCheckboxes
@@ -47,6 +47,7 @@ export default function App() {
           selectedPaths={selectedPaths}
           onSelect={setSelectedPaths}
         />
+        <hr className="border-gray-700" />
         <DisplaySelectedPaths selectedPaths={selectedPaths} />
       </div>
     </main>

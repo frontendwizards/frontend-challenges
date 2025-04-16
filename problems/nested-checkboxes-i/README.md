@@ -17,35 +17,6 @@ Create a Nested Checkboxes component that allows users to:
 - Visual styling should distinguish between parent and child items
 - The selected items should be displayed in a readable format below the checkboxes
 
-## Example
-
-Here's an example of the checkbox structure and expected behavior:
-
-```javascript
-const categoryData: Item[] = [
-  {
-    name: "Fruits",
-    children: [{ name: "Apples" }, { name: "Bananas" }, { name: "Oranges" }],
-  },
-  {
-    name: "Vegetables",
-    children: [
-      { name: "Carrots" },
-      { name: "Broccoli" },
-      {
-        name: "Leafy Greens",
-        children: [{ name: "Spinach" }, { name: "Kale" }],
-      },
-    ],
-  },
-  {
-    name: "Dairy",
-    children: [{ name: "Milk" }, { name: "Yogurt" }, { name: "Cheese" }],
-  },
-  { name: "Bread" },
-];
-```
-
 ## Example Component Usage
 
 Here's how to use the NestedCheckboxes component in your React application:
@@ -58,7 +29,10 @@ import { NestedCheckboxes } from "./components/NestedCheckbox";
 const mockData = [
   {
     name: "Fruits",
-    children: [{ name: "Apples" }, { name: "Bananas" }, { name: "Oranges" }],
+    children: [
+      { name: "Apples" },
+      { name: "Bananas" },
+      { name: "Oranges" }],
   },
   {
     name: "Vegetables",
@@ -67,7 +41,9 @@ const mockData = [
       { name: "Broccoli" },
       {
         name: "Leafy Greens",
-        children: [{ name: "Spinach" }, { name: "Kale" }],
+        children: [
+          { name: "Spinach" },
+          { name: "Kale" }],
       },
     ],
   },

@@ -4,9 +4,9 @@ interface DisplaySelectedPathsProps {
   selectedPaths: ReadonlySet<string>;
 }
 
-export const DisplaySelectedPaths: FC<DisplaySelectedPathsProps> = ({
+export const DisplaySelectedPaths = ({
   selectedPaths,
-}) => {
+}: DisplaySelectedPathsProps) => {
   if (selectedPaths.size === 0) {
     return <p className="text-gray-200">No items selected</p>;
   }
