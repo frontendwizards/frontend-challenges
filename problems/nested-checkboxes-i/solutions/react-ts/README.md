@@ -1,4 +1,4 @@
-# Nested Checkboxes I Description
+# Example Challenge Description
 
 ## Problem Description
 

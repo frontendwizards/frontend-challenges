@@ -1,84 +1,17 @@
 import { useState } from "react";
 import "./styles.css";
-
-type Item = {
-  name: string;
-  children?: Item[];
-  checked?: boolean;
-};
-
-const Checkbox = ({
-  label,
-  checked,
-  onChange,
-}: {
-  label: string;
-  checked?: boolean;
-  onChange: (isChecked: boolean) => void;
-}) => {
-  return (
-    <div className="flex items-center gap-1">
-      <input
-        id={label}
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-      />
-      <label htmlFor={label}>{label}</label>
-    </div>
-  );
-};
-
-export const NestedCheckboxes = ({
-  items,
-  depth = 0,
-  setItems,
-  parent,
-}: {
-  items: Item[];
-  depth?: number;
-  setItems: (items: Item[]) => void;
-  parent: Item[];
-}) => {
-  const makeTheItemChecked = (item: Item, isChecked: boolean) => {
-    item.checked = isChecked;
-    setItems([...items]);
-
-    console.log(item, isChecked);
-    item.children?.forEach((child) => {
-      makeTheItemChecked(child, isChecked);
-    });
-  };
-
-  const setNestedItems = (items: Item[]) => {};
-
-  return (
-    <div style={{ paddingLeft: `${depth * 20}px` }}>
-      {items.map((item) => (
-        <div key={item.name}>
-          <Checkbox
-            label={item.name}
-            checked={item?.checked || false}
-            onChange={(isChecked) => makeTheItemChecked(item, isChecked)}
-          />
-          {item.children && (
-            <NestedCheckboxes
-              items={item.children}
-              depth={depth + 1}
-              setItems={setNestedItems}
-              parent={items}
-            />
-          )}
-        </div>
-      ))}
-    </div>
-  );
-};
+import { Item } from "./components/NestedCheckbox";
+import { NestedCheckboxes } from "./components/NestedCheckbox";
+import { DisplayselectedPaths } from "./components/DisplayselectedPaths";
 
 const categoryData: Item[] = [
   {
     name: "Fruits",
-    children: [{ name: "Apples" }, { name: "Bananas" }, { name: "Oranges" }],
+    children: [
+      { name: "Apples" },
+      { name: "Bananas" },
+      { name: "Oranges" },
+    ],
   },
   {
     name: "Vegetables",
@@ -87,22 +20,46 @@ const categoryData: Item[] = [
       { name: "Broccoli" },
       {
         name: "Leafy Greens",
-        children: [{ name: "Spinach" }, { name: "Kale" }],
+        children: [
+          { name: "Spinach" },
+          { name: "Kale" },
+        ],
       },
     ],
   },
   {
     name: "Dairy",
-    children: [{ name: "Milk" }, { name: "Yogurt" }, { name: "Cheese" }],
+    children: [
+      { name: "Milk" },
+      { name: "Yogurt" },
+      { name: "Cheese" },
+    ],
   },
   { name: "Bread" },
 ];
 
 export default function App() {
-  const [items, setItems] = useState(categoryData);
+  const [selectedPaths, setselectedPaths] = useState<Set<string>>(
+    new Set([
+      "Fruits",
+      "Vegetables/Carrots",
+      "Vegetables/Broccoli",
+      "Vegetables/Leafy Greens",
+      "Dairy/Milk",
+      "Dairy/Cheese",
+      "Dairy/Yogurt",
+    ])
+  );
+
   return (
-    <main className="h-full">
-      <NestedCheckboxes items={items} setItems={setItems} parent={items} />
+    <main className="p-8 max-w-2xl mx-auto">
+      <h1 className="text-2xl font-bold mb-6">Nested Checkboxes</h1>
+      <NestedCheckboxes
+        items={categoryData}
+        selectedPaths={selectedPaths}
+        onSelect={setselectedPaths}
+      />
+      <DisplayselectedPaths selectedPaths={selectedPaths} />
     </main>
   );
 }

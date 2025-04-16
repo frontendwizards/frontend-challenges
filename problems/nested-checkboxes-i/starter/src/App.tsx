@@ -7,7 +7,11 @@ import { DisplayselectedPaths } from "./components/DisplayselectedPaths";
 const categoryData: Item[] = [
   {
     name: "Fruits",
-    children: [{ name: "Apples" }, { name: "Bananas" }, { name: "Oranges" }],
+    children: [
+      { name: "Apples" },
+      { name: "Bananas" },
+      { name: "Oranges" },
+    ],
   },
   {
     name: "Vegetables",
@@ -16,13 +20,20 @@ const categoryData: Item[] = [
       { name: "Broccoli" },
       {
         name: "Leafy Greens",
-        children: [{ name: "Spinach" }, { name: "Kale" }],
+        children: [
+          { name: "Spinach" },
+          { name: "Kale" },
+        ],
       },
     ],
   },
   {
     name: "Dairy",
-    children: [{ name: "Milk" }, { name: "Yogurt" }, { name: "Cheese" }],
+    children: [
+      { name: "Milk" },
+      { name: "Yogurt" },
+      { name: "Cheese" },
+    ],
   },
   { name: "Bread" },
 ];
