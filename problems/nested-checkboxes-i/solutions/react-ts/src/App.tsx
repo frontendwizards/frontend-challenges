@@ -1,17 +1,12 @@
 import { useState } from "react";
 import "./styles.css";
-import { Item } from "./components/NestedCheckbox";
 import { NestedCheckboxes } from "./components/NestedCheckbox";
-import { DisplayselectedPaths } from "./components/DisplayselectedPaths";
+import { DisplaySelectedPaths } from "./components/DisplaySelectedPaths";
 
-const categoryData: Item[] = [
+const mockData = [
   {
     name: "Fruits",
-    children: [
-      { name: "Apples" },
-      { name: "Bananas" },
-      { name: "Oranges" },
-    ],
+    children: [{ name: "Apples" }, { name: "Bananas" }, { name: "Oranges" }],
   },
   {
     name: "Vegetables",
@@ -20,46 +15,40 @@ const categoryData: Item[] = [
       { name: "Broccoli" },
       {
         name: "Leafy Greens",
-        children: [
-          { name: "Spinach" },
-          { name: "Kale" },
-        ],
+        children: [{ name: "Spinach" }, { name: "Kale" }],
       },
     ],
   },
   {
     name: "Dairy",
-    children: [
-      { name: "Milk" },
-      { name: "Yogurt" },
-      { name: "Cheese" },
-    ],
+    children: [{ name: "Milk" }, { name: "Yogurt" }, { name: "Cheese" }],
   },
   { name: "Bread" },
 ];
 
 export default function App() {
-  const [selectedPaths, setselectedPaths] = useState<Set<string>>(
+  const [selectedPaths, setSelectedPaths] = useState<Set<string>>(
     new Set([
-      "Fruits",
+      "Fruits/Apples",
+      "Fruits/Bananas",
+      "Fruits/Oranges",
       "Vegetables/Carrots",
       "Vegetables/Broccoli",
-      "Vegetables/Leafy Greens",
-      "Dairy/Milk",
-      "Dairy/Cheese",
-      "Dairy/Yogurt",
+      "Vegetables/Leafy Greens/Spinach",
     ])
   );
 
   return (
-    <main className="p-8 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Nested Checkboxes</h1>
-      <NestedCheckboxes
-        items={categoryData}
-        selectedPaths={selectedPaths}
-        onSelect={setselectedPaths}
-      />
-      <DisplayselectedPaths selectedPaths={selectedPaths} />
+    <main className="container mx-auto p-4 max-w-2xl">
+      <h1 className="text-2xl font-bold mb-4">Nested Checkboxes</h1>
+      <div className="space-y-4">
+        <NestedCheckboxes
+          items={mockData}
+          selectedPaths={selectedPaths}
+          onSelect={setSelectedPaths}
+        />
+        <DisplaySelectedPaths selectedPaths={selectedPaths} />
+      </div>
     </main>
   );
 }

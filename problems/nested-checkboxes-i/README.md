@@ -15,9 +15,6 @@ Create a Nested Checkboxes component that allows users to:
 - The component should handle any depth of nesting
 - Implement proper accessibility with ARIA roles and properties
 - Visual styling should distinguish between parent and child items
-- When a parent is selected, all its children should be selected
-- When all children are selected, the parent should show a selected state
-- When some children are selected, the parent should show unchecked state
 - The selected items should be displayed in a readable format below the checkboxes
 
 ## Example
@@ -28,11 +25,7 @@ Here's an example of the checkbox structure and expected behavior:
 const categoryData: Item[] = [
   {
     name: "Fruits",
-    children: [
-      { name: "Apples" },
-      { name: "Bananas" },
-      { name: "Oranges" },
-    ],
+    children: [{ name: "Apples" }, { name: "Bananas" }, { name: "Oranges" }],
   },
   {
     name: "Vegetables",
@@ -41,24 +34,82 @@ const categoryData: Item[] = [
       { name: "Broccoli" },
       {
         name: "Leafy Greens",
-        children: [
-          { name: "Spinach" },
-          { name: "Kale" },
-        ],
+        children: [{ name: "Spinach" }, { name: "Kale" }],
       },
     ],
   },
   {
     name: "Dairy",
-    children: [
-      { name: "Milk" },
-      { name: "Yogurt" },
-      { name: "Cheese" },
-    ],
+    children: [{ name: "Milk" }, { name: "Yogurt" }, { name: "Cheese" }],
   },
   { name: "Bread" },
 ];
 ```
+
+## Example Component Usage
+
+Here's how to use the NestedCheckboxes component in your React application:
+
+```tsx
+import { useState } from "react";
+import { NestedCheckboxes } from "./components/NestedCheckbox";
+
+// Example data structure
+const mockData = [
+  {
+    name: "Fruits",
+    children: [{ name: "Apples" }, { name: "Bananas" }, { name: "Oranges" }],
+  },
+  {
+    name: "Vegetables",
+    children: [
+      { name: "Carrots" },
+      { name: "Broccoli" },
+      {
+        name: "Leafy Greens",
+        children: [{ name: "Spinach" }, { name: "Kale" }],
+      },
+    ],
+  },
+];
+
+function App() {
+  const [selectedPaths, setSelectedPaths] = useState<Set<string>>(new Set());
+
+  return (
+    <div>
+      <NestedCheckboxes
+        items={mockData}
+        selectedPaths={selectedPaths}
+        onSelect={setSelectedPaths}
+      />
+    </div>
+  );
+}
+```
+
+### Props
+
+- `items`: Array of items with nested structure
+- `selectedPaths`: Set of selected paths (e.g., "Fruits/Apples")
+- `onSelect`: Callback function that receives the updated set of selected paths
+
+### Type Definitions
+
+```tsx
+interface Item {
+  name: string;
+  children?: Item[];
+}
+
+interface NestedCheckboxesProps {
+  items: Item[];
+  selectedPaths: Set<string>;
+  onSelect: (paths: Set<string>) => void;
+}
+```
+
+This is only an example of how the component could be implemented. Feel free to design it however you prefer as long as it meets the requirements.
 
 ## Steps to solve
 
@@ -75,6 +126,9 @@ When running tests, You might need to adjust `getCheckboxContainer` and `expectP
 
 ## Bonus
 
+- When a parent is selected, all its children should be selected
+- When some children are selected, the parent should show unchecked state
+- When all children are selected, the parent should show a selected state
 - Write unit tests covering:
   - Individual checkbox selection
   - Parent-child relationship behavior

@@ -1,42 +1,10 @@
-import { useCallback, KeyboardEvent } from "react";
+import { useCallback } from "react";
+import { Checkbox } from "./Checkbox";
 
 export interface Item {
   name: string;
   children?: Item[];
 }
-
-const Checkbox = ({
-  label,
-  checked,
-  onChange,
-}: {
-  label: string;
-  checked?: boolean;
-  onChange: (isChecked: boolean) => void;
-}) => {
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === " " || e.key === "Enter") {
-      e.preventDefault();
-      onChange(!checked);
-    }
-  };
-
-  return (
-    <div className="flex items-center gap-1">
-      <input
-        id={label}
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-        onKeyDown={handleKeyDown}
-        role="checkbox"
-        aria-checked={checked}
-        tabIndex={0}
-      />
-      <label htmlFor={label}>{label}</label>
-    </div>
-  );
-};
 
 interface NestedCheckboxProps {
   items: Item[];
@@ -55,32 +23,44 @@ export const NestedCheckboxes = ({
 }: NestedCheckboxProps) => {
   const makeTheItemChecked = (item: Item, isChecked: boolean = true) => {
     const updatedSelectedPaths = new Set(selectedPaths);
-    const fullItemPath = getFullItemPath(item);
+    const fullItemPath = getFullItemPath(item, parentName);
 
-    console.log({ updatedSelectedPaths, selectedPaths });
     if (isChecked) {
       // else, add the item itself
       updatedSelectedPaths.add(fullItemPath);
     } else {
       updatedSelectedPaths.delete(fullItemPath);
+      // look for all selected paths that starts with the fullItemPath and remove them
+      Array.from(selectedPaths).forEach((path) => {
+        if (path.startsWith(fullItemPath)) {
+          updatedSelectedPaths.delete(path);
+        }
+      });
+      // look for all parent paths and remove them
+      for (const path of selectedPaths) {
+        if (path === parentName) {
+          updatedSelectedPaths.delete(path);
+
+          // look for all elements at same level and add them to the updatedSelectedPaths
+          items.forEach((child) => {
+            if (child.name !== item.name) {
+              updatedSelectedPaths.add(getFullItemPath(child, parentName));
+            }
+          });
+        }
+      }
     }
 
-    console.log({ selectedPaths, updatedSelectedPaths });
     onSelect?.(updatedSelectedPaths);
   };
 
-  const getFullItemPath = useCallback(
-    (item: Item) => {
-      return parentName ? `${parentName}/${item.name}` : item.name;
-    },
-    [parentName]
-  );
+  const getFullItemPath = useCallback((item: Item, parentName: string = "") => {
+    return parentName ? `${parentName}/${item.name}` : item.name;
+  }, []);
 
   const isItemChecked = useCallback(
-    (item: Item): boolean => {
-      const fullItemPath = getFullItemPath(item);
-
-      console.log({ fullItemPath, selectedPaths });
+    (item: Item, parentName: string = ""): boolean => {
+      const fullItemPath = getFullItemPath(item, parentName);
 
       if (selectedPaths.has(fullItemPath) || selectedPaths.has(parentName)) {
         return true;
@@ -95,15 +75,12 @@ export const NestedCheckboxes = ({
 
       // check if all children are selected
       const isAllChildrenSelected =
-        item.children?.every(isItemChecked) ?? false;
-
-      if (item?.children?.length) {
-        console.log({ children: item.children, isAllChildrenSelected });
-      }
+        item.children?.every((child) => isItemChecked(child, fullItemPath)) ??
+        false;
 
       return isAllChildrenSelected;
     },
-    [selectedPaths, parentName, getFullItemPath]
+    [selectedPaths, getFullItemPath]
   );
 
   return (
@@ -112,14 +89,14 @@ export const NestedCheckboxes = ({
         <div key={item.name}>
           <Checkbox
             label={item.name}
-            checked={isItemChecked(item)}
+            checked={isItemChecked(item, parentName)}
             onChange={(isChecked) => makeTheItemChecked(item, isChecked)}
           />
           {item.children && (
             <NestedCheckboxes
               items={item.children}
               depth={depth + 1}
-              parentName={getFullItemPath(item)}
+              parentName={getFullItemPath(item, parentName)}
               selectedPaths={selectedPaths}
               onSelect={onSelect}
             />

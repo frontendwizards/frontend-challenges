@@ -1,42 +1,24 @@
-interface DisplayselectedPathsProps {
-  selectedPaths: Set<string>;
+import { FC } from "react";
+
+interface DisplaySelectedPathsProps {
+  selectedPaths: ReadonlySet<string>;
 }
 
-export const DisplayselectedPaths = ({
-  selectedPaths,
-}: DisplayselectedPathsProps) => {
-  // Create an array from the set
-  const selectedArray = Array.from(selectedPaths);
-
-  // Convert paths to readable format
-  const formatPath = (path: string) => {
-    return path.split("/").join(" > ");
-  };
-
-  // Remove child paths if parent is selected
-  const filterSelectedPaths = (paths: string[]) => {
-    return paths.filter((path) => {
-      // Check if any parent path is also selected
-      return !paths.some(
-        (otherPath) => otherPath !== path && path.startsWith(otherPath + "/")
-      );
-    });
-  };
-
-  const displayPaths = filterSelectedPaths(selectedArray);
+export const DisplaySelectedPaths: FC<DisplaySelectedPathsProps> = ({ selectedPaths }) => {
+  if (selectedPaths.size === 0) {
+    return <p className="text-gray-200">No items selected</p>;
+  }
 
   return (
-    <div className="mt-4">
-      <h2 className="font-medium">Selected Items:</h2>
-      {displayPaths.length === 0 ? (
-        <p>No items selected</p>
-      ) : (
-        <ul className="list-disc ml-5 mt-2">
-          {displayPaths.map((path, index) => (
-            <li key={index}>{formatPath(path)}</li>
-          ))}
-        </ul>
-      )}
+    <div className="space-y-2">
+      <h3 className="font-semibold">Selected Items:</h3>
+      <ul className="list-disc list-inside space-y-1">
+        {Array.from(selectedPaths).map((path) => (
+          <li key={path} className="text-gray-300">
+            {path}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
