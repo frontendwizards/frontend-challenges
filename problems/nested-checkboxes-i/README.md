@@ -108,5 +108,4 @@ When running tests, You might need to adjust `getCheckboxContainer` and `expectP
 - Write unit tests covering:
   - Individual checkbox selection
   - Parent-child relationship behavior
-  - Indeterminate state handling
   - Selection state propagation
