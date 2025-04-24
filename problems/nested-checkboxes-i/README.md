@@ -15,7 +15,8 @@ Create a Nested Checkboxes component that allows users to:
 - The component should handle any depth of nesting
 - Implement proper accessibility with ARIA roles and properties
 - Visual styling should distinguish between parent and child items
-- The selected items should be displayed in a readable format below the checkboxes
+- If your implementation is valid, then The selected items should be displayed below (check the solution example)
+- You don't need to handle the relashionship between parent and child
 
 ## Example Component Usage
 
@@ -29,10 +30,7 @@ import { NestedCheckboxes } from "./components/NestedCheckbox";
 const mockData = [
   {
     name: "Fruits",
-    children: [
-      { name: "Apples" },
-      { name: "Bananas" },
-      { name: "Oranges" }],
+    children: [{ name: "Apples" }, { name: "Bananas" }, { name: "Oranges" }],
   },
   {
     name: "Vegetables",
@@ -41,9 +39,7 @@ const mockData = [
       { name: "Broccoli" },
       {
         name: "Leafy Greens",
-        children: [
-          { name: "Spinach" },
-          { name: "Kale" }],
+        children: [{ name: "Spinach" }, { name: "Kale" }],
       },
     ],
   },
@@ -87,19 +83,6 @@ interface NestedCheckboxesProps {
 
 This is only an example of how the component could be implemented. Feel free to design it however you prefer as long as it meets the requirements.
 
-## Steps to solve
-
-1. Start with a single-level checkbox implementation and test it
-2. Expand to handle two-level parent-child relationships and test the new behaviors
-3. Scale to n-level nesting
-4. Add final touches (accessibility, styling, selection display)
-5. Verify against the example data
-6. Test your solution against the provided unit tests or write your own!
-
-<Callout type="info">
-When running tests, You might need to adjust `getCheckboxContainer` and `expectProperIndentation` to how you made your component so the test passes
-</Callout>
-
 ## Bonus
 
 - When a parent is selected, all its children should be selected
@@ -109,3 +92,16 @@ When running tests, You might need to adjust `getCheckboxContainer` and `expectP
   - Individual checkbox selection
   - Parent-child relationship behavior
   - Selection state propagation
+
+## Steps to solve
+
+1. Start with a single-level checkbox implementation
+2. Expand to handle two-level parent-child relationships
+3. Scale to n-level nesting
+4. Add final touches (accessibility)
+5. Verify against the example data
+6. Test your solution against the provided unit tests or write your own!
+
+<Callout type="info">
+When running tests, You might need to adjust `getCheckboxContainer` and `expectProperIndentation` to how you made your component so the test passes
+</Callout>
