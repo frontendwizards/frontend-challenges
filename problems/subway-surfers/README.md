@@ -102,4 +102,7 @@ For an enhanced version of the game, consider adding these bonus features:
 
 ## Credits
 
-- Special thanks to [**Ayoub**](https://www.linkedin.com/in/ayoub-ben-hamou/), [**Oumoussa**](https://www.linkedin.com/in/aoumoussa/), and [**Mouad**](https://www.linkedin.com/in/mouad-ait-ougrram/) for their review and help.
+- Coins: [Gems & Coins (Free) by LaredGames](https://laredgames.itch.io/gems-coins-free)  
+- Character: [Temple Run – Free Sprites by GameArt2D](https://www.gameart2d.com/temple-run---free-sprites.html)  
+- Obstacles: [Artwork on ArtStation](https://www.artstation.com/artwork/lRLa3V)
+- Thanks to [**Ayoub**](https://www.linkedin.com/in/ayoub-ben-hamou/), [**Oumoussa**](https://www.linkedin.com/in/aoumoussa/), and [**Mouad**](https://www.linkedin.com/in/mouad-ait-ougrram/) for their review and help.
