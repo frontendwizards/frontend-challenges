@@ -17,7 +17,7 @@ Build a clone of the popular word game **Wordle**, where players have six attemp
 
 ## Colors
 
-- **Default (Light Gray)**: `#d3d6da`
+- **Default (Light Gray)**: `#121214`
 - **Correct (Green)**: `#6aaa64`
 - **Present (Yellow)**: `#c9b458`
 - **Absent (Dark Gray)**: `#787c7e`

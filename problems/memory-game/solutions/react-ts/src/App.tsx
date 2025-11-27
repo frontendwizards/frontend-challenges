@@ -9,7 +9,7 @@ type GridCard = {
 };
 
 const GAME_DURATION = 50;
-const animals = Object.freeze(["🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼"]);
+const icons = Object.freeze(["✈️", "🚀", "🗿", "🗽", "🗼", "🌉", "🏝️", "🏜️"]);
 
 const Card = ({
   value,
@@ -48,13 +48,13 @@ const Card = ({
 };
 
 const initializeGrid = () => {
-  const animalsGrid = [...animals, ...animals].map((animal, index) => ({
-    value: animal,
+  const iconsGrid = [...icons, ...icons].map((icon, index) => ({
+    value: icon,
     isFlipped: false,
     index,
   }));
 
-  return animalsGrid.sort(() => Math.random() - 0.5);
+  return iconsGrid.sort(() => Math.random() - 0.5);
 };
 
 export default function App() {
