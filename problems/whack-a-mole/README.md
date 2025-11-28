@@ -6,8 +6,8 @@ Create a Whack-a-Mole game where players must click on moles as they randomly ap
 
 ## Requirements
 
-- At the start, a single mole appears randomly in one of the nine holes.
-- Players must click on the mole to "whack" it, which scores them one point.
-- Each mole is only visible for 1.5 seconds. If not whacked in time, it vanishes, and no point is awarded.
-- Immediately after a mole is whacked or disappears, the next mole instantly appears in a new random hole.
-- This cycle continues until the 20-second game timer expires.
+- The game features a grid of 9 holes and a 20-second game timer.
+- Every second, two moles will randomly pop up from the holes.
+- Players must click on a mole to "whack" it, which scores one point.
+- The moles are only visible for one second before a new pair appears.
+- The game ends when the timer runs out, displaying the final score and an option to play again.

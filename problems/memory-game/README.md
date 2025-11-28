@@ -6,7 +6,7 @@ Create a Memory Game where players must match pairs of cards by flipping them ov
 
 ## Requirements
 
-- The game should have a grid of cards, each with a hidden animal emoji.
+- The game should have a grid of cards, each with a hidden emoji.
 - When the game starts, all cards are face down.
 - The player can flip two cards at a time. If the cards match, they remain face up. If not, they flip back over.
 - The player must match all pairs of cards to win the game.
